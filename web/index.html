@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>マッスルドリーマー〜観光編〜</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 1280px;
+            width: 100%;
+            padding: 20px;
+        }
+        
+        .title {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        
+        #gameCanvas {
+            border: 2px solid #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            background: #000;
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .loading {
+            font-size: 1.1em;
+            margin: 20px 0;
+            opacity: 0.8;
+        }
+        
+        .controls {
+            margin-top: 20px;
+            font-size: 0.9em;
+            opacity: 0.7;
+        }
+        
+        .error {
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 107, 107, 0.3);
+        }
+        
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">🏛️ マッスルドリーマー〜観光編〜</h1>
+        <p class="subtitle">逃げろ！己の欲望から！</p>
+        
+        <div id="loadingStatus" class="loading">
+            WebAssembly モジュールを読み込み中...
+        </div>
+        
+        <canvas id="gameCanvas" width="1280" height="720" style="display: none;"></canvas>
+        
+        <div id="errorMessage" class="error" style="display: none;"></div>
+        
+        <div class="status" id="statusInfo">
+            <div>ブラウザ: <span id="browserInfo"></span></div>
+            <div>WebAssembly: <span id="wasmSupport"></span></div>
+            <div>Canvas: <span id="canvasSupport"></span></div>
+        </div>
+        
+        <div class="controls">
+            <strong>操作方法:</strong><br>
+            WASD: 移動 | スペース: アクション | ESC: メニュー<br>
+            F3: デバッグ表示 | F11: フルスクリーン
+        </div>
+    </div>
+
+    <script src="wasm_exec.js"></script>
+    <script>
+        // ブラウザ情報表示
+        document.getElementById('browserInfo').textContent = navigator.userAgent.split(' ').pop();
+        document.getElementById('wasmSupport').textContent = 
+            typeof WebAssembly === 'object' ? '✅ サポート' : '❌ 未サポート';
+        document.getElementById('canvasSupport').textContent = 
+            document.getElementById('gameCanvas').getContext ? '✅ サポート' : '❌ 未サポート';
+
+        // WebAssembly サポートチェック
+        if (!WebAssembly.instantiateStreaming) {
+            WebAssembly.instantiateStreaming = async (resp, importObject) => {
+                const source = await (await resp).arrayBuffer();
+                return await WebAssembly.instantiate(source, importObject);
+            };
+        }
+
+        // エラーハンドリング
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('loadingStatus').style.display = 'none';
+        }
+
+        // ゲーム読み込み
+        async function loadGame() {
+            try {
+                document.getElementById('loadingStatus').textContent = 'Go WebAssembly ランタイムを初期化中...';
+                
+                const go = new Go();
+                
+                document.getElementById('loadingStatus').textContent = 'ゲームモジュールをダウンロード中...';
+                
+                const result = await WebAssembly.instantiateStreaming(
+                    fetch("game.wasm"), 
+                    go.importObject
+                );
+                
+                document.getElementById('loadingStatus').textContent = 'ゲームを起動中...';
+                
+                // キャンバス表示
+                document.getElementById('gameCanvas').style.display = 'block';
+                document.getElementById('loadingStatus').style.display = 'none';
+                
+                // ゲーム実行
+                go.run(result.instance);
+                
+            } catch (error) {
+                console.error('ゲーム読み込みエラー:', error);
+                showError(`ゲームの読み込みに失敗しました: ${error.message}`);
+            }
+        }
+
+        // フルスクリーン対応
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'F11') {
+                e.preventDefault();
+                const canvas = document.getElementById('gameCanvas');
+                if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                } else {
+                    canvas.requestFullscreen().catch(err => {
+                        console.log(`フルスクリーンエラー: ${err.message}`);
+                    });
+                }
+            }
+        });
+
+        // ページ読み込み後にゲーム開始
+        window.addEventListener('load', loadGame);
+    </script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+FROM alpine:3.18
+
+# ツール依存関係
+RUN apk add --no-cache \
+    python3 \
+    py3-pip \
+    imagemagick \
+    ffmpeg \
+    zip \
+    unzip \
+    jq \
+    yq \
+    bash \
+    make
+
+# アセット処理ツール
+RUN pip3 install \
+    Pillow \
+    pydub \
+    PyYAML
+
+# バリデーションツール
+COPY tools/ /tools/
+RUN chmod +x /tools/*.sh
+
+WORKDIR /workspace
+CMD ["bash"]
+

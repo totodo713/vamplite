@@ -1,0 +1,19 @@
+game:
+  title: "マッスルドリーマー〜観光編〜"
+  version: "0.1.0"
+  
+graphics:
+  width: 1280
+  height: 720
+  fullscreen: false
+  vsync: true
+  
+audio:
+  master_volume: 1.0
+  bgm_volume: 0.8
+  sfx_volume: 1.0
+  
+input:
+  keyboard_enabled: true
+  mouse_enabled: true
+  gamepad_enabled: true

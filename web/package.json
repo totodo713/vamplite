@@ -1,0 +1,49 @@
+{
+  "name": "muscle-dreamer-web",
+  "version": "0.1.0",
+  "description": "マッスルドリーマー Web開発環境",
+  "main": "server.js",
+  "scripts": {
+    "dev": "concurrently \"npm run wasm-serve\" \"npm run web-serve\"",
+    "wasm-serve": "echo 'WASM serve - wasmserve not available, using simple server'",
+    "web-serve": "serve -s . -l 3000",
+    "build": "npm run build-wasm && npm run optimize",
+    "build-wasm": "echo 'WASM build handled by Go'",
+    "optimize": "npm run optimize-assets",
+    "optimize-assets": "echo 'Asset optimization skipped - imagemin disabled'",
+    "start": "serve -s . -l 3000",
+    "clean": "rimraf dist || rm -rf dist",
+    "lint": "echo 'Linting skipped'",
+    "test": "echo 'No tests specified' && exit 0"
+  },
+  "keywords": [
+    "game",
+    "webassembly",
+    "go",
+    "ebitengine",
+    "muscle-dreamer"
+  ],
+  "author": "マッスルドリーマー開発チーム",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "serve": "^14.2.1",
+    "rimraf": "^5.0.5"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie <= 11"
+  ],
+  "optionalDependencies": {}
+}

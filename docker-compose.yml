@@ -1,0 +1,86 @@
+services:
+  # メイン開発環境
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: development
+    volumes:
+      - .:/workspace
+      - go-mod-cache:/go/pkg/mod
+      - go-build-cache:/root/.cache/go-build
+    working_dir: /workspace
+    environment:
+      - CGO_ENABLED=1
+      - GOOS=linux
+      - GOARCH=amd64
+    ports:
+      - "8080:8080"   # Web開発サーバー
+      - "2345:2345"   # Delve デバッガー
+    stdin_open: true
+    tty: true
+    command: bash
+    
+  # WebAssembly開発環境 - 簡略化版
+  web-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: web-builder
+    volumes:
+      - .:/app
+      - node-modules:/app/node_modules
+    ports:
+      - "3000:3000"   # フロントエンド開発サーバー
+      - "8081:8081"   # WebAssembly serve
+    working_dir: /app
+    command: >
+      sh -c "
+        if [ -f package.json ]; then
+          npm run web-serve
+        else
+          serve -s . -l 3000
+        fi
+      "
+    
+  # クロスコンパイル環境
+  cross-compile:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: go-base
+    volumes:
+      - .:/workspace
+      - go-mod-cache:/go/pkg/mod
+    environment:
+      - CGO_ENABLED=1
+    working_dir: /workspace
+    command: make build-all
+    
+  # ツール・ユーティリティ環境
+  tools:
+    build:
+      context: .
+      dockerfile: Dockerfile.tools
+    volumes:
+      - .:/workspace
+      - tools-cache:/cache
+    working_dir: /workspace
+    command: tail -f /dev/null
+
+  # テスト実行環境
+  test:
+    extends: dev
+    command: make test-all
+    environment:
+      - TEST_MODE=docker
+
+volumes:
+  go-mod-cache:
+    driver: local
+  go-build-cache:
+    driver: local
+  node-modules:
+    driver: local
+  tools-cache:
+    driver: local

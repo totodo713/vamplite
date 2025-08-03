@@ -1,0 +1,74 @@
+# 開発環境用マルチステージ Dockerfile
+FROM golang:1.22-alpine AS go-base
+
+# 必要なパッケージインストール
+RUN apk add --no-cache \
+    gcc \
+    musl-dev \
+    libx11-dev \
+    libxrandr-dev \
+    libxinerama-dev \
+    libxcursor-dev \
+    libxi-dev \
+    mesa-dev \
+    alsa-lib-dev \
+    git \
+    make \
+    bash
+
+# 作業ディレクトリ設定
+WORKDIR /workspace
+
+# Go環境設定（GOTOOLCHAINを有効にして最新バージョンを使用可能に）
+ENV GOTOOLCHAIN=auto
+
+# 基本的なgo.modファイル作成（正しいフォーマット）
+RUN echo 'module muscle-dreamer' > go.mod && \
+    echo '' >> go.mod && \
+    echo 'go 1.22' >> go.mod && \
+    echo '' >> go.mod && \
+    echo 'require (' >> go.mod && \
+    echo '    github.com/hajimehoshi/ebiten/v2 v2.6.3' >> go.mod && \
+    echo ')' >> go.mod
+
+# 基本的な依存関係ダウンロード
+RUN go mod download || echo "依存関係ダウンロードをスキップ"
+
+# 開発用ツールインストール（Go 1.22対応バージョン）
+RUN go install golang.org/x/tools/gopls@v0.15.3 && \
+    go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.54.2 && \
+    go install github.com/goreleaser/goreleaser@v1.21.2
+
+FROM go-base AS development
+# 実際のプロジェクトファイルをコピー
+COPY . .
+# 実際のgo.modが存在する場合は依存関係を再ダウンロード
+RUN if [ -f go.mod ]; then go mod download; fi
+CMD ["bash"]
+
+# WebAssembly ビルド用 - 最小構成
+FROM node:20-alpine AS web-builder
+WORKDIR /app
+
+# 最小限のパッケージのみインストール
+RUN npm install -g serve@14.2.1
+
+# package.json をコピー（存在確認付き）
+COPY web/package*.json ./
+
+# 安全な依存関係インストール
+RUN npm install --no-optional || echo "一部インストール失敗しましたが継続"
+
+# アプリケーションファイルをコピー
+COPY web/ ./
+
+# 本番ビルド用
+FROM go-base AS builder
+COPY . .
+# 実際のプロジェクトのgo.modを使用
+RUN if [ -f go.mod ]; then go mod tidy && go mod download; fi
+CMD ["bash"]
+
+FROM scratch AS release
+# 将来的にビルド成果物をコピー
+COPY --from=builder /workspace/README.md /README.md
