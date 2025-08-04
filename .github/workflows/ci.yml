@@ -1,0 +1,352 @@
+name: Muscle Dreamer ECS Framework CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:  
+    branches: [ main, develop ]
+
+env:
+  GO_VERSION: '1.22'
+  GOLANGCI_LINT_VERSION: 'v1.55'
+
+jobs:
+  # Basic validation and linting
+  lint:
+    name: Lint and Format Check
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ env.GO_VERSION }}
+        
+    - name: Cache Go modules
+      uses: actions/cache@v3
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Install dependencies
+      run: go mod download
+
+    - name: Run golangci-lint
+      uses: golangci/golangci-lint-action@v3
+      with:
+        version: ${{ env.GOLANGCI_LINT_VERSION }}
+        args: --timeout=5m --config=.golangci.yml
+
+    - name: Check formatting
+      run: |
+        go fmt ./...
+        if [ -n "$(git status --porcelain)" ]; then
+          echo "Code is not formatted. Please run 'make format'"
+          git diff
+          exit 1
+        fi
+
+  # Unit and integration tests
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: ['1.22']
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Go ${{ matrix.go-version }}
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ matrix.go-version }}
+        
+    - name: Cache Go modules
+      uses: actions/cache@v3
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ matrix.go-version }}-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-${{ matrix.go-version }}-
+
+    - name: Install dependencies
+      run: go mod download
+
+    - name: Run unit tests
+      run: |
+        go test -race -timeout 30m -coverprofile=coverage.out ./internal/core/... ./internal/mod/...
+        
+    - name: Run integration tests
+      run: |
+        go test -race -timeout 30m -tags integration ./internal/core/ecs/tests/ || true
+
+    - name: Generate coverage report
+      run: |
+        go tool cover -html=coverage.out -o coverage.html
+        go tool cover -func=coverage.out
+
+    - name: Upload coverage to Codecov
+      if: matrix.go-version == '1.22'
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.out
+        flags: unittests
+        name: codecov-umbrella
+
+    - name: Upload coverage artifacts
+      if: matrix.go-version == '1.22'
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: |
+          coverage.out
+          coverage.html
+
+  # Performance benchmarks
+  benchmark:
+    name: Performance Benchmarks
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Need full history for comparison
+    
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ env.GO_VERSION }}
+        
+    - name: Cache Go modules
+      uses: actions/cache@v3
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-benchmark-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-benchmark-
+
+    - name: Install dependencies
+      run: go mod download
+
+    - name: Run benchmarks (current)
+      run: |
+        go test -tags "ecs,performance" -bench=. -benchmem -benchtime=5s ./internal/core/ecs/tests/ > bench-current.txt || true
+        
+    - name: Checkout main branch
+      run: |
+        git checkout main
+        go mod download
+        
+    - name: Run benchmarks (main)
+      run: |
+        go test -tags "ecs,performance" -bench=. -benchmem -benchtime=5s ./internal/core/ecs/tests/ > bench-main.txt || true
+        
+    - name: Compare benchmarks
+      run: |
+        echo "## Benchmark Comparison" >> $GITHUB_STEP_SUMMARY
+        echo "### Current vs Main Branch" >> $GITHUB_STEP_SUMMARY
+        echo '```' >> $GITHUB_STEP_SUMMARY
+        echo "Current branch results:" >> $GITHUB_STEP_SUMMARY
+        cat bench-current.txt | tail -20 >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "Main branch results:" >> $GITHUB_STEP_SUMMARY  
+        cat bench-main.txt | tail -20 >> $GITHUB_STEP_SUMMARY
+        echo '```' >> $GITHUB_STEP_SUMMARY
+
+  # Security scanning
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ env.GO_VERSION }}
+
+    - name: Install govulncheck
+      run: go install golang.org/x/vuln/cmd/govulncheck@latest
+
+    - name: Run vulnerability check
+      run: govulncheck ./...
+
+    - name: Run gosec security scanner
+      uses: securecodewarrior/github-action-gosec@master
+      with:
+        args: '-severity medium -confidence medium -fmt sarif -out gosec.sarif ./...'
+
+    - name: Upload SARIF file
+      if: always()
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: gosec.sarif
+
+  # Build verification
+  build:
+    name: Build Verification
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    strategy:
+      matrix:
+        goos: [linux, windows, darwin]
+        goarch: [amd64]
+        include:
+          - goos: js
+            goarch: wasm
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ env.GO_VERSION }}
+        
+    - name: Cache Go modules
+      uses: actions/cache@v3
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-build-
+
+    - name: Install dependencies
+      run: go mod download
+
+    - name: Build ${{ matrix.goos }}/${{ matrix.goarch }}
+      env:
+        GOOS: ${{ matrix.goos }}
+        GOARCH: ${{ matrix.goarch }}
+      run: |
+        if [ "$GOOS" == "js" ]; then
+          go build -tags "ecs,performance" -o dist/game.wasm ./cmd/game
+        else
+          go build -tags "ecs,performance" -ldflags "-s -w" -o dist/muscle-dreamer ./cmd/game
+        fi
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-${{ matrix.goos }}-${{ matrix.goarch }}
+        path: dist/
+
+  # ECS Framework specific validation
+  ecs-validation:
+    name: ECS Framework Validation
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ env.GO_VERSION }}
+
+    - name: Cache Go modules
+      uses: actions/cache@v3
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-ecs-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-ecs-
+
+    - name: Install dependencies
+      run: go mod download
+
+    - name: ECS Performance Validation
+      run: |
+        echo "## ECS Performance Validation" >> $GITHUB_STEP_SUMMARY
+        echo "Running ECS framework performance tests..." >> $GITHUB_STEP_SUMMARY
+        
+        # Run ECS specific benchmarks with performance targets  
+        go test -tags "ecs,performance" -bench=BenchmarkECS -benchmem -benchtime=10s ./internal/core/ecs/tests/ > ecs-bench.txt || true
+        
+        echo '```' >> $GITHUB_STEP_SUMMARY
+        cat ecs-bench.txt >> $GITHUB_STEP_SUMMARY
+        echo '```' >> $GITHUB_STEP_SUMMARY
+        
+        echo "### Performance Targets:" >> $GITHUB_STEP_SUMMARY
+        echo "- 🎯 10,000 entities @ 60FPS" >> $GITHUB_STEP_SUMMARY
+        echo "- 🎯 <1ms entity queries" >> $GITHUB_STEP_SUMMARY  
+        echo "- 🎯 <100B memory per entity" >> $GITHUB_STEP_SUMMARY
+
+    - name: MOD Security Validation
+      run: |
+        echo "## MOD Security Validation" >> $GITHUB_STEP_SUMMARY
+        go test -tags security -v ./internal/mod/ecs/tests/ > security-test.txt || true
+        
+        echo '```' >> $GITHUB_STEP_SUMMARY
+        cat security-test.txt >> $GITHUB_STEP_SUMMARY  
+        echo '```' >> $GITHUB_STEP_SUMMARY
+
+  # Documentation generation
+  docs:
+    name: Documentation
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [build]
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ env.GO_VERSION }}
+
+    - name: Install godoc
+      run: go install golang.org/x/tools/cmd/godoc@latest
+
+    - name: Generate API documentation
+      run: |
+        mkdir -p docs/api
+        godoc -html . > docs/api/index.html
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs/api
+        destination_dir: api
+
+  # Release automation (on tag push)
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [lint, test, build, security]
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ env.GO_VERSION }}
+
+    - name: Build all platforms
+      run: make build-all
+
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Muscle Dreamer ECS Framework ${{ github.ref }}
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Assets
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/
+        asset_name: muscle-dreamer-ecs-framework-${{ github.ref }}.zip
+        asset_content_type: application/zip

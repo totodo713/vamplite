@@ -1,126 +1,178 @@
-# マッスルドリーマー開発用 Makefile
+# Muscle Dreamer - ECS Framework Makefile
+# High-performance game development with comprehensive tooling
 
-.PHONY: help dev build test clean docker-setup docker-dev docker-build
+.PHONY: all build build-release test test-all test-coverage lint format benchmark docs clean
+.PHONY: build-web build-all docker-build docker-dev docker-setup deps
+.PHONY: test-unit test-integration test-performance test-security ecs-test ecs-benchmark
 
-# デフォルトターゲット
-help:
-	@echo "マッスルドリーマー開発コマンド"
-	@echo ""
-	@echo "開発環境:"
-	@echo "  docker-setup    - Docker環境初期化"
-	@echo "  docker-dev      - 開発環境起動"
-	@echo "  dev            - ローカル開発サーバー起動"
-	@echo ""
-	@echo "ビルド:"
-	@echo "  build          - デバッグビルド"
-	@echo "  build-release  - リリースビルド"
-	@echo "  build-web      - WebAssemblyビルド"
-	@echo "  build-all      - 全プラットフォームビルド"
-	@echo ""
-	@echo "テスト:"
-	@echo "  test           - ユニットテスト実行"
-	@echo "  test-integration - 統合テスト実行"
-	@echo "  test-all       - 全テスト実行"
-	@echo ""
-	@echo "ツール:"
-	@echo "  lint           - コード解析"
-	@echo "  format         - コードフォーマット"
-	@echo "  clean          - ビルド成果物削除"
+# Build configuration
+BINARY_NAME := muscle-dreamer
+BUILD_DIR := dist
+MAIN_PACKAGE := ./cmd/game
+VERSION := $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
+BUILD_TIME := $(shell date -u '+%Y-%m-%d_%H:%M:%S')
+LDFLAGS := -ldflags "-s -w -X main.version=$(VERSION) -X main.buildTime=$(BUILD_TIME)"
 
-# Docker環境セットアップ
-docker-setup:
-	@echo "Docker環境をセットアップ中..."
+# ECS Framework specific flags
+ECS_TAGS := -tags "ecs,performance"
+DEBUG_TAGS := -tags "ecs,debug"
+TEST_TIMEOUT := 30m
+COVERAGE_OUT := coverage.out
+
+#==============================================================================
+# Build Targets
+#==============================================================================
+
+all: clean lint test build ## Run all checks and build
+
+help: ## Show this help message
+	@echo "Muscle Dreamer ECS Framework - Development Commands"
+	@echo ""
+	@echo "Usage: make [target]"
+	@echo ""
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+	@echo ""
+	@echo "🎯 Quick Start:"
+	@echo "  make deps    # Install dependencies"
+	@echo "  make test    # Run tests"
+	@echo "  make build   # Build debug version"
+	@echo "  make dev     # Start development server"
+
+build: ## Build debug version
+	@echo "🔨 Building debug version..."
+	@mkdir -p $(BUILD_DIR)
+	go build $(DEBUG_TAGS) -o $(BUILD_DIR)/$(BINARY_NAME) $(MAIN_PACKAGE)
+	@echo "✅ Debug build complete: $(BUILD_DIR)/$(BINARY_NAME)"
+
+build-release: ## Build optimized release version  
+	@echo "🚀 Building release version..."
+	@mkdir -p $(BUILD_DIR)
+	go build $(LDFLAGS) $(ECS_TAGS) -o $(BUILD_DIR)/$(BINARY_NAME) $(MAIN_PACKAGE)
+	@echo "✅ Release build complete: $(BUILD_DIR)/$(BINARY_NAME)"
+
+build-web: ## Build WebAssembly version
+	@echo "🌐 Building WebAssembly version..."
+	@mkdir -p $(BUILD_DIR)/web
+	GOOS=js GOARCH=wasm go build $(LDFLAGS) -o $(BUILD_DIR)/web/game.wasm $(MAIN_PACKAGE)
+	@cp "$$(go env GOROOT)/misc/wasm/wasm_exec.js" $(BUILD_DIR)/web/
+	@echo "✅ WebAssembly build complete: $(BUILD_DIR)/web/"
+
+build-all: ## Build for all platforms
+	@echo "🏗️ Building for all platforms..."
+	@mkdir -p $(BUILD_DIR)/{windows,linux,macos,web}
+	GOOS=windows GOARCH=amd64 go build $(LDFLAGS) $(ECS_TAGS) -o $(BUILD_DIR)/windows/$(BINARY_NAME).exe $(MAIN_PACKAGE)
+	GOOS=linux GOARCH=amd64 go build $(LDFLAGS) $(ECS_TAGS) -o $(BUILD_DIR)/linux/$(BINARY_NAME) $(MAIN_PACKAGE)
+	GOOS=darwin GOARCH=amd64 go build $(LDFLAGS) $(ECS_TAGS) -o $(BUILD_DIR)/macos/$(BINARY_NAME) $(MAIN_PACKAGE)
+	GOOS=js GOARCH=wasm go build $(LDFLAGS) -o $(BUILD_DIR)/web/game.wasm $(MAIN_PACKAGE)
+	@cp "$$(go env GOROOT)/misc/wasm/wasm_exec.js" $(BUILD_DIR)/web/
+	@echo "✅ All platform builds complete"
+
+#==============================================================================
+# Test Targets
+#==============================================================================
+
+test: test-unit ## Run unit tests
+
+test-unit: ## Run unit tests only
+	@echo "🧪 Running unit tests..."
+	go test $(DEBUG_TAGS) -timeout $(TEST_TIMEOUT) -race ./internal/core/...
+	go test $(DEBUG_TAGS) -timeout $(TEST_TIMEOUT) -race ./internal/mod/...
+
+test-integration: ## Run integration tests
+	@echo "🔗 Running integration tests..."
+	go test $(DEBUG_TAGS) -timeout $(TEST_TIMEOUT) -race -tags integration ./internal/core/ecs/tests/
+
+test-all: test-unit test-integration ## Run all tests
+	@echo "✅ All tests complete"
+
+test-coverage: ## Generate test coverage report
+	@echo "📊 Generating test coverage..."
+	go test $(DEBUG_TAGS) -timeout $(TEST_TIMEOUT) -race -coverprofile=$(COVERAGE_OUT) ./internal/core/... ./internal/mod/...
+	go tool cover -html=$(COVERAGE_OUT) -o coverage.html
+	go tool cover -func=$(COVERAGE_OUT)
+	@echo "📈 Coverage report: coverage.html"
+
+#==============================================================================
+# ECS Framework Specific Targets  
+#==============================================================================
+
+ecs-test: ## Run ECS framework specific tests
+	@echo "⚙️ Running ECS framework tests..."
+	go test $(DEBUG_TAGS) -timeout $(TEST_TIMEOUT) -race -v ./internal/core/ecs/...
+
+ecs-benchmark: ## Run ECS performance benchmarks
+	@echo "⚡ Running ECS benchmarks..."
+	go test $(ECS_TAGS) -bench=. -benchmem -benchtime=5s ./internal/core/ecs/tests/
+	@echo "Target: 10,000 entities @ 60FPS, <1ms queries, <100B/entity"
+
+#==============================================================================
+# Code Quality Targets
+#==============================================================================
+
+lint: ## Run code linting
+	@echo "🔍 Running linter..."
+	@if ! command -v golangci-lint >/dev/null 2>&1; then \
+		echo "⚠️ golangci-lint not installed. Installing..."; \
+		go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest; \
+	fi
+	golangci-lint run ./...
+	@echo "✅ Linting complete"
+
+format: ## Format code
+	@echo "🎨 Formatting code..."
+	go fmt ./...
+	@if command -v goimports >/dev/null 2>&1; then \
+		goimports -w .; \
+	else \
+		echo "⚠️ goimports not installed. Installing..."; \
+		go install golang.org/x/tools/cmd/goimports@latest; \
+		goimports -w .; \
+	fi
+	@echo "✅ Code formatting complete"
+
+#==============================================================================
+# Docker Targets
+#==============================================================================
+
+docker-setup: ## Initialize Docker development environment
+	@echo "🐳 Setting up Docker environment..."
 	docker compose build
 	docker compose run --rm dev go mod tidy
-	@echo "セットアップ完了!"
+	@echo "✅ Docker environment ready"
 
-# Docker開発環境起動
-docker-dev:
+docker-dev: ## Start development containers
+	@echo "🐳 Starting development containers..."
 	docker compose up -d dev web-dev
-	@echo "開発環境が起動しました:"
-	@echo "  - メイン開発: http://localhost:8080"
-	@echo "  - Web開発: http://localhost:3000"
-	@echo ""
-	@echo "開発コンテナに接続: docker compose exec dev bash"
+	@echo "✅ Development containers running"
+	@echo "🌐 Game dev server: http://localhost:8080"
+	@echo "🌐 Web dev server: http://localhost:3000"
 
-# ローカル開発
-dev:
-	go run cmd/game/main.go
+docker-build: ## Cross-compile using Docker
+	@echo "🐳 Cross-compiling with Docker..."
+	docker run --rm -v "$(PWD)":/usr/src/app -w /usr/src/app golang:1.22 make build-all
+	@echo "✅ Docker cross-compilation complete"
 
-# ビルドターゲット
-build:
-	mkdir -p dist
-	go build -o dist/muscle-dreamer cmd/game/main.go
+#==============================================================================
+# Development Targets
+#==============================================================================
 
-build-release:
-	mkdir -p dist
-	go build -ldflags="-s -w" -o dist/muscle-dreamer cmd/game/main.go
+dev: ## Run local development server
+	@echo "🚀 Starting development server..."
+	go run $(DEBUG_TAGS) $(MAIN_PACKAGE)
 
-build-web:
-	mkdir -p dist/web
-	GOOS=js GOARCH=wasm go build -o dist/web/game.wasm cmd/game/main.go
-	cp "$$(go env GOROOT)/misc/wasm/wasm_exec.js" dist/web/
-
-build-all:
-	mkdir -p dist/{windows,linux,darwin,web}
-	
-	# Windows
-	GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o dist/windows/muscle-dreamer.exe cmd/game/main.go
-	
-	# Linux
-	GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o dist/linux/muscle-dreamer cmd/game/main.go
-	
-	# macOS
-	GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w" -o dist/darwin/muscle-dreamer cmd/game/main.go
-	GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w" -o dist/darwin/muscle-dreamer-arm64 cmd/game/main.go
-	
-	# WebAssembly
-	GOOS=js GOARCH=wasm go build -o dist/web/game.wasm cmd/game/main.go
-	cp "$$(go env GOROOT)/misc/wasm/wasm_exec.js" dist/web/
-
-# Docker内でのクロスコンパイル
-docker-build:
-	docker compose run --rm cross-compile
-
-# テスト
-test:
-	go test ./...
-
-test-integration:
-	go test -tags=integration ./tests/...
-
-test-all:
-	go test -v ./...
-	go test -tags=integration -v ./tests/...
-
-# コード品質
-lint:
-	golangci-lint run
-
-format:
-	go fmt ./...
-	goimports -w .
-
-# クリーンアップ
-clean:
-	rm -rf dist/
-	docker compose down -v
-	docker system prune -f
-
-# 依存関係更新
-deps:
+deps: ## Update Go module dependencies
+	@echo "📦 Updating dependencies..."
 	go mod tidy
 	go mod download
+	@echo "✅ Dependencies updated"
 
-# プロジェクト初期化
-init:
-	go mod init muscle-dreamer
-	@echo "module muscle-dreamer" > go.mod
-	@echo "" >> go.mod
-	@echo "go 1.22" >> go.mod
-	@echo "" >> go.mod
-	@echo "require (" >> go.mod
-	@echo "    github.com/hajimehoshi/ebiten/v2 v2.6.0" >> go.mod
-	@echo "    gopkg.in/yaml.v3 v3.0.1" >> go.mod
-	@echo ")" >> go.mod
-	go mod tidy
+clean: ## Remove build artifacts and clean Docker
+	@echo "🧹 Cleaning build artifacts..."
+	rm -rf $(BUILD_DIR)
+	rm -f $(COVERAGE_OUT) coverage.html
+	go clean -cache -testcache
+	@if command -v docker >/dev/null 2>&1; then \
+		docker compose down -v >/dev/null 2>&1 || true; \
+		docker system prune -f >/dev/null 2>&1 || true; \
+	fi
+	@echo "✅ Clean complete"

@@ -6,7 +6,6 @@
 package interfaces
 
 import (
-	"github.com/h
 	"github.com/hajimehoshi/ebiten/v2"
 	"image/color"
 	"time"
