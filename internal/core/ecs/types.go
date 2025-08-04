@@ -152,7 +152,8 @@ func DefaultWorldConfig() WorldConfig {
 
 // Vector2 represents a 2D vector for positions, velocities, etc.
 type Vector2 struct {
-	X, Y float64 `json:"x,y"`
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
 }
 
 // AABB (Axis-Aligned Bounding Box) for collision detection.
@@ -163,7 +164,10 @@ type AABB struct {
 
 // Color represents RGBA color values.
 type Color struct {
-	R, G, B, A uint8 `json:"r,g,b,a"`
+	R uint8 `json:"r"`
+	G uint8 `json:"g"`
+	B uint8 `json:"b"`
+	A uint8 `json:"a"`
 }
 
 // ==============================================
