@@ -7,7 +7,6 @@
 package ecs
 
 import (
-	"context"
 	"sync"
 	"time"
 
