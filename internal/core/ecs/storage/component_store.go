@@ -72,40 +72,18 @@ func (s *ComponentStore) GetRegisteredTypes() []ecs.ComponentType {
 	return types
 }
 
-// AddComponent adds a component to an entity
+// AddComponent adds a component to an entity (refactored)
 func (s *ComponentStore) AddComponent(entity ecs.EntityID, component ecs.Component) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
 	componentType := component.GetType()
 
-	// Check if component type is registered
-	if !s.registeredTypes[componentType] {
-		return fmt.Errorf("component type %s not registered", componentType)
+	if err := s.validateComponentAddition(entity, componentType); err != nil {
+		return err
 	}
 
-	// Check if entity already has this component type
-	if entityComponents, exists := s.entities[entity]; exists {
-		if entityComponents[componentType] {
-			return fmt.Errorf("entity %d already has component of type %s", entity, componentType)
-		}
-	}
-
-	// Add entity to sparse set for this component type
-	if err := s.sparseSets[componentType].Add(entity); err != nil {
-		return fmt.Errorf("failed to add entity to sparse set: %w", err)
-	}
-
-	// Store component
-	s.components[componentType][entity] = component
-
-	// Update entity tracking
-	if s.entities[entity] == nil {
-		s.entities[entity] = make(map[ecs.ComponentType]bool)
-	}
-	s.entities[entity][componentType] = true
-
-	return nil
+	return s.addComponentInternal(entity, component)
 }
 
 // GetComponent retrieves a component from an entity
@@ -303,4 +281,184 @@ func (s *ComponentStore) GetStorageStatistics() []*ecs.StorageStats {
 	}
 
 	return stats
+}
+
+// =============================================================================
+// HELPER METHODS - TDD Refactor Phase
+// =============================================================================
+
+// validateComponentAddition validates if a component can be added to an entity
+func (s *ComponentStore) validateComponentAddition(entity ecs.EntityID, componentType ecs.ComponentType) error {
+	// Check if component type is registered
+	if !s.registeredTypes[componentType] {
+		return fmt.Errorf("component type %s not registered", componentType)
+	}
+
+	// Check if entity already has this component type
+	if entityComponents, exists := s.entities[entity]; exists {
+		if entityComponents[componentType] {
+			return fmt.Errorf("entity %d already has component of type %s", entity, componentType)
+		}
+	}
+
+	return nil
+}
+
+// addComponentInternal adds a component to an entity (assumes validation is done)
+func (s *ComponentStore) addComponentInternal(entity ecs.EntityID, component ecs.Component) error {
+	componentType := component.GetType()
+
+	// Add entity to sparse set for this component type
+	if err := s.sparseSets[componentType].Add(entity); err != nil {
+		return fmt.Errorf("failed to add entity %d to sparse set: %w", entity, err)
+	}
+
+	// Store component
+	s.components[componentType][entity] = component
+
+	// Update entity tracking
+	if s.entities[entity] == nil {
+		s.entities[entity] = make(map[ecs.ComponentType]bool)
+	}
+	s.entities[entity][componentType] = true
+
+	return nil
+}
+
+// removeComponentInternal removes a component from an entity (assumes validation is done)
+func (s *ComponentStore) removeComponentInternal(entity ecs.EntityID, componentType ecs.ComponentType) error {
+	// Remove from sparse set
+	if err := s.sparseSets[componentType].Remove(entity); err != nil {
+		return fmt.Errorf("failed to remove entity %d from sparse set: %w", entity, err)
+	}
+
+	// Remove component
+	delete(s.components[componentType], entity)
+
+	// Update entity tracking
+	delete(s.entities[entity], componentType)
+	if len(s.entities[entity]) == 0 {
+		delete(s.entities, entity)
+	}
+
+	return nil
+}
+
+// =============================================================================
+// BULK OPERATIONS - TDD Green Phase Implementation (Refactored)
+// =============================================================================
+
+// AddComponentsBatch adds multiple components to multiple entities in batch (refactored)
+func (s *ComponentStore) AddComponentsBatch(entities []ecs.EntityID, components []ecs.Component) error {
+	if len(entities) != len(components) {
+		return fmt.Errorf("entities and components slice length mismatch: %d != %d", len(entities), len(components))
+	}
+
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	// Validate all operations first (fail-fast)
+	for i, entity := range entities {
+		componentType := components[i].GetType()
+		if err := s.validateComponentAddition(entity, componentType); err != nil {
+			return fmt.Errorf("validation failed for entity %d: %w", entity, err)
+		}
+	}
+
+	// Execute all operations (should not fail after validation)
+	for i, entity := range entities {
+		if err := s.addComponentInternal(entity, components[i]); err != nil {
+			// This should not happen after validation, but handle gracefully
+			return fmt.Errorf("internal error adding component to entity %d: %w", entity, err)
+		}
+	}
+
+	return nil
+}
+
+// RemoveComponentsBatch removes components of specified type from multiple entities
+func (s *ComponentStore) RemoveComponentsBatch(entities []ecs.EntityID, componentType ecs.ComponentType) error {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	// Simple implementation: remove each component individually
+	for _, entity := range entities {
+		// Check if entity has this component
+		if entityComponents, exists := s.entities[entity]; !exists || !entityComponents[componentType] {
+			// Skip if entity doesn't have the component (not an error for batch operations)
+			continue
+		}
+
+		// Remove from sparse set
+		if err := s.sparseSets[componentType].Remove(entity); err != nil {
+			return fmt.Errorf("failed to remove entity %d from sparse set: %w", entity, err)
+		}
+
+		// Remove component
+		delete(s.components[componentType], entity)
+
+		// Update entity tracking
+		delete(s.entities[entity], componentType)
+		if len(s.entities[entity]) == 0 {
+			delete(s.entities, entity)
+		}
+	}
+
+	return nil
+}
+
+// =============================================================================
+// COMPLEX QUERY OPERATIONS - TDD Green Phase Implementation
+// =============================================================================
+
+// GetEntitiesWithMultipleComponents returns entities that have ALL specified component types (optimized)
+func (s *ComponentStore) GetEntitiesWithMultipleComponents(componentTypes []ecs.ComponentType) []ecs.EntityID {
+	s.mutex.RLock()
+	defer s.mutex.RUnlock()
+
+	if len(componentTypes) == 0 {
+		return []ecs.EntityID{}
+	}
+
+	// Find the component type with the smallest entity set to minimize iterations
+	var smallestSet *SparseSet
+	var smallestSize int = -1
+
+	for _, componentType := range componentTypes {
+		if sparseSet, exists := s.sparseSets[componentType]; exists {
+			size := sparseSet.Size()
+			if smallestSize == -1 || size < smallestSize {
+				smallestSet = sparseSet
+				smallestSize = size
+			}
+		} else {
+			// If any component type doesn't exist, no entities can have all types
+			return []ecs.EntityID{}
+		}
+	}
+
+	if smallestSet == nil {
+		return []ecs.EntityID{}
+	}
+
+	// Use the smallest set as candidates and check if they have all other component types
+	candidates := smallestSet.ToSlice()
+	var result []ecs.EntityID
+
+	for _, entity := range candidates {
+		hasAllComponents := true
+
+		for _, componentType := range componentTypes {
+			if entityComponents, exists := s.entities[entity]; !exists || !entityComponents[componentType] {
+				hasAllComponents = false
+				break
+			}
+		}
+
+		if hasAllComponents {
+			result = append(result, entity)
+		}
+	}
+
+	return result
 }

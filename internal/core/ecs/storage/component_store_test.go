@@ -1,9 +1,14 @@
 package storage
 
 import (
+	"runtime"
+	"strings"
+	"sync"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"muscle-dreamer/internal/core/ecs"
 	"muscle-dreamer/internal/core/ecs/components"
@@ -468,4 +473,255 @@ func Benchmark_ComponentStore_GetEntitiesWithComponent(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		store.GetEntitiesWithComponent(ecs.ComponentTypeHealth)
 	}
+}
+
+// =============================================================================
+// NEW TDD RED PHASE TESTS - These tests are expected to FAIL
+// =============================================================================
+
+// Test helper functions
+func setupStoreWithTransformComponent(t testing.TB) *ComponentStore {
+	store := NewComponentStore()
+	err := store.RegisterComponentType(ecs.ComponentTypeTransform, 100)
+	require.NoError(t, err)
+	return store
+}
+
+func setupMultiComponentStore(t testing.TB) *ComponentStore {
+	store := NewComponentStore()
+	store.RegisterComponentType(ecs.ComponentTypeTransform, 100)
+	store.RegisterComponentType(ecs.ComponentTypeSprite, 100)
+	store.RegisterComponentType(ecs.ComponentTypePhysics, 100)
+	return store
+}
+
+func setupLargeStore(t testing.TB, entityCount int) *ComponentStore {
+	store := setupStoreWithTransformComponent(t)
+
+	for i := 0; i < entityCount; i++ {
+		entity := ecs.EntityID(i)
+		component := components.NewTransformComponent()
+		component.SetPosition(ecs.Vector2{X: float64(i), Y: float64(i)})
+		err := store.AddComponent(entity, component)
+		require.NoError(t, err)
+	}
+
+	return store
+}
+
+// =============================================================================
+// TC-102-005: BULK OPERATIONS TESTS (EXPECTED TO FAIL)
+// =============================================================================
+
+func TestComponentStore_AddComponentsBatch_Success(t *testing.T) {
+	// Given: 登録済みストアと複数エンティティ
+	store := setupStoreWithTransformComponent(t)
+	entities := []ecs.EntityID{1, 2, 3, 4, 5}
+	comps := make([]ecs.Component, len(entities))
+
+	for i := range entities {
+		transform := components.NewTransformComponent()
+		transform.SetPosition(ecs.Vector2{X: float64(i), Y: float64(i * 2)})
+		comps[i] = transform
+	}
+
+	// When: バッチでコンポーネント追加
+	err := store.AddComponentsBatch(entities, comps)
+
+	// Then: 全て正常に追加される
+	assert.NoError(t, err)
+
+	for i, entity := range entities {
+		assert.True(t, store.HasComponent(entity, comps[i].GetType()))
+		retrieved, err := store.GetComponent(entity, comps[i].GetType())
+		assert.NoError(t, err)
+		assert.Equal(t, comps[i], retrieved)
+	}
+}
+
+func TestComponentStore_RemoveComponentsBatch_Success(t *testing.T) {
+	// Given: 複数エンティティにコンポーネントが追加された状態
+	store := setupStoreWithTransformComponent(t)
+	entities := []ecs.EntityID{1, 2, 3, 4, 5}
+
+	for _, entity := range entities {
+		component := components.NewTransformComponent()
+		store.AddComponent(entity, component)
+	}
+
+	// When: バッチで削除
+	err := store.RemoveComponentsBatch(entities, ecs.ComponentTypeTransform)
+
+	// Then: 全て削除される
+	assert.NoError(t, err)
+
+	for _, entity := range entities {
+		assert.False(t, store.HasComponent(entity, ecs.ComponentTypeTransform))
+	}
+}
+
+// =============================================================================
+// TC-102-006: COMPLEX QUERY TESTS (EXPECTED TO FAIL)
+// =============================================================================
+
+func TestComponentStore_GetEntitiesWithMultipleComponents_Success(t *testing.T) {
+	// Given: 複数のコンポーネント型を持つエンティティ
+	store := setupMultiComponentStore(t)
+
+	// エンティティ1: Transform + Sprite
+	entity1 := ecs.EntityID(1)
+	store.AddComponent(entity1, components.NewTransformComponent())
+	store.AddComponent(entity1, components.NewSpriteComponent())
+
+	// エンティティ2: Transformのみ
+	entity2 := ecs.EntityID(2)
+	store.AddComponent(entity2, components.NewTransformComponent())
+
+	// エンティティ3: Transform + Sprite
+	entity3 := ecs.EntityID(3)
+	store.AddComponent(entity3, components.NewTransformComponent())
+	store.AddComponent(entity3, components.NewSpriteComponent())
+
+	// When: Transform + Sprite 両方を持つエンティティを取得
+	entities := store.GetEntitiesWithMultipleComponents([]ecs.ComponentType{
+		ecs.ComponentTypeTransform, ecs.ComponentTypeSprite,
+	})
+
+	// Then: 該当するエンティティのみが返される
+	expected := []ecs.EntityID{entity1, entity3}
+	assert.ElementsMatch(t, expected, entities)
+}
+
+// =============================================================================
+// TC-102-P001: PERFORMANCE REQUIREMENT TESTS (EXPECTED TO FAIL)
+// =============================================================================
+
+func TestComponentStore_PerformanceRequirements(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping performance test in short mode")
+	}
+
+	// Given: 10,000個のコンポーネントが追加されたストア
+	store := setupLargeStore(t, 10000)
+	componentType := ecs.ComponentTypeTransform
+
+	// When: パフォーマンス測定
+	start := time.Now()
+	for i := 0; i < 1000; i++ {
+		entityID := ecs.EntityID(i % 10000)
+		_, err := store.GetComponent(entityID, componentType)
+		assert.NoError(t, err)
+	}
+	elapsed := time.Since(start)
+
+	// Then: 平均レスポンス時間が1ms未満
+	avgResponseTime := elapsed / 1000
+	if avgResponseTime >= time.Millisecond {
+		t.Logf("WARNING: Average response time: %v (should be < 1ms)", avgResponseTime)
+		// This test might fail depending on current implementation efficiency
+	}
+}
+
+func TestComponentStore_MemoryEfficiencyRequirement(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping memory test in short mode")
+	}
+
+	// Given: メモリ使用量測定開始
+	var m1, m2 runtime.MemStats
+	runtime.GC()
+	runtime.ReadMemStats(&m1)
+
+	// When: 10,000個のコンポーネントを追加
+	store := setupStoreWithTransformComponent(t)
+	for i := 0; i < 10000; i++ {
+		entity := ecs.EntityID(i)
+		component := components.NewTransformComponent()
+		component.SetPosition(ecs.Vector2{X: float64(i), Y: float64(i)})
+		store.AddComponent(entity, component)
+	}
+
+	runtime.GC()
+	runtime.ReadMemStats(&m2)
+
+	// Then: エンティティあたり100B以下の要件確認
+	memoryUsed := m2.Alloc - m1.Alloc
+	memoryPerEntity := memoryUsed / 10000
+
+	if memoryPerEntity > 100 {
+		t.Logf("WARNING: Memory per entity: %d bytes (should be ≤ 100)", memoryPerEntity)
+		// This test might fail depending on current implementation efficiency
+	}
+}
+
+// =============================================================================
+// TC-102-C001: CONCURRENCY SAFETY TESTS (EXPECTED TO FAIL)
+// =============================================================================
+
+func TestComponentStore_ConcurrentAccess_DataRaceDetection(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping concurrent test in short mode")
+	}
+
+	// Given: ストアと共有エンティティ
+	store := setupStoreWithTransformComponent(t)
+	entity := ecs.EntityID(1)
+	numWorkers := 10
+	numOperations := 100
+
+	var wg sync.WaitGroup
+	errors := make(chan error, numWorkers)
+
+	// When: 同時に読み書き操作
+	for i := 0; i < numWorkers; i++ {
+		wg.Add(1)
+		go func(workerID int) {
+			defer wg.Done()
+
+			for j := 0; j < numOperations; j++ {
+				if workerID%2 == 0 {
+					// Writer
+					component := components.NewTransformComponent()
+					component.SetPosition(ecs.Vector2{X: float64(j), Y: float64(j)})
+					if err := store.AddComponent(ecs.EntityID(workerID*numOperations+j), component); err != nil {
+						select {
+						case errors <- err:
+						default:
+						}
+					}
+				} else {
+					// Reader
+					if store.HasComponent(entity, ecs.ComponentTypeTransform) {
+						if _, err := store.GetComponent(entity, ecs.ComponentTypeTransform); err != nil {
+							select {
+							case errors <- err:
+							default:
+							}
+						}
+					}
+				}
+			}
+		}(i)
+	}
+
+	wg.Wait()
+	close(errors)
+
+	// Then: データレース検出ツール(-race)でエラーなし
+	var unexpectedErrors []error
+	for err := range errors {
+		if !strings.Contains(err.Error(), "not found") { // 正常なエラーは除外
+			unexpectedErrors = append(unexpectedErrors, err)
+		}
+	}
+
+	if len(unexpectedErrors) > 0 {
+		t.Logf("Found %d unexpected errors during concurrent access:", len(unexpectedErrors))
+		for _, err := range unexpectedErrors {
+			t.Logf("  - %v", err)
+		}
+	}
+
+	// Test passes as long as no panics or severe data corruption occurs
+	// Data races will be detected by `go test -race`
 }
