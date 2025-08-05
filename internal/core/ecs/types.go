@@ -170,6 +170,9 @@ type Color struct {
 	A uint8 `json:"a"`
 }
 
+// TransformMatrix represents a 3x3 2D transformation matrix in column-major order.
+type TransformMatrix [9]float64
+
 // ==============================================
 // Thread-Safe Collections
 // ==============================================
