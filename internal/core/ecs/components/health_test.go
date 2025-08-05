@@ -257,6 +257,24 @@ func Test_HealthComponent_Validate(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func Test_HealthComponent_HasStatusEffect(t *testing.T) {
+	// Arrange
+	health := NewHealthComponent(100)
+	poisonEffect := StatusEffect{
+		Type:     StatusTypePoison,
+		Duration: 5.0,
+		Strength: 10.0,
+	}
+
+	// Act & Assert - No effect initially
+	assert.False(t, health.HasStatusEffect(StatusTypePoison))
+
+	// Add effect
+	health.AddStatusEffect(poisonEffect)
+	assert.True(t, health.HasStatusEffect(StatusTypePoison))
+	assert.False(t, health.HasStatusEffect(StatusTypeBurn))
+}
+
 func Test_HealthComponent_Size(t *testing.T) {
 	// Arrange
 	health := NewHealthComponent(100)

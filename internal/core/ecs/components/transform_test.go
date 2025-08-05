@@ -143,6 +143,72 @@ func Test_TransformComponent_Validate(t *testing.T) {
 	assert.Error(t, err)
 }
 
+func Test_TransformComponent_GetTransformMatrix(t *testing.T) {
+	// Arrange
+	transform := NewTransformComponent()
+	transform.SetPosition(ecs.Vector2{X: 10, Y: 20})
+	transform.SetRotation(math.Pi / 4)
+	transform.SetScale(ecs.Vector2{X: 2, Y: 3})
+
+	// Act
+	matrix := transform.GetTransformMatrix()
+
+	// Assert
+	assert.NotEqual(t, TransformMatrix{}, matrix)
+	// Check that matrix calculation is cached (not dirty)
+	matrix2 := transform.GetTransformMatrix()
+	assert.Equal(t, matrix, matrix2)
+}
+
+func Test_TransformComponent_ParentChildRemoval(t *testing.T) {
+	// Arrange
+	parent := NewTransformComponent()
+	child1 := NewTransformComponent()
+	child2 := NewTransformComponent()
+
+	child1.SetParent(parent)
+	child2.SetParent(parent)
+	assert.Len(t, parent.Children, 2)
+
+	// Act - remove child1 by setting different parent
+	newParent := NewTransformComponent()
+	child1.SetParent(newParent)
+
+	// Assert
+	assert.Len(t, parent.Children, 1)
+	assert.Contains(t, parent.Children, child2)
+	assert.Equal(t, newParent, child1.Parent)
+	assert.Len(t, newParent.Children, 1)
+	assert.Contains(t, newParent.Children, child1)
+
+	// Test nil parent (remove from all parents)
+	child1.SetParent(nil)
+	assert.Len(t, newParent.Children, 0)
+	assert.Nil(t, child1.Parent)
+}
+
+func Test_TransformComponent_WorldTransforms(t *testing.T) {
+	// Arrange
+	grandparent := NewTransformComponent()
+	grandparent.SetRotation(math.Pi / 2) // 90 degrees
+	grandparent.SetScale(ecs.Vector2{X: 2, Y: 2})
+
+	parent := NewTransformComponent()
+	parent.SetParent(grandparent)
+	parent.SetPosition(ecs.Vector2{X: 10, Y: 0})
+
+	child := NewTransformComponent()
+	child.SetParent(parent)
+
+	// Act & Assert - world rotation
+	assert.InDelta(t, math.Pi/2, parent.GetWorldRotation(), 0.001)
+
+	// Act & Assert - world scale
+	worldScale := parent.GetWorldScale()
+	assert.InDelta(t, 2.0, worldScale.X, 0.001)
+	assert.InDelta(t, 2.0, worldScale.Y, 0.001)
+}
+
 func Test_TransformComponent_Size(t *testing.T) {
 	// Arrange
 	transform := NewTransformComponent()
