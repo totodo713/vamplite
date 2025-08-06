@@ -10,8 +10,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/hajimehoshi/ebiten/v2"
 	"image/color"
+
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 // ==============================================
