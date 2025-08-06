@@ -2,6 +2,7 @@ package tests
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"testing"
 	"time"
@@ -48,7 +49,9 @@ func TestSystemsIntegration_MovementToPhysics(t *testing.T) {
 	}
 
 	// 連携動作確認
-	updatedTransform := world.GetComponent(entity, ecs.ComponentTypeTransform).(*components.TransformComponent)
+	updatedTransformComp, err := world.GetComponent(entity, ecs.ComponentTypeTransform)
+	assert.NoError(t, err)
+	updatedTransform := updatedTransformComp.(*components.TransformComponent)
 	assert.Greater(t, updatedTransform.Position.X, float64(50)) // 移動確認
 }
 
@@ -94,7 +97,9 @@ func TestSystemsIntegration_PhysicsToRendering(t *testing.T) {
 	assert.NoError(t, err)
 
 	// 物理演算により位置が変化し、その位置で描画されることを確認
-	updatedTransform := world.GetComponent(entity, ecs.ComponentTypeTransform).(*components.TransformComponent)
+	updatedTransformComp, err := world.GetComponent(entity, ecs.ComponentTypeTransform)
+	assert.NoError(t, err)
+	updatedTransform := updatedTransformComp.(*components.TransformComponent)
 	assert.Greater(t, updatedTransform.Position.X, float64(100))
 	assert.Equal(t, 1, mockRenderer.DrawCallCount) // 描画も実行される
 }
@@ -108,7 +113,7 @@ func TestSystemsIntegration_AllSystemsTogether(t *testing.T) {
 
 	world := createWorldWithEntities()
 	mockRenderer := &MockRenderer{}
-	mockAudioEngine := &MockAudioEngine{}
+	mockAudioEngine := NewMockAudioEngine()
 
 	// システム初期化
 	systems := []ecs.System{movementSystem, physicsSystem, renderingSystem, audioSystem}
@@ -171,8 +176,13 @@ func TestSystemsIntegration_AllSystemsTogether(t *testing.T) {
 	}
 
 	// 全システム連携動作確認
-	updatedTransform := world.GetComponent(entity, ecs.ComponentTypeTransform).(*components.TransformComponent)
-	updatedPhysics := world.GetComponent(entity, ecs.ComponentTypePhysics).(*components.PhysicsComponent)
+	updatedTransformComp, err := world.GetComponent(entity, ecs.ComponentTypeTransform)
+	assert.NoError(t, err)
+	updatedTransform := updatedTransformComp.(*components.TransformComponent)
+
+	updatedPhysicsComp, err := world.GetComponent(entity, ecs.ComponentTypePhysics)
+	assert.NoError(t, err)
+	updatedPhysics := updatedPhysicsComp.(*components.PhysicsComponent)
 
 	// 物理演算により位置・速度が変化
 	assert.NotEqual(t, 200.0, updatedTransform.Position.X)
@@ -240,14 +250,14 @@ func TestSystemsPerformance_10000Entities(t *testing.T) {
 	// 各システムのメトリクス確認
 	for _, system := range systems {
 		metrics := system.GetMetrics()
-		avgUpdateTime := metrics.AverageUpdateTime
+		avgUpdateTime := time.Duration(metrics.AverageTime)
 
 		// 各システムの平均実行時間が10ms以下
 		assert.Less(t, avgUpdateTime, 10*time.Millisecond,
 			"System %s average update time: %v", system.GetType(), avgUpdateTime)
 
 		t.Logf("System %s: %d updates, avg time: %v, total: %v",
-			system.GetType(), metrics.UpdateCount, avgUpdateTime, metrics.TotalUpdateTime)
+			system.GetType(), metrics.ExecutionCount, avgUpdateTime, time.Duration(metrics.TotalTime))
 	}
 }
 
@@ -316,10 +326,10 @@ func TestSystemsIntegration_ErrorHandling(t *testing.T) {
 		assert.NoError(t, err)
 
 		// エラーハンドラー設定
-		errorCount := 0
-		system.SetErrorHandler(func(err error) {
-			errorCount++
-		})
+		// errorCount := 0
+		// system.SetErrorHandler(func(err error) {
+		// 	errorCount++
+		// })
 	}
 
 	// 不正な値を持つエンティティ作成

@@ -25,7 +25,7 @@ func TestAudioSystem_Interface(t *testing.T) {
 func TestAudioSystem_PlaySound(t *testing.T) {
 	system := systems.NewAudioSystem()
 	world := createWorldWithEntities()
-	mockAudioEngine := &MockAudioEngine{}
+	mockAudioEngine := NewMockAudioEngine()
 	system.SetAudioEngine(mockAudioEngine)
 
 	// Note: AudioComponent needs to be created since it doesn't exist yet
@@ -52,7 +52,7 @@ func TestAudioSystem_PlaySound(t *testing.T) {
 
 func TestAudioSystem_MasterVolume(t *testing.T) {
 	system := systems.NewAudioSystem()
-	mockAudioEngine := &MockAudioEngine{}
+	mockAudioEngine := NewMockAudioEngine()
 	system.SetAudioEngine(mockAudioEngine)
 
 	// マスター音量設定
@@ -72,7 +72,7 @@ func TestAudioSystem_3DAudio(t *testing.T) {
 	system := systems.NewAudioSystem()
 	system.SetListener(ecs.Vector2{X: 0, Y: 0}) // リスナー位置
 	world := createWorldWithEntities()
-	mockAudioEngine := &MockAudioEngine{}
+	mockAudioEngine := NewMockAudioEngine()
 	system.SetAudioEngine(mockAudioEngine)
 
 	// 近距離オーディオソース
@@ -131,7 +131,7 @@ func TestAudioSystem_ListenerPosition(t *testing.T) {
 
 func TestAudioSystem_AudioEngineIntegration(t *testing.T) {
 	system := systems.NewAudioSystem()
-	mockAudioEngine := &MockAudioEngine{}
+	mockAudioEngine := NewMockAudioEngine()
 
 	// オーディオエンジン設定
 	system.SetAudioEngine(mockAudioEngine)
@@ -147,7 +147,7 @@ func TestAudioSystem_AudioEngineIntegration(t *testing.T) {
 
 func TestAudioSystem_SoundControl(t *testing.T) {
 	system := systems.NewAudioSystem()
-	mockAudioEngine := &MockAudioEngine{}
+	mockAudioEngine := NewMockAudioEngine()
 	system.SetAudioEngine(mockAudioEngine)
 
 	// 音声再生
@@ -163,7 +163,7 @@ func TestAudioSystem_SoundControl(t *testing.T) {
 
 func TestAudioSystem_ActiveSounds(t *testing.T) {
 	system := systems.NewAudioSystem()
-	mockAudioEngine := &MockAudioEngine{}
+	mockAudioEngine := NewMockAudioEngine()
 	system.SetAudioEngine(mockAudioEngine)
 
 	// 初期状態では再生中の音声なし
@@ -267,64 +267,4 @@ func (mac *MockAudioComponent) Deserialize([]byte) error {
 	return nil
 }
 
-// MockAudioEngine simulates an audio engine for testing
-type MockAudioEngine struct {
-	PlayCallCount             int
-	StopCallCount             int
-	LoadCallCount             int
-	LastSoundID               string
-	LastVolume                float64
-	LastPitch                 float64
-	LastLoop                  bool
-	VolumeHistory             []float64
-	PlayingSounds             map[string]bool
-	SetListenerPositionCalled bool
-	ListenerPosition          ecs.Vector2
-}
-
-func NewMockAudioEngine() *MockAudioEngine {
-	return &MockAudioEngine{
-		PlayingSounds: make(map[string]bool),
-		VolumeHistory: make([]float64, 0),
-	}
-}
-
-func (mae *MockAudioEngine) PlaySound(soundID string, volume, pitch float64, loop bool) error {
-	mae.PlayCallCount++
-	mae.LastSoundID = soundID
-	mae.LastVolume = volume
-	mae.LastPitch = pitch
-	mae.LastLoop = loop
-	mae.VolumeHistory = append(mae.VolumeHistory, volume)
-	mae.PlayingSounds[soundID] = true
-	return nil
-}
-
-func (mae *MockAudioEngine) StopSound(soundID string) error {
-	mae.StopCallCount++
-	mae.PlayingSounds[soundID] = false
-	return nil
-}
-
-func (mae *MockAudioEngine) SetVolume(soundID string, volume float64) error {
-	return nil
-}
-
-func (mae *MockAudioEngine) IsPlaying(soundID string) bool {
-	return mae.PlayingSounds[soundID]
-}
-
-func (mae *MockAudioEngine) LoadSound(soundID string, filePath string) error {
-	mae.LoadCallCount++
-	return nil
-}
-
-func (mae *MockAudioEngine) UnloadSound(soundID string) error {
-	return nil
-}
-
-func (mae *MockAudioEngine) SetListenerPosition(position ecs.Vector2) error {
-	mae.SetListenerPositionCalled = true
-	mae.ListenerPosition = position
-	return nil
-}
+// Use MockAudioEngine from test_utils.go

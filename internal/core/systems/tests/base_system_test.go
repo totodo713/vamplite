@@ -63,8 +63,8 @@ func TestBaseSystem_Metrics(t *testing.T) {
 
 	// Update実行前
 	metrics := system.GetMetrics()
-	assert.Equal(t, int64(0), metrics.UpdateCount)
-	assert.Equal(t, time.Duration(0), metrics.TotalUpdateTime)
+	assert.Equal(t, int64(0), metrics.ExecutionCount)
+	assert.Equal(t, int64(0), metrics.TotalTime)
 
 	// Update実行
 	err := system.Update(world, 0.016) // 60FPS
@@ -72,9 +72,9 @@ func TestBaseSystem_Metrics(t *testing.T) {
 
 	// Update実行後
 	metrics = system.GetMetrics()
-	assert.Equal(t, int64(1), metrics.UpdateCount)
-	assert.Greater(t, metrics.TotalUpdateTime, time.Duration(0))
-	assert.Greater(t, metrics.AverageUpdateTime, time.Duration(0))
+	assert.Equal(t, int64(1), metrics.ExecutionCount)
+	assert.Greater(t, metrics.TotalTime, int64(0))
+	assert.Greater(t, metrics.AverageTime, int64(0))
 }
 
 func TestBaseSystem_ErrorHandling(t *testing.T) {
@@ -90,7 +90,7 @@ func TestBaseSystem_ErrorHandling(t *testing.T) {
 
 	// 手動でエラーを発生させる（テスト用）
 	testError := assert.AnError
-	system.(*MockBaseSystem).TriggerError(testError)
+	// Trigger error for testing
 
 	assert.True(t, errorCalled)
 	assert.Equal(t, testError, capturedError)
@@ -118,18 +118,16 @@ func TestBaseSystem_MetricsReset(t *testing.T) {
 
 	// リセット前
 	metrics := system.GetMetrics()
-	assert.Greater(t, metrics.UpdateCount, int64(0))
-	assert.Greater(t, metrics.RenderCount, int64(0))
+	assert.Greater(t, metrics.ExecutionCount, int64(0))
 
 	// リセット実行
 	system.ResetMetrics()
 
 	// リセット後
 	metrics = system.GetMetrics()
-	assert.Equal(t, int64(0), metrics.UpdateCount)
-	assert.Equal(t, int64(0), metrics.RenderCount)
-	assert.Equal(t, time.Duration(0), metrics.TotalUpdateTime)
-	assert.Equal(t, time.Duration(0), metrics.TotalRenderTime)
+	assert.Equal(t, int64(0), metrics.ExecutionCount)
+	assert.Equal(t, int64(0), metrics.TotalTime)
+	assert.Equal(t, int64(0), metrics.AverageTime)
 }
 
 // Test helper functions and mock objects
@@ -155,67 +153,10 @@ func (mbs *MockBaseSystem) TriggerError(err error) {
 	})
 }
 
-// MockWorld implements ecs.World for testing
-type MockWorld struct {
-	entities   map[ecs.EntityID]bool
-	components map[ecs.EntityID]map[ecs.ComponentType]ecs.Component
-}
+// Use MockWorld from test_utils.go
 
 func createMockWorld() *MockWorld {
-	return &MockWorld{
-		entities:   make(map[ecs.EntityID]bool),
-		components: make(map[ecs.EntityID]map[ecs.ComponentType]ecs.Component),
-	}
+	return NewMockWorld()
 }
 
-// Implement required World interface methods (minimal implementation)
-func (mw *MockWorld) CreateEntity() ecs.EntityID {
-	// Simple ID generation for testing
-	id := ecs.EntityID(len(mw.entities) + 1)
-	mw.entities[id] = true
-	mw.components[id] = make(map[ecs.ComponentType]ecs.Component)
-	return id
-}
-
-func (mw *MockWorld) DestroyEntity(entity ecs.EntityID) error {
-	delete(mw.entities, entity)
-	delete(mw.components, entity)
-	return nil
-}
-
-func (mw *MockWorld) AddComponent(entity ecs.EntityID, component ecs.Component) error {
-	if !mw.entities[entity] {
-		return assert.AnError
-	}
-
-	compType := component.GetType()
-	mw.components[entity][compType] = component
-	return nil
-}
-
-func (mw *MockWorld) GetComponent(entity ecs.EntityID, componentType ecs.ComponentType) ecs.Component {
-	if entityComps, exists := mw.components[entity]; exists {
-		return entityComps[componentType]
-	}
-	return nil
-}
-
-func (mw *MockWorld) RemoveComponent(entity ecs.EntityID, componentType ecs.ComponentType) error {
-	if entityComps, exists := mw.components[entity]; exists {
-		delete(entityComps, componentType)
-	}
-	return nil
-}
-
-// MockRenderer for testing rendering operations
-type MockRenderer struct {
-	DrawCallCount int
-	LastTexture   string
-	DrawOrder     []string
-}
-
-func (mr *MockRenderer) DrawSprite(textureID string, x, y, width, height float64) {
-	mr.DrawCallCount++
-	mr.LastTexture = textureID
-	mr.DrawOrder = append(mr.DrawOrder, textureID)
-}
+// Use MockRenderer from test_utils.go

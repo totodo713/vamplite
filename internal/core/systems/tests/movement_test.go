@@ -54,7 +54,9 @@ func TestMovementSystem_PositionUpdate(t *testing.T) {
 	assert.NoError(t, err)
 
 	// 位置確認: position += velocity * deltaTime
-	updatedTransform := world.GetComponent(entity, ecs.ComponentTypeTransform).(*components.TransformComponent)
+	updatedTransformComp, err := world.GetComponent(entity, ecs.ComponentTypeTransform)
+	assert.NoError(t, err)
+	updatedTransform := updatedTransformComp.(*components.TransformComponent)
 	expectedX := 0 + 100*deltaTime // 1.6
 	expectedY := 0 + 50*deltaTime  // 0.8
 
