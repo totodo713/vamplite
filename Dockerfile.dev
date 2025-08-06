@@ -1,5 +1,5 @@
 # 開発環境用マルチステージ Dockerfile
-FROM golang:1.22-alpine AS go-base
+FROM golang:1.24-alpine AS go-base
 
 # 必要なパッケージインストール
 RUN apk add --no-cache \
@@ -25,7 +25,7 @@ ENV GOTOOLCHAIN=auto
 # 基本的なgo.modファイル作成（正しいフォーマット）
 RUN echo 'module muscle-dreamer' > go.mod && \
     echo '' >> go.mod && \
-    echo 'go 1.22' >> go.mod && \
+    echo 'go 1.24' >> go.mod && \
     echo '' >> go.mod && \
     echo 'require (' >> go.mod && \
     echo '    github.com/hajimehoshi/ebiten/v2 v2.6.3' >> go.mod && \
@@ -34,7 +34,7 @@ RUN echo 'module muscle-dreamer' > go.mod && \
 # 基本的な依存関係ダウンロード
 RUN go mod download || echo "依存関係ダウンロードをスキップ"
 
-# 開発用ツールインストール（Go 1.22対応バージョン）
+# 開発用ツールインストール（Go 1.24対応バージョン）
 RUN go install golang.org/x/tools/gopls@v0.15.3 && \
     go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.54.2 && \
     go install github.com/goreleaser/goreleaser@v1.21.2

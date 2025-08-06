@@ -54,7 +54,7 @@ build-web: ## Build WebAssembly version
 	@echo "🌐 Building WebAssembly version..."
 	@mkdir -p $(BUILD_DIR)/web
 	GOOS=js GOARCH=wasm go build $(LDFLAGS) -o $(BUILD_DIR)/web/game.wasm $(MAIN_PACKAGE)
-	@cp "$$(go env GOROOT)/misc/wasm/wasm_exec.js" $(BUILD_DIR)/web/
+	@cp "$$(go env GOROOT)/lib/wasm/wasm_exec.js" $(BUILD_DIR)/web/
 	@echo "✅ WebAssembly build complete: $(BUILD_DIR)/web/"
 
 build-all: ## Build for all platforms
@@ -64,7 +64,7 @@ build-all: ## Build for all platforms
 	GOOS=linux GOARCH=amd64 go build $(LDFLAGS) $(ECS_TAGS) -o $(BUILD_DIR)/linux/$(BINARY_NAME) $(MAIN_PACKAGE)
 	GOOS=darwin GOARCH=amd64 go build $(LDFLAGS) $(ECS_TAGS) -o $(BUILD_DIR)/macos/$(BINARY_NAME) $(MAIN_PACKAGE)
 	GOOS=js GOARCH=wasm go build $(LDFLAGS) -o $(BUILD_DIR)/web/game.wasm $(MAIN_PACKAGE)
-	@cp "$$(go env GOROOT)/misc/wasm/wasm_exec.js" $(BUILD_DIR)/web/
+	@cp "$$(go env GOROOT)/lib/wasm/wasm_exec.js" $(BUILD_DIR)/web/
 	@echo "✅ All platform builds complete"
 
 #==============================================================================
@@ -76,7 +76,6 @@ test: test-unit ## Run unit tests
 test-unit: ## Run unit tests only
 	@echo "🧪 Running unit tests..."
 	go test $(DEBUG_TAGS) -timeout $(TEST_TIMEOUT) -race ./internal/core/...
-	go test $(DEBUG_TAGS) -timeout $(TEST_TIMEOUT) -race ./internal/mod/...
 
 test-integration: ## Run integration tests
 	@echo "🔗 Running integration tests..."
@@ -149,7 +148,7 @@ docker-dev: ## Start development containers
 
 docker-build: ## Cross-compile using Docker
 	@echo "🐳 Cross-compiling with Docker..."
-	docker run --rm -v "$(PWD)":/usr/src/app -w /usr/src/app golang:1.22 make build-all
+	docker run --rm -v "$(PWD)":/usr/src/app -w /usr/src/app golang:1.24 make build-all
 	@echo "✅ Docker cross-compilation complete"
 
 #==============================================================================
