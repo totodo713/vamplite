@@ -1,10 +1,6 @@
 // Package ecs provides the core Entity Component System framework for Muscle Dreamer.
 package ecs
 
-import (
-	"github.com/hajimehoshi/ebiten/v2"
-)
-
 // ==============================================
 // World Interface - ECS統合管理の中核
 // ==============================================
@@ -37,7 +33,7 @@ type World interface {
 
 	// World operations
 	Update(deltaTime float64) error
-	Render(screen *ebiten.Image) error
+	Render(screen interface{}) error
 	Shutdown() error
 
 	// Performance monitoring
@@ -131,7 +127,7 @@ type System interface {
 	Update(World, float64) error
 
 	// Render draws entities to screen (optional, for rendering systems)
-	Render(World, *ebiten.Image) error
+	Render(World, interface{}) error
 
 	// Shutdown cleans up system resources
 	Shutdown() error
