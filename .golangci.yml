@@ -296,6 +296,7 @@ run:
     - tmp
     - .git
     - node_modules
+    - docs
 
   skip-files:
     - ".*\\.pb\\.go$"

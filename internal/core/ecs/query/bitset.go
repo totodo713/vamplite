@@ -18,6 +18,9 @@ var componentTypeToBitPosition = map[ecs.ComponentType]int{
 	ecs.ComponentTypeInventory: 5,
 	ecs.ComponentTypeAudio:     6,
 	ecs.ComponentTypeInput:     7,
+	ecs.ComponentTypeDisabled:  8,
+	ecs.ComponentTypeEnergy:    9,
+	ecs.ComponentTypeDead:      10,
 }
 
 // NewComponentBitSet creates a new empty bitset

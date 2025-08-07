@@ -119,13 +119,13 @@ lint: ## Run code linting
 
 format: ## Format code
 	@echo "🎨 Formatting code..."
-	go fmt ./...
+	go fmt $$(go list ./... | grep -v /docs/)
 	@if command -v goimports >/dev/null 2>&1; then \
-		goimports -w .; \
+		goimports -w $$(find . -name "*.go" -not -path "./docs/*" -not -path "./vendor/*" -not -path "./.git/*"); \
 	else \
 		echo "⚠️ goimports not installed. Installing..."; \
 		go install golang.org/x/tools/cmd/goimports@latest; \
-		goimports -w .; \
+		goimports -w $$(find . -name "*.go" -not -path "./docs/*" -not -path "./vendor/*" -not -path "./.git/*"); \
 	fi
 	@echo "✅ Code formatting complete"
 

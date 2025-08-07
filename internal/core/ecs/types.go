@@ -279,6 +279,9 @@ const (
 	ComponentTypeInventory ComponentType = "inventory"
 	ComponentTypeAudio     ComponentType = "audio"
 	ComponentTypeInput     ComponentType = "input"
+	ComponentTypeDisabled  ComponentType = "disabled"
+	ComponentTypeEnergy    ComponentType = "energy"
+	ComponentTypeDead      ComponentType = "dead"
 )
 
 // System type constants for built-in systems
