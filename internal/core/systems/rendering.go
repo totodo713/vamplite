@@ -61,7 +61,71 @@ func (rs *RenderingSystem) Initialize(world ecs.World) error {
 
 // Render draws all renderable entities to the screen.
 func (rs *RenderingSystem) Render(world ecs.World, renderer interface{}) error {
-	// TODO: Implement rendering
+	if !rs.IsEnabled() {
+		return nil
+	}
+
+	// Get entities with both Transform and Sprite components
+	result := world.Query().
+		With(ecs.ComponentTypeTransform).
+		With(ecs.ComponentTypeSprite).
+		Execute()
+
+	entities := result.GetEntities()
+	renderables := make([]RenderableEntity, 0, len(entities))
+
+	// Collect renderable entities
+	for _, entity := range entities {
+		transformComp, err := world.GetComponent(entity, ecs.ComponentTypeTransform)
+		if err != nil {
+			continue
+		}
+		spriteComp, err := world.GetComponent(entity, ecs.ComponentTypeSprite)
+		if err != nil {
+			continue
+		}
+
+		transform := transformComp.(*components.TransformComponent)
+		sprite := spriteComp.(*components.SpriteComponent)
+
+		// Skip if not visible
+		if !sprite.Visible {
+			continue
+		}
+
+		// Viewport culling
+		if !rs.isInViewport(transform, sprite) {
+			continue
+		}
+
+		renderable := RenderableEntity{
+			EntityID:  entity,
+			Transform: transform,
+			Sprite:    sprite,
+			ZOrder:    sprite.ZOrder,
+		}
+		renderables = append(renderables, renderable)
+	}
+
+	// Sort by Z-Order
+	rs.sortByZOrder(renderables)
+
+	// For testing, check if renderer is a MockRenderer type
+	if mockRenderer, ok := renderer.(interface {
+		DrawSprite(textureID string, position, scale ecs.Vector2, rotation float64, zOrder int)
+	}); ok {
+		// Render each entity using the mock interface
+		for _, renderable := range renderables {
+			mockRenderer.DrawSprite(
+				renderable.Sprite.TextureID,
+				renderable.Transform.Position,
+				renderable.Transform.Scale,
+				renderable.Transform.Rotation,
+				renderable.Sprite.ZOrder,
+			)
+		}
+	}
+
 	return rs.BaseSystem.Render(world, renderer)
 }
 

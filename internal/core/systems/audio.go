@@ -66,8 +66,97 @@ func (as *AudioSystem) Initialize(world ecs.World) error {
 
 // Update processes audio entities and updates sound playback.
 func (as *AudioSystem) Update(world ecs.World, deltaTime float64) error {
-	// TODO: Implement audio processing
+	if !as.IsEnabled() || as.audioEngine == nil {
+		return nil
+	}
+
+	// Get entities with audio components
+	result := world.Query().
+		With(ecs.ComponentTypeAudio).
+		Execute()
+
+	entities := result.GetEntities()
+
+	// Process each audio entity
+	for _, entity := range entities {
+		audioComp, err := world.GetComponent(entity, ecs.ComponentTypeAudio)
+		if err != nil {
+			continue
+		}
+
+		// Process audio component using interface{} to handle mock components
+		as.processAudioEntity(world, entity, audioComp)
+	}
+
 	return as.BaseSystem.Update(world, deltaTime)
+}
+
+// processAudioEntity handles any audio component that implements the required interface
+func (as *AudioSystem) processAudioEntity(world ecs.World, entityID ecs.EntityID, audioComp ecs.Component) {
+	// Use interface-based approach to extract values
+	soundID := ""
+	volume := 1.0
+	pitch := 1.0
+	isPlaying := false
+	isLoop := false
+	is3D := false
+	maxDistance := 100.0
+
+	// Use multiple type assertions to get required values
+	if comp, ok := audioComp.(interface{ GetSoundID() string }); ok {
+		soundID = comp.GetSoundID()
+	}
+	if comp, ok := audioComp.(interface{ GetVolume() float64 }); ok {
+		volume = comp.GetVolume()
+	}
+	if comp, ok := audioComp.(interface{ GetPitch() float64 }); ok {
+		pitch = comp.GetPitch()
+	}
+	if comp, ok := audioComp.(interface{ IsPlaying() bool }); ok {
+		isPlaying = comp.IsPlaying()
+	}
+	if comp, ok := audioComp.(interface{ IsLoop() bool }); ok {
+		isLoop = comp.IsLoop()
+	}
+	if comp, ok := audioComp.(interface{ Is3D() bool }); ok {
+		is3D = comp.Is3D()
+	}
+	if comp, ok := audioComp.(interface{ GetMaxDistance() float64 }); ok {
+		maxDistance = comp.GetMaxDistance()
+	}
+
+	if !isPlaying {
+		return
+	}
+
+	finalVolume := volume
+
+	// Handle 3D audio if needed
+	if is3D {
+		transformComp, err := world.GetComponent(entityID, ecs.ComponentTypeTransform)
+		if err == nil {
+			if transform, ok := transformComp.(interface{ GetPosition() ecs.Vector2 }); ok {
+				position := transform.GetPosition()
+				finalVolume = as.calculate3DVolume(position, volume, maxDistance)
+			}
+		}
+	}
+
+	// Apply master volume
+	finalVolume *= as.masterVolume
+
+	// Play the sound through the audio engine
+	as.audioEngine.PlaySound(soundID, finalVolume, pitch, isLoop)
+
+	// Track active sound
+	as.activeSounds[soundID] = &ActiveSound{
+		SoundID:  soundID,
+		EntityID: entityID,
+		Volume:   finalVolume,
+		Pitch:    pitch,
+		IsLoop:   isLoop,
+		Is3D:     is3D,
+	}
 }
 
 // SetAudioEngine sets the audio engine implementation.

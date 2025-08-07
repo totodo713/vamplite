@@ -57,6 +57,11 @@ func (t *TransformComponent) SetScale(scale ecs.Vector2) {
 	t.markDirty()
 }
 
+// GetPosition returns the local position (alias for compatibility)
+func (t *TransformComponent) GetPosition() ecs.Vector2 {
+	return t.Position
+}
+
 // GetLocalPosition returns the local position
 func (t *TransformComponent) GetLocalPosition() ecs.Vector2 {
 	return t.Position

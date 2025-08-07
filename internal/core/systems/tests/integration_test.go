@@ -145,8 +145,8 @@ func TestSystemsIntegration_AllSystemsTogether(t *testing.T) {
 	audio := &MockAudioComponent{
 		SoundID:     "entity_sound",
 		Volume:      0.6,
-		IsPlaying:   false, // 初期は再生しない
-		Is3D:        true,
+		Playing:     false, // 初期は再生しない
+		ThreeD:      true,
 		MaxDistance: 150,
 	}
 	world.AddComponent(entity, transform)

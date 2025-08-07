@@ -2,12 +2,10 @@ package tests
 
 import (
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 
 	"muscle-dreamer/internal/core/ecs"
-	"muscle-dreamer/internal/core/ecs/components"
 	"muscle-dreamer/internal/core/systems"
 )
 

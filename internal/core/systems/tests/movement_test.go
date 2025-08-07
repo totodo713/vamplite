@@ -92,7 +92,9 @@ func TestMovementSystem_RotationUpdate(t *testing.T) {
 
 	// Note: This test will fail until we implement angular velocity
 	// For now, we'll test that rotation doesn't change unexpectedly
-	updatedTransform := world.GetComponent(entity, ecs.ComponentTypeTransform).(*components.TransformComponent)
+	component, err := world.GetComponent(entity, ecs.ComponentTypeTransform)
+	assert.NoError(t, err)
+	updatedTransform := component.(*components.TransformComponent)
 	assert.Equal(t, float64(0), updatedTransform.Rotation)
 }
 
@@ -120,7 +122,9 @@ func TestMovementSystem_BoundaryCheck(t *testing.T) {
 	assert.NoError(t, err)
 
 	// 境界でクランプされることを確認
-	updatedTransform := world.GetComponent(entity, ecs.ComponentTypeTransform).(*components.TransformComponent)
+	component, err := world.GetComponent(entity, ecs.ComponentTypeTransform)
+	assert.NoError(t, err)
+	updatedTransform := component.(*components.TransformComponent)
 	assert.LessOrEqual(t, updatedTransform.Position.X, float64(800))
 }
 
@@ -149,14 +153,18 @@ func TestMovementSystem_Acceleration(t *testing.T) {
 		assert.NoError(t, err)
 	}
 
-	updatedPhysics := world.GetComponent(entity, ecs.ComponentTypePhysics).(*components.PhysicsComponent)
+	physicsComp, err := world.GetComponent(entity, ecs.ComponentTypePhysics)
+	assert.NoError(t, err)
+	updatedPhysics := physicsComp.(*components.PhysicsComponent)
 
 	// 速度が加速度により増加していることを確認
 	assert.Greater(t, updatedPhysics.Velocity.X, float64(0))
 	assert.Less(t, updatedPhysics.Velocity.Y, float64(0))
 
 	// 位置も変化していることを確認
-	updatedTransform := world.GetComponent(entity, ecs.ComponentTypeTransform).(*components.TransformComponent)
+	component, err := world.GetComponent(entity, ecs.ComponentTypeTransform)
+	assert.NoError(t, err)
+	updatedTransform := component.(*components.TransformComponent)
 	assert.Greater(t, updatedTransform.Position.X, float64(0))
 }
 
@@ -182,7 +190,9 @@ func TestMovementSystem_MaxSpeed(t *testing.T) {
 	err := system.Update(world, 0.016)
 	assert.NoError(t, err)
 
-	updatedPhysics := world.GetComponent(entity, ecs.ComponentTypePhysics).(*components.PhysicsComponent)
+	physicsComp, err := world.GetComponent(entity, ecs.ComponentTypePhysics)
+	assert.NoError(t, err)
+	updatedPhysics := physicsComp.(*components.PhysicsComponent)
 	speed := math.Sqrt(updatedPhysics.Velocity.X*updatedPhysics.Velocity.X +
 		updatedPhysics.Velocity.Y*updatedPhysics.Velocity.Y)
 
@@ -217,7 +227,9 @@ func TestMovementSystem_EnableDisable(t *testing.T) {
 	assert.NoError(t, err)
 
 	// 位置が変更されないことを確認（システムが無効のため）
-	updatedTransform := world.GetComponent(entity, ecs.ComponentTypeTransform).(*components.TransformComponent)
+	component, err := world.GetComponent(entity, ecs.ComponentTypeTransform)
+	assert.NoError(t, err)
+	updatedTransform := component.(*components.TransformComponent)
 	assert.Equal(t, initialPos.X, updatedTransform.Position.X)
 	assert.Equal(t, initialPos.Y, updatedTransform.Position.Y)
 

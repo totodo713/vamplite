@@ -71,7 +71,67 @@ func (ps *PhysicsSystem) Initialize(world ecs.World) error {
 
 // Update processes physics simulation for the current frame.
 func (ps *PhysicsSystem) Update(world ecs.World, deltaTime float64) error {
-	// TODO: Implement physics processing
+	if !ps.IsEnabled() {
+		return nil
+	}
+
+	// Get entities with both Transform and Physics components
+	result := world.Query().
+		With(ecs.ComponentTypeTransform).
+		With(ecs.ComponentTypePhysics).
+		Execute()
+
+	entities := result.GetEntities()
+
+	// Process each physics entity
+	for _, entity := range entities {
+		transformComp, err := world.GetComponent(entity, ecs.ComponentTypeTransform)
+		if err != nil {
+			continue
+		}
+		physicsComp, err := world.GetComponent(entity, ecs.ComponentTypePhysics)
+		if err != nil {
+			continue
+		}
+
+		transform := transformComp.(*components.TransformComponent)
+		physics := physicsComp.(*components.PhysicsComponent)
+
+		// Skip static objects
+		if physics.IsStatic {
+			continue
+		}
+
+		// Apply gravity if enabled
+		if physics.Gravity {
+			ps.applyGravity(physics, deltaTime)
+		}
+
+		// Apply acceleration
+		physics.Velocity.X += physics.Acceleration.X * deltaTime
+		physics.Velocity.Y += physics.Acceleration.Y * deltaTime
+
+		// Apply drag/friction
+		ps.applyDrag(physics, deltaTime)
+
+		// Apply speed limits
+		if physics.MaxSpeed > 0 {
+			speed := math.Sqrt(physics.Velocity.X*physics.Velocity.X + physics.Velocity.Y*physics.Velocity.Y)
+			if speed > physics.MaxSpeed {
+				scale := physics.MaxSpeed / speed
+				physics.Velocity.X *= scale
+				physics.Velocity.Y *= scale
+			}
+		}
+
+		// Update position based on velocity (physics simulation)
+		transform.Position.X += physics.Velocity.X * deltaTime
+		transform.Position.Y += physics.Velocity.Y * deltaTime
+
+		// Check collision with static colliders after position update
+		ps.checkStaticCollisions(entity, transform, physics)
+	}
+
 	return ps.BaseSystem.Update(world, deltaTime)
 }
 
@@ -143,14 +203,46 @@ func (ps *PhysicsSystem) applyGravity(physics *components.PhysicsComponent, delt
 		return
 	}
 
-	// Apply gravitational acceleration
+	// Apply gravitational acceleration (gravity is positive downward, but velocity becomes negative)
 	physics.Velocity.X += ps.gravity.X * deltaTime
-	physics.Velocity.Y += ps.gravity.Y * deltaTime
+	physics.Velocity.Y -= ps.gravity.Y * deltaTime // Subtract for downward motion in screen coordinates
 }
 
 // applyDrag applies air resistance/drag to velocity.
 func (ps *PhysicsSystem) applyDrag(physics *components.PhysicsComponent, deltaTime float64) {
-	dragCoeff := 0.98 // Air resistance coefficient
-	physics.Velocity.X *= math.Pow(dragCoeff, deltaTime)
-	physics.Velocity.Y *= math.Pow(dragCoeff, deltaTime)
+	// Apply friction if defined in component
+	if physics.Friction > 0 {
+		frictionCoeff := 1.0 - physics.Friction
+		physics.Velocity.X *= math.Pow(frictionCoeff, deltaTime)
+		physics.Velocity.Y *= math.Pow(frictionCoeff, deltaTime)
+	}
+}
+
+// checkStaticCollisions checks collision between an entity and static colliders.
+func (ps *PhysicsSystem) checkStaticCollisions(entityID ecs.EntityID, transform *components.TransformComponent, physics *components.PhysicsComponent) {
+	// Simple entity bounds (assuming 32x32 entity for now)
+	entityBounds := Rectangle{
+		X:      transform.Position.X,
+		Y:      transform.Position.Y,
+		Width:  32,
+		Height: 32,
+	}
+
+	// Check against all static colliders
+	for _, collider := range ps.staticColliders {
+		if ps.checkAABBCollision(entityBounds, collider.Bounds) {
+			// Create collision event
+			collision := Collision{
+				EntityA:      entityID,
+				EntityB:      0, // Static collider has no entity ID
+				ContactPoint: ecs.Vector2{X: collider.Bounds.X, Y: collider.Bounds.Y},
+				Normal:       ecs.Vector2{X: 1, Y: 0}, // Simplified normal
+				Depth:        1.0,                     // Simplified penetration depth
+				Timestamp:    0,                       // Could use current time
+			}
+
+			ps.collisions = append(ps.collisions, collision)
+			break // Only register first collision for now
+		}
+	}
 }

@@ -4,6 +4,7 @@ import (
 	"math"
 
 	"muscle-dreamer/internal/core/ecs"
+	"muscle-dreamer/internal/core/ecs/components"
 )
 
 // MovementSystem handles entity movement and position updates.
@@ -43,7 +44,51 @@ func (ms *MovementSystem) Initialize(world ecs.World) error {
 
 // Update processes entity movement for the current frame.
 func (ms *MovementSystem) Update(world ecs.World, deltaTime float64) error {
-	// TODO: Implement movement processing
+	if !ms.IsEnabled() {
+		return nil
+	}
+
+	// 必要なコンポーネントを持つエンティティを取得
+	result := world.Query().
+		With(ecs.ComponentTypeTransform).
+		With(ecs.ComponentTypePhysics).
+		Execute()
+
+	entities := result.GetEntities()
+
+	for _, entity := range entities {
+		// TransformComponent取得
+		transformComp, err := world.GetComponent(entity, ecs.ComponentTypeTransform)
+		if err != nil {
+			continue
+		}
+		transform := transformComp.(*components.TransformComponent)
+
+		// PhysicsComponent取得
+		physicsComp, err := world.GetComponent(entity, ecs.ComponentTypePhysics)
+		if err != nil {
+			continue
+		}
+		physics := physicsComp.(*components.PhysicsComponent)
+
+		// 加速度の適用（velocity += acceleration * deltaTime）
+		physics.Velocity.X += physics.Acceleration.X * deltaTime
+		physics.Velocity.Y += physics.Acceleration.Y * deltaTime
+
+		// 速度制限の適用
+		ms.limitSpeed(&physics.Velocity)
+
+		// 位置の更新（position += velocity * deltaTime）
+		transform.Position.X += physics.Velocity.X * deltaTime
+		transform.Position.Y += physics.Velocity.Y * deltaTime
+
+		// 回転の更新（PhysicsComponentにAngularVelocityフィールドが必要）
+		// 現在のPhysicsComponentにAngularVelocityがないため、TransformComponentの回転は変更しない
+
+		// 境界チェック
+		ms.clampToBoundary(&transform.Position)
+	}
+
 	return ms.BaseSystem.Update(world, deltaTime)
 }
 
