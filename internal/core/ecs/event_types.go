@@ -2,6 +2,7 @@ package ecs
 
 import (
 	"errors"
+	"sync/atomic"
 	"time"
 )
 
@@ -155,6 +156,41 @@ type EventBusStats struct {
 	TotalSubscriptions int
 	QueueSize          int
 	WorkerCount        int
+}
+
+// EventBusStatsAtomic provides atomic statistics for event bus performance
+type EventBusStatsAtomic struct {
+	eventsPublished *atomic.Uint64
+	eventsProcessed *atomic.Uint64
+	eventsDropped   *atomic.Uint64
+	handlerErrors   *atomic.Uint64
+	handlerPanics   *atomic.Uint64
+}
+
+// NewEventBusStatsAtomic creates a new atomic stats instance
+func NewEventBusStatsAtomic() *EventBusStatsAtomic {
+	return &EventBusStatsAtomic{
+		eventsPublished: &atomic.Uint64{},
+		eventsProcessed: &atomic.Uint64{},
+		eventsDropped:   &atomic.Uint64{},
+		handlerErrors:   &atomic.Uint64{},
+		handlerPanics:   &atomic.Uint64{},
+	}
+}
+
+// ToStats converts atomic stats to regular stats struct
+func (s *EventBusStatsAtomic) ToStats(totalSubs, queueSize, workerCount int) EventBusStats {
+	return EventBusStats{
+		EventsPublished:    s.eventsPublished.Load(),
+		EventsProcessed:    s.eventsProcessed.Load(),
+		EventsDropped:      s.eventsDropped.Load(),
+		HandlerErrors:      s.handlerErrors.Load(),
+		HandlerPanics:      s.handlerPanics.Load(),
+		AvgLatencyNanos:    0, // 簡易実装では0
+		TotalSubscriptions: totalSubs,
+		QueueSize:          queueSize,
+		WorkerCount:        workerCount,
+	}
 }
 
 // EventBusConfig defines configuration for EventBus

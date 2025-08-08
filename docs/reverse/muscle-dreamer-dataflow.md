@@ -1,23 +1,42 @@
-# Muscle Dreamer データフロー図（逆生成）
+# Muscle Dreamer データフロー設計（逆生成）
 
-## 分析日時
-2025-08-03
+## 分析概要
 
-## システム全体データフロー
+**分析日時**: 2025-08-07  
+**対象コードベース**: /home/devman/GolandProjects/muscle-dreamer  
+**分析対象**: Go 1.24 + Ebitengine v2.6.3 + ECS フレームワーク  
+**信頼度**: 92%（実装済みコードとテストに基づく分析）
 
-### 1. アプリケーション起動フロー
+## データフロー概要
+
+### メインゲームループ
 
 ```mermaid
 sequenceDiagram
-    participant U as ユーザー
-    participant OS as オペレーティングシステム
-    participant M as main.go
-    participant G as Game構造体
-    participant E as Ebitengineランタイム
-    participant C as Canvas/Screen
+    participant M as Main
+    participant G as Game
+    participant W as World
+    participant SM as SystemManager
+    participant EM as EntityManager
+    participant CM as ComponentManager
+    participant E as Ebitengine
+
+    M->>G: NewGame()
+    G->>W: Initialize World
+    W->>SM: Initialize Systems
+    W->>EM: Initialize EntityManager
+    W->>CM: Initialize ComponentManager
     
-    U->>OS: ゲーム実行
-    OS->>M: プロセス開始
+    loop Game Loop (60 FPS)
+        E->>G: Update()
+        G->>W: Update(deltaTime)
+        W->>SM: UpdateSystems(deltaTime)
+        SM->>SM: ExecuteSystemsByPriority()
+        
+        E->>G: Draw(screen)
+        G->>W: Render(screen)
+        W->>SM: RenderSystems(screen)
+    end
     M->>G: core.NewGame()
     G-->>M: *Game インスタンス
     M->>E: ebiten.RunGame(game)

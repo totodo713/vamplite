@@ -1,23 +1,175 @@
-// ==============================================
-// Muscle Dreamer - 型定義・インターフェース集約
-// 既存コードから逆生成 (2025-08-03)
-// ==============================================
+// Muscle Dreamer Go 型定義集約（逆生成）
+// 分析日時: 2025-08-07
+// 対象: Go 1.24 + Ebitengine v2.6.3 + ECS フレームワーク
+// 信頼度: 98%（実装済みコードから直接抽出）
 
-package interfaces
+package main
 
 import (
-	"image/color"
 	"time"
-
-	"github.com/hajimehoshi/ebiten/v2"
 )
 
-// ==============================================
-// 1. ゲームコア型定義
-// ==============================================
+// ======================
+// 基本型定義
+// ======================
 
-// GameEngine - ゲームエンジンの基本インターフェース
-type GameEngine interface {
+// EntityID エンティティの一意識別子
+type EntityID uint32
+
+// ComponentType コンポーネントタイプ識別子
+type ComponentType uint16
+
+// SystemType システムタイプ識別子
+type SystemType uint16
+
+// Priority システム実行優先度
+type Priority int
+
+// ThreadSafetyLevel スレッドセーフティレベル
+type ThreadSafetyLevel int
+
+// 優先度定数
+const (
+	PriorityLowest  Priority = 0
+	PriorityLow     Priority = 25
+	PriorityNormal  Priority = 50
+	PriorityHigh    Priority = 75
+	PriorityHighest Priority = 100
+)
+
+// スレッドセーフティレベル定数
+const (
+	ThreadSafetyNone  ThreadSafetyLevel = iota // シングルスレッドのみ
+	ThreadSafetyRead                           // 読み取り専用並列実行
+	ThreadSafetyWrite                          // 書き込み排他実行
+	ThreadSafetyFull                           // 完全並列実行
+)
+
+// コンポーネントタイプ定数
+const (
+	ComponentTypeTransform ComponentType = iota + 1
+	ComponentTypeSprite
+	ComponentTypePhysics
+	ComponentTypeHealth
+	ComponentTypeAI
+	ComponentTypeInventory
+	ComponentTypeAudio
+	ComponentTypeInput
+	ComponentTypeDisabled
+	ComponentTypeEnergy
+	ComponentTypeDead
+)
+
+// システムタイプ定数
+const (
+	SystemTypeInput SystemType = iota + 1
+	SystemTypeAI
+	SystemTypePhysics
+	SystemTypeMovement
+	SystemTypeCollision
+	SystemTypeAnimation
+	SystemTypeAudio
+	SystemTypeRendering
+	SystemTypeUI
+	SystemTypeDebug
+)
+
+// ======================
+// ECS コアインターフェース
+// ======================
+
+// World ECS ワールドの中核インターフェース
+type World interface {
+	// Entity management
+	CreateEntity() EntityID
+	DestroyEntity(EntityID) error
+	IsEntityValid(EntityID) bool
+	GetEntityCount() int
+	GetActiveEntities() []EntityID
+
+	// Component management
+	AddComponent(EntityID, Component) error
+	RemoveComponent(EntityID, ComponentType) error
+	GetComponent(EntityID, ComponentType) (Component, error)
+	HasComponent(EntityID, ComponentType) bool
+	GetComponents(EntityID) []Component
+
+	// System management
+	RegisterSystem(System) error
+	UnregisterSystem(SystemType) error
+	GetSystem(SystemType) (System, error)
+	GetAllSystems() []System
+	EnableSystem(SystemType) error
+	DisableSystem(SystemType) error
+	IsSystemEnabled(SystemType) bool
+
+	// World operations
+	Update(deltaTime float64) error
+	Render(screen interface{}) error
+	Shutdown() error
+
+	// Performance monitoring
+	GetMetrics() *PerformanceMetrics
+	GetMemoryUsage() *MemoryUsage
+	GetStorageStats() []StorageStats
+	GetQueryStats() []QueryStats
+
+	// Configuration
+	GetConfig() *WorldConfig
+	UpdateConfig(*WorldConfig) error
+
+	// Events
+	EmitEvent(Event) error
+	Subscribe(EventType, EventHandler) error
+	Unsubscribe(EventType, EventHandler) error
+
+	// Query interface
+	Query() QueryBuilder
+	CreateQuery(QueryBuilder) QueryResult
+	ExecuteQuery(QueryBuilder) QueryResult
+
+	// Batch operations
+	CreateEntities(count int) []EntityID
+	DestroyEntities([]EntityID) error
+	AddComponents(EntityID, []Component) error
+	RemoveComponents(EntityID, []ComponentType) error
+
+	// Serialization for saves/mods
+	SerializeEntity(EntityID) ([]byte, error)
+	DeserializeEntity([]byte) (EntityID, error)
+	SerializeWorld() ([]byte, error)
+	DeserializeWorld([]byte) error
+
+	// Thread safety
+	Lock()
+	RLock()
+	Unlock()
+	RUnlock()
+}
+
+// Component コンポーネントの基底インターフェース
+type Component interface {
+	// GetType returns the component type for identification
+	GetType() ComponentType
+
+	// Clone creates a deep copy of the component
+	Clone() Component
+
+	// Validate ensures the component data is valid
+	Validate() error
+
+	// Size returns the memory size of the component in bytes
+	Size() int
+
+	// Serialize converts the component to bytes for persistence
+	Serialize() ([]byte, error)
+
+	// Deserialize loads component data from bytes
+	Deserialize([]byte) error
+}
+
+// Game interface defines the main game loop methods
+type GameInterface interface {
 	Update() error
 	Draw(screen *ebiten.Image)
 	Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int)
