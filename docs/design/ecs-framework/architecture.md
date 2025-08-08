@@ -1,5 +1,12 @@
 # ECSフレームワーク アーキテクチャ設計
 
+## 設計概要
+
+**設計日時**: 2025-08-07  
+**対象プロジェクト**: Muscle Dreamer ECSフレームワーク  
+**設計根拠**: `docs/spec/ecs-framework-requirements.md`  
+**設計思想**: 高性能・メモリ効率・型安全・拡張性  
+
 ## システム概要
 
 Muscle Dreamer ECSフレームワークは、高性能な2Dゲームエンジンの中核を成すEntity Component Systemアーキテクチャです。10,000以上のエンティティを60FPSで処理し、MODシステムとの安全な統合を提供します。
