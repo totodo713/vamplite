@@ -25,12 +25,12 @@ This document defines the project's rules, objectives, and progress management m
 - 変更があればこまめにコミットする
 - 全体のテストが通ることを確認する
 - タスクが完了したら変更を自分の作業ブランチにマージする
+- `container-use`で環境を削除する
 - 作業ブランチをpushしてPullRequestを作成する
 - PRをレビューしてもらう
 - レビュー指摘があれば修正する
 - 修正内容をもとにPullRequestを更新して再レビューを依頼する
 - レビューが完了したら通知する
-- `container-use`で作成したブランチを削除する
 
 ## Top-Level Rules
 
