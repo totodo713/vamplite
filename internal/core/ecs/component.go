@@ -140,7 +140,7 @@ type SparseSet interface {
 
 // EntityComponentPair represents an entity-component association.
 type EntityComponentPair struct {
-	EntityID  EntityID  `json:"entity_id"`
+	EntityID  EntityID  `json:"entityId"`
 	Component Component `json:"component"`
 }
 
@@ -148,12 +148,12 @@ type EntityComponentPair struct {
 type SparseSetStats struct {
 	Size          int     `json:"size"`
 	Capacity      int     `json:"capacity"`
-	MemoryUsage   int64   `json:"memory_usage_bytes"`
-	LoadFactor    float64 `json:"load_factor"`
+	MemoryUsage   int64   `json:"memoryUsageBytes"`
+	LoadFactor    float64 `json:"loadFactor"`
 	Fragmentation float64 `json:"fragmentation"`
-	AccessCount   int64   `json:"access_count"`
-	InsertCount   int64   `json:"insert_count"`
-	RemoveCount   int64   `json:"remove_count"`
+	AccessCount   int64   `json:"accessCount"`
+	InsertCount   int64   `json:"insertCount"`
+	RemoveCount   int64   `json:"removeCount"`
 }
 
 // ==============================================
@@ -187,7 +187,7 @@ type MemoryPool interface {
 
 // MemoryPoolStats contains statistics about memory pool usage.
 type MemoryPoolStats struct {
-	ComponentType  ComponentType `json:"component_type"`
+	ComponentType  ComponentType `json:"componentType"`
 	TotalAllocated int           `json:"total_allocated"`
 	CurrentUsed    int           `json:"current_used"`
 	PeakUsed       int           `json:"peak_used"`

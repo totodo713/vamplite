@@ -95,12 +95,12 @@ func (bs *BaseSystem) GetRequiredComponents() []ecs.ComponentType {
 }
 
 // Initialize sets up the system (empty implementation).
-func (bs *BaseSystem) Initialize(world ecs.World) error {
+func (bs *BaseSystem) Initialize(_ ecs.World) error {
 	return nil
 }
 
 // Update processes entities (empty implementation).
-func (bs *BaseSystem) Update(world ecs.World, deltaTime float64) error {
+func (bs *BaseSystem) Update(_ ecs.World, _ float64) error {
 	bs.mutex.Lock()
 	defer bs.mutex.Unlock()
 
@@ -127,7 +127,7 @@ func (bs *BaseSystem) Update(world ecs.World, deltaTime float64) error {
 }
 
 // Render draws entities (empty implementation).
-func (bs *BaseSystem) Render(world ecs.World, renderer interface{}) error {
+func (bs *BaseSystem) Render(world ecs.World, _ interface{}) error {
 	// Rendering systems use the same metrics as Update
 	return bs.Update(world, 0) // deltaTime not used in render
 }
@@ -179,6 +179,7 @@ func (bs *BaseSystem) SetErrorHandler(handler func(error)) {
 }
 
 // handleError processes an error through the error handler.
+// This method is intentionally private and used internally by derived systems.
 func (bs *BaseSystem) handleError(err error) {
 	bs.mutex.Lock()
 	defer bs.mutex.Unlock()

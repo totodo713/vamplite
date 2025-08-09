@@ -15,8 +15,8 @@ type PhysicsComponent struct {
 	Mass         float64     `json:"mass"`
 	Friction     float64     `json:"friction"`
 	Gravity      bool        `json:"gravity"`
-	IsStatic     bool        `json:"is_static"`
-	MaxSpeed     float64     `json:"max_speed"`
+	IsStatic     bool        `json:"isStatic"`
+	MaxSpeed     float64     `json:"maxSpeed"`
 }
 
 // NewPhysicsComponent creates a new physics component with default values

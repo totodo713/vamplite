@@ -13,15 +13,15 @@ import (
 type AIComponent struct {
 	State           AIState       `json:"state"`
 	Target          ecs.EntityID  `json:"target"`
-	PatrolPoints    []ecs.Vector2 `json:"patrol_points"`
-	DetectionRadius float64       `json:"detection_radius"`
-	AttackRange     float64       `json:"attack_range"`
+	PatrolPoints    []ecs.Vector2 `json:"patrolPoints"`
+	DetectionRadius float64       `json:"detectionRadius"`
+	AttackRange     float64       `json:"attackRange"`
 	Speed           float64       `json:"speed"`
 	Behavior        AIBehavior    `json:"behavior"`
-	LastStateChange time.Time     `json:"last_state_change"`
+	LastStateChange time.Time     `json:"lastStateChange"`
 
 	// Internal state
-	currentPatrolIndex int       `json:"current_patrol_index"`
+	currentPatrolIndex int       `json:"currentPatrolIndex"`
 	stateHistory       []AIState `json:"-"`
 }
 
@@ -161,13 +161,13 @@ func (a *AIComponent) Serialize() ([]byte, error) {
 	data := struct {
 		State              AIState       `json:"state"`
 		Target             ecs.EntityID  `json:"target"`
-		PatrolPoints       []ecs.Vector2 `json:"patrol_points"`
-		DetectionRadius    float64       `json:"detection_radius"`
-		AttackRange        float64       `json:"attack_range"`
+		PatrolPoints       []ecs.Vector2 `json:"patrolPoints"`
+		DetectionRadius    float64       `json:"detectionRadius"`
+		AttackRange        float64       `json:"attackRange"`
 		Speed              float64       `json:"speed"`
 		Behavior           AIBehavior    `json:"behavior"`
-		LastStateChange    time.Time     `json:"last_state_change"`
-		CurrentPatrolIndex int           `json:"current_patrol_index"`
+		LastStateChange    time.Time     `json:"lastStateChange"`
+		CurrentPatrolIndex int           `json:"currentPatrolIndex"`
 	}{
 		State:              a.State,
 		Target:             a.Target,
@@ -187,13 +187,13 @@ func (a *AIComponent) Deserialize(data []byte) error {
 	var serialData struct {
 		State              AIState       `json:"state"`
 		Target             ecs.EntityID  `json:"target"`
-		PatrolPoints       []ecs.Vector2 `json:"patrol_points"`
-		DetectionRadius    float64       `json:"detection_radius"`
-		AttackRange        float64       `json:"attack_range"`
+		PatrolPoints       []ecs.Vector2 `json:"patrolPoints"`
+		DetectionRadius    float64       `json:"detectionRadius"`
+		AttackRange        float64       `json:"attackRange"`
 		Speed              float64       `json:"speed"`
 		Behavior           AIBehavior    `json:"behavior"`
-		LastStateChange    time.Time     `json:"last_state_change"`
-		CurrentPatrolIndex int           `json:"current_patrol_index"`
+		LastStateChange    time.Time     `json:"lastStateChange"`
+		CurrentPatrolIndex int           `json:"currentPatrolIndex"`
 	}
 
 	if err := json.Unmarshal(data, &serialData); err != nil {
