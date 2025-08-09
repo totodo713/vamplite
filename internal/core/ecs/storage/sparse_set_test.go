@@ -37,10 +37,11 @@ func Test_SparseSet_AddDuplicateEntity(t *testing.T) {
 	// Arrange
 	sparseSet := NewSparseSet()
 	entityID := ecs.EntityID(123)
-	sparseSet.Add(entityID)
+	err := sparseSet.Add(entityID)
+	assert.NoError(t, err)
 
 	// Act
-	err := sparseSet.Add(entityID)
+	err = sparseSet.Add(entityID)
 
 	// Assert
 	assert.Error(t, err)
@@ -52,10 +53,11 @@ func Test_SparseSet_RemoveEntity(t *testing.T) {
 	// Arrange
 	sparseSet := NewSparseSet()
 	entityID := ecs.EntityID(456)
-	sparseSet.Add(entityID)
+	err := sparseSet.Add(entityID)
+	assert.NoError(t, err)
 
 	// Act
-	err := sparseSet.Remove(entityID)
+	err = sparseSet.Remove(entityID)
 
 	// Assert
 	assert.NoError(t, err)
@@ -83,7 +85,8 @@ func Test_SparseSet_GetIndex(t *testing.T) {
 	entities := []ecs.EntityID{100, 200, 300}
 
 	for _, entity := range entities {
-		sparseSet.Add(entity)
+		err := sparseSet.Add(entity)
+		assert.NoError(t, err)
 	}
 
 	// Act & Assert
@@ -100,7 +103,8 @@ func Test_SparseSet_GetEntityByIndex(t *testing.T) {
 	entities := []ecs.EntityID{100, 200, 300}
 
 	for _, entity := range entities {
-		sparseSet.Add(entity)
+		err := sparseSet.Add(entity)
+		assert.NoError(t, err)
 	}
 
 	// Act & Assert
@@ -114,10 +118,11 @@ func Test_SparseSet_GetEntityByIndex(t *testing.T) {
 func Test_SparseSet_GetEntityByInvalidIndex(t *testing.T) {
 	// Arrange
 	sparseSet := NewSparseSet()
-	sparseSet.Add(ecs.EntityID(100))
+	err := sparseSet.Add(ecs.EntityID(100))
+	assert.NoError(t, err)
 
 	// Act
-	_, err := sparseSet.GetEntityByIndex(10)
+	_, err = sparseSet.GetEntityByIndex(10)
 
 	// Assert
 	assert.Error(t, err)
@@ -153,7 +158,8 @@ func Test_SparseSet_IterateWithStop(t *testing.T) {
 	entities := []ecs.EntityID{100, 200, 300, 400, 500}
 
 	for _, entity := range entities {
-		sparseSet.Add(entity)
+		err := sparseSet.Add(entity)
+		assert.NoError(t, err)
 	}
 
 	// Act
@@ -173,7 +179,8 @@ func Test_SparseSet_Clear(t *testing.T) {
 	entities := []ecs.EntityID{100, 200, 300}
 
 	for _, entity := range entities {
-		sparseSet.Add(entity)
+		err := sparseSet.Add(entity)
+		assert.NoError(t, err)
 	}
 	assert.Equal(t, 3, sparseSet.Size())
 
@@ -246,7 +253,7 @@ func Benchmark_SparseSet_Add(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		sparseSet.Add(ecs.EntityID(i))
+		_ = sparseSet.Add(ecs.EntityID(i))
 	}
 }
 
@@ -255,7 +262,7 @@ func Benchmark_SparseSet_Contains(b *testing.B) {
 
 	// Prepare data
 	for i := 0; i < 10000; i++ {
-		sparseSet.Add(ecs.EntityID(i))
+		_ = sparseSet.Add(ecs.EntityID(i))
 	}
 
 	b.ResetTimer()
@@ -268,7 +275,7 @@ func Benchmark_SparseSet_Remove(b *testing.B) {
 	// Prepare data
 	sparseSet := NewSparseSet()
 	for i := 0; i < b.N; i++ {
-		sparseSet.Add(ecs.EntityID(i))
+		_ = sparseSet.Add(ecs.EntityID(i))
 	}
 
 	b.ResetTimer()
@@ -282,7 +289,7 @@ func Benchmark_SparseSet_Iterate(b *testing.B) {
 
 	// Prepare data
 	for i := 0; i < 10000; i++ {
-		sparseSet.Add(ecs.EntityID(i))
+		_ = sparseSet.Add(ecs.EntityID(i))
 	}
 
 	b.ResetTimer()

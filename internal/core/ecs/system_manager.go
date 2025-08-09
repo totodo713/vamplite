@@ -617,10 +617,10 @@ func (sm *SystemManagerImpl) GetParallelGroups() [][]SystemType {
 	return result
 }
 
-func (sm *SystemManagerImpl) SetMaxParallelSystems(max int) {
+func (sm *SystemManagerImpl) SetMaxParallelSystems(maxSystems int) {
 	sm.mutex.Lock()
 	defer sm.mutex.Unlock()
-	sm.maxParallelSystems = max
+	sm.maxParallelSystems = maxSystems
 }
 
 func (sm *SystemManagerImpl) GetMaxParallelSystems() int {
@@ -761,12 +761,12 @@ func (sm *SystemManagerImpl) GetFailedSystems() []SystemType {
 	return failed
 }
 
-func (sm *SystemManagerImpl) SetSystemTimeout(systemType SystemType, timeout time.Duration) error {
+func (sm *SystemManagerImpl) SetSystemTimeout(_ SystemType, _ time.Duration) error {
 	// TODO: Implement in refactor phase
 	return nil
 }
 
-func (sm *SystemManagerImpl) GetSystemTimeout(systemType SystemType) time.Duration {
+func (sm *SystemManagerImpl) GetSystemTimeout(_ SystemType) time.Duration {
 	// TODO: Implement in refactor phase
 	return sm.globalTimeout
 }

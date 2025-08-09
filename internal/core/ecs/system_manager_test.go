@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+
 // ==============================================
 // Mock System Implementation for Testing
 // ==============================================
@@ -49,7 +50,7 @@ func (s *MockSystem) IsEnabled() bool {
 	return true
 }
 
-func (s *MockSystem) SetEnabled(enabled bool) {
+func (s *MockSystem) SetEnabled(_ bool) {
 	// Mock implementation
 }
 
@@ -57,7 +58,7 @@ func (s *MockSystem) GetMetrics() *SystemMetrics {
 	return &SystemMetrics{}
 }
 
-func (s *MockSystem) Update(world World, deltaTime float64) error {
+func (s *MockSystem) Update(_ World, _ float64) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -70,7 +71,7 @@ func (s *MockSystem) Update(world World, deltaTime float64) error {
 	return nil
 }
 
-func (s *MockSystem) Render(world World, renderer interface{}) error {
+func (s *MockSystem) Render(_ World, _ interface{}) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -151,12 +152,12 @@ func (w *MockWorld) GetEntityCount() int                                     { r
 func (w *MockWorld) GetActiveEntities() []EntityID                           { return []EntityID{} }
 func (w *MockWorld) AddComponent(EntityID, Component) error                  { return nil }
 func (w *MockWorld) RemoveComponent(EntityID, ComponentType) error           { return nil }
-func (w *MockWorld) GetComponent(EntityID, ComponentType) (Component, error) { return nil, nil }
+func (w *MockWorld) GetComponent(EntityID, ComponentType) (Component, error) { return nil, errors.New(ErrComponentNotFound) }
 func (w *MockWorld) HasComponent(EntityID, ComponentType) bool               { return false }
 func (w *MockWorld) GetComponents(EntityID) []Component                      { return []Component{} }
 func (w *MockWorld) RegisterSystem(System) error                             { return nil }
 func (w *MockWorld) UnregisterSystem(SystemType) error                       { return nil }
-func (w *MockWorld) GetSystem(SystemType) (System, error)                    { return nil, nil }
+func (w *MockWorld) GetSystem(SystemType) (System, error)                    { return nil, errors.New(ErrSystemNotFound) }
 func (w *MockWorld) GetAllSystems() []System                                 { return []System{} }
 func (w *MockWorld) EnableSystem(SystemType) error                           { return nil }
 func (w *MockWorld) DisableSystem(SystemType) error                          { return nil }

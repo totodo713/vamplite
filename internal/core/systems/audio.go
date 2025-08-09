@@ -238,18 +238,3 @@ func (as *AudioSystem) calculate3DVolume(audioPos ecs.Vector2, baseVolume, maxDi
 	distanceRatio := 1.0 - (distance / maxDistance)
 	return baseVolume * distanceRatio * as.masterVolume
 }
-
-// calculateDopplerPitch computes pitch based on relative velocity (Doppler effect).
-func (as *AudioSystem) calculateDopplerPitch(velocity ecs.Vector2, basePitch float64) float64 {
-	// Simplified Doppler effect calculation
-	// In a real implementation, this would need more sophisticated physics
-	speedOfSound := 343.0                       // m/s
-	relativeVelocity := velocity.X + velocity.Y // Simplified
-
-	if math.Abs(relativeVelocity) < 0.1 {
-		return basePitch // No significant relative motion
-	}
-
-	pitchShift := 1.0 + (relativeVelocity / speedOfSound * 0.1)
-	return basePitch * pitchShift
-}

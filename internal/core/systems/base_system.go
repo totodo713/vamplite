@@ -178,20 +178,6 @@ func (bs *BaseSystem) SetErrorHandler(handler func(error)) {
 	bs.errorHandler = handler
 }
 
-// handleError processes an error through the error handler.
-// This method is intentionally private and used internally by derived systems.
-func (bs *BaseSystem) handleError(err error) {
-	bs.mutex.Lock()
-	defer bs.mutex.Unlock()
-
-	bs.lastError = err
-	bs.metrics.ErrorCount++
-
-	if bs.errorHandler != nil {
-		bs.errorHandler(err)
-	}
-}
-
 // GetLastError returns the last error that occurred.
 func (bs *BaseSystem) GetLastError() error {
 	bs.mutex.RLock()

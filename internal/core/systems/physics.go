@@ -17,7 +17,6 @@ type PhysicsSystem struct {
 	staticColliders []Collider
 	collisions      []Collision
 	fixedTimeStep   float64
-	accumulator     float64 // Used for fixed timestep physics simulation
 }
 
 // Collider represents a collision shape.
@@ -193,9 +192,6 @@ func (ps *PhysicsSystem) checkAABBCollision(boundsA, boundsB Rectangle) bool {
 }
 
 // resolveCollision applies collision response between two entities.
-func (ps *PhysicsSystem) resolveCollision(_ *Collision, _ ecs.World) {
-	// TODO: Implement collision resolution
-}
 
 // applyGravity applies gravity to a physics component.
 func (ps *PhysicsSystem) applyGravity(physics *components.PhysicsComponent, deltaTime float64) {
@@ -219,7 +215,11 @@ func (ps *PhysicsSystem) applyDrag(physics *components.PhysicsComponent, deltaTi
 }
 
 // checkStaticCollisions checks collision between an entity and static colliders.
-func (ps *PhysicsSystem) checkStaticCollisions(entityID ecs.EntityID, transform *components.TransformComponent, _ *components.PhysicsComponent) {
+func (ps *PhysicsSystem) checkStaticCollisions(
+	entityID ecs.EntityID,
+	transform *components.TransformComponent,
+	_ *components.PhysicsComponent,
+) {
 	// Simple entity bounds (assuming 32x32 entity for now)
 	entityBounds := Rectangle{
 		X:      transform.Position.X,

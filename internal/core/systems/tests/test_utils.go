@@ -1,14 +1,34 @@
 package tests
 
 import (
+	"crypto/rand"
 	"fmt"
-	"math/rand"
+	"math/big"
+	mathRand "math/rand"
 	"sync"
 	"time"
 
 	"muscle-dreamer/internal/core/ecs"
 	"muscle-dreamer/internal/core/ecs/components"
 )
+
+const (
+	testScreenWidth  = 800
+	testScreenHeight = 600
+	fullCircleRad    = 6.28
+	mockHash         = "mock_hash"
+)
+
+// cryptoRandFloat64 generates a cryptographically secure random float64 between 0 and 1.
+func cryptoRandFloat64() float64 {
+	max := big.NewInt(1 << 53)
+	n, err := rand.Int(rand.Reader, max)
+	if err != nil {
+		// Fallback to zero in case of error
+		return 0.0
+	}
+	return float64(n.Int64()) / float64(max.Int64())
+}
 
 // MockWorld is a test implementation of the World interface
 type MockWorld struct {
@@ -549,7 +569,7 @@ func (qb *MockQueryBuilder) ExecuteWithCallback(callback func(ecs.EntityID, []ec
 	return nil
 }
 func (qb *MockQueryBuilder) ToString() string     { return "mock_query" }
-func (qb *MockQueryBuilder) ToHash() string       { return "mock_hash" }
+func (qb *MockQueryBuilder) ToHash() string       { return mockHash }
 func (qb *MockQueryBuilder) GetSignature() string { return "mock_signature" }
 func (qb *MockQueryBuilder) Clone() ecs.QueryBuilder {
 	clone := *qb
@@ -733,7 +753,7 @@ func (qr *MockQueryResult) ToJSON() ([]byte, error)                             
 func (qr *MockQueryResult) ToCSV() ([]byte, error)                                { return []byte(""), nil }
 func (qr *MockQueryResult) GetQueryTime() time.Duration                           { return 0 }
 func (qr *MockQueryResult) GetCacheHit() bool                                     { return false }
-func (qr *MockQueryResult) GetResultHash() string                                 { return "mock_hash" }
+func (qr *MockQueryResult) GetResultHash() string                                 { return mockHash }
 func (qr *MockQueryResult) GetTimestamp() time.Time                               { return time.Now() }
 func (qr *MockQueryResult) GetQuerySignature() string                             { return "mock" }
 func (qr *MockQueryResult) Subscribe(callback func(ecs.QueryUpdateEvent)) error   { return nil }
@@ -943,37 +963,37 @@ func CreateRandomEntities(world *MockWorld, count int) []ecs.EntityID {
 		// Add random transform
 		transform := &components.TransformComponent{
 			Position: ecs.Vector2{
-				X: rand.Float64() * 800,
-				Y: rand.Float64() * 600,
+				X: cryptoRandFloat64() * testScreenWidth,
+				Y: cryptoRandFloat64() * testScreenHeight,
 			},
-			Rotation: rand.Float64() * 6.28,
+			Rotation: cryptoRandFloat64() * fullCircleRad,
 			Scale:    ecs.Vector2{X: 1, Y: 1},
 		}
 		world.AddComponent(entity, transform)
 
 		// 50% chance to add physics
-		if rand.Float32() < 0.5 {
+		if mathRand.Float32() < 0.5 {
 			physics := &components.PhysicsComponent{
 				Velocity: ecs.Vector2{
-					X: (rand.Float64() - 0.5) * 200,
-					Y: (rand.Float64() - 0.5) * 200,
+					X: (mathRand.Float64() - 0.5) * 200,
+					Y: (mathRand.Float64() - 0.5) * 200,
 				},
-				Mass:     rand.Float64()*10 + 1,
-				IsStatic: rand.Float32() < 0.2,
+				Mass:     mathRand.Float64()*10 + 1,
+				IsStatic: mathRand.Float32() < 0.2,
 			}
 			world.AddComponent(entity, physics)
 		}
 
 		// 70% chance to add sprite
-		if rand.Float32() < 0.7 {
+		if mathRand.Float32() < 0.7 {
 			sprite := &components.SpriteComponent{
-				TextureID: fmt.Sprintf("texture_%d", rand.Intn(10)),
+				TextureID: fmt.Sprintf("texture_%d", mathRand.Intn(10)),
 				SourceRect: ecs.AABB{
 					Min: ecs.Vector2{X: 0, Y: 0},
 					Max: ecs.Vector2{X: 32, Y: 32},
 				},
 				Visible: true,
-				ZOrder:  rand.Intn(10),
+				ZOrder:  mathRand.Intn(10),
 			}
 			world.AddComponent(entity, sprite)
 		}

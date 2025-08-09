@@ -1,9 +1,10 @@
 package tests
 
 import (
+	"crypto/rand"
 	"fmt"
 	"math"
-	"math/rand"
+	"math/big"
 	"testing"
 	"time"
 
@@ -13,6 +14,7 @@ import (
 	"muscle-dreamer/internal/core/ecs/components"
 	"muscle-dreamer/internal/core/systems"
 )
+
 
 func TestSystemsIntegration_MovementToPhysics(t *testing.T) {
 	movementSystem := systems.NewMovementSystem()
@@ -218,7 +220,7 @@ func TestSystemsPerformance_5000Entities(t *testing.T) {
 		entity := world.CreateEntity()
 
 		transform := &components.TransformComponent{
-			Position: ecs.Vector2{X: rand.Float64() * 800, Y: rand.Float64() * 600},
+			Position: ecs.Vector2{X: cryptoRandFloat64() * testScreenWidth, Y: cryptoRandFloat64() * testScreenHeight},
 			Scale:    ecs.Vector2{X: 1, Y: 1},
 		}
 		physics := &components.PhysicsComponent{
@@ -280,7 +282,7 @@ func TestSystemsPerformance_LargeEntityCounts(t *testing.T) {
 			for i := 0; i < count; i++ {
 				entity := world.CreateEntity()
 				transform := &components.TransformComponent{
-					Position: ecs.Vector2{X: rand.Float64() * 800, Y: rand.Float64() * 600},
+					Position: ecs.Vector2{X: cryptoRandFloat64() * testScreenWidth, Y: cryptoRandFloat64() * testScreenHeight},
 					Scale:    ecs.Vector2{X: 1, Y: 1},
 				}
 				physics := &components.PhysicsComponent{

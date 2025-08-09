@@ -33,7 +33,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 func (g *Game) Run() error {
 	ebiten.SetWindowSize(1280, 720)
 	ebiten.SetWindowTitle("マッスルドリーマー〜観光編〜")
-	ebiten.SetWindowResizable(true)
+	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 
 	return ebiten.RunGame(g)
 }

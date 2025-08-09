@@ -85,8 +85,14 @@ func (rs *RenderingSystem) Render(world ecs.World, renderer interface{}) error {
 			continue
 		}
 
-		transform := transformComp.(*components.TransformComponent)
-		sprite := spriteComp.(*components.SpriteComponent)
+		transform, ok := transformComp.(*components.TransformComponent)
+		if !ok {
+			continue
+		}
+		sprite, ok := spriteComp.(*components.SpriteComponent)
+		if !ok {
+			continue
+		}
 
 		// Skip if not visible
 		if !sprite.Visible {
@@ -187,15 +193,4 @@ func (rs *RenderingSystem) sortByZOrder(entities []RenderableEntity) {
 	sort.Slice(entities, func(i, j int) bool {
 		return entities[i].ZOrder < entities[j].ZOrder
 	})
-}
-
-// transformToScreen converts world coordinates to screen coordinates.
-func (rs *RenderingSystem) transformToScreen(worldPos ecs.Vector2) ecs.Vector2 {
-	// Apply camera transformation
-	screenX := (worldPos.X - rs.camera.Position.X) * rs.camera.Zoom
-	screenY := (worldPos.Y - rs.camera.Position.Y) * rs.camera.Zoom
-
-	// TODO: Apply rotation if needed
-
-	return ecs.Vector2{X: screenX, Y: screenY}
 }

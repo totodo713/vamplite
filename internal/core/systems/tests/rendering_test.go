@@ -94,7 +94,7 @@ func TestRenderingSystem_ZOrder(t *testing.T) {
 
 func TestRenderingSystem_ViewportCulling(t *testing.T) {
 	system := systems.NewRenderingSystem()
-	system.SetViewport(0, 0, 800, 600)
+	system.SetViewport(0, 0, testScreenWidth, testScreenHeight)
 	world := createWorldWithEntities()
 	mockRenderer := &MockRenderer{}
 
