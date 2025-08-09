@@ -6,9 +6,10 @@ import (
 	"testing"
 	"time"
 
+	"muscle-dreamer/internal/core/ecs"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"muscle-dreamer/internal/core/ecs"
 )
 
 func TestModEntityAPI_Create(t *testing.T) {
