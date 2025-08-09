@@ -16,6 +16,20 @@ You MUST inform the user how to view your work using `container-use log <env_id>
 
 This document defines the project's rules, objectives, and progress management methods. Please proceed with the project according to the following content.
 
+## 開発ワークフロー
+
+### 作業ブランチ(`develop/*`)で作業している場合
+
+- `main`から変更があれば同期する。
+- 作業を実施する
+- 変更があればこまめにコミットする
+- 全体のテストが通ることを確認する
+- タスクが完了したら変更を自分の作業ブランチにマージする
+- 作業ブランチをpushしてPullRequestを作成する
+- PRをレビューしてもらう
+- レビュー指摘があれば修正して再レビューを依頼する
+- レビューが完了したら通知する
+
 ## Top-Level Rules
 
 - To maximize efficiency, **if you need to execute multiple independent processes, invoke those tools concurrently, not sequentially**.
