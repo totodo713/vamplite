@@ -20,7 +20,10 @@ linters-settings:
     default-signifies-exhaustive: false
 
   gci:
-    local-prefixes: muscle-dreamer
+    sections:
+      - standard
+      - default
+      - prefix(muscle-dreamer)
 
   goconst:
     min-len: 2
