@@ -69,7 +69,6 @@ linters-settings:
           - assign
 
   govet:
-    check-shadowing: true
     settings:
       printf:
         funcs:
