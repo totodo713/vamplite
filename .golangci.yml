@@ -153,7 +153,6 @@ linters-settings:
     check-exported: false
 
   unused:
-    go: "1.23"
 
   whitespace:
     multi-if: false
