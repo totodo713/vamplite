@@ -24,11 +24,12 @@ jobs:
         go-version: ${{ env.GO_VERSION }}
         
     - name: Cache Go modules
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        key: ${{ runner.os }}-go-lint-${{ hashFiles('**/go.sum') }}
         restore-keys: |
+          ${{ runner.os }}-go-lint-
           ${{ runner.os }}-go-
 
     - name: Install dependencies
@@ -65,11 +66,12 @@ jobs:
         go-version: ${{ matrix.go-version }}
         
     - name: Cache Go modules
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ matrix.go-version }}-${{ hashFiles('**/go.sum') }}
+        key: ${{ runner.os }}-go-test-${{ matrix.go-version }}-${{ hashFiles('**/go.sum') }}
         restore-keys: |
+          ${{ runner.os }}-go-test-${{ matrix.go-version }}-
           ${{ runner.os }}-go-${{ matrix.go-version }}-
 
     - name: Install dependencies
@@ -121,12 +123,13 @@ jobs:
         go-version: ${{ env.GO_VERSION }}
         
     - name: Cache Go modules
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/go/pkg/mod
         key: ${{ runner.os }}-go-benchmark-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-go-benchmark-
+          ${{ runner.os }}-go-
 
     - name: Install dependencies
       run: go mod download
@@ -177,14 +180,14 @@ jobs:
     - name: Run gosec security scanner
       run: |
         go install github.com/securecodewarrior/gosec/v2/cmd/gosec@latest
-        mkdir -p ${{ github.workspace }}
-        gosec -severity medium -confidence medium -fmt sarif -out ${{ github.workspace }}/gosec.sarif ./... || true
+        mkdir -p ./reports
+        gosec -severity medium -confidence medium -fmt sarif -out ./reports/gosec.sarif ./... || true
 
     - name: Upload SARIF file
-      if: always()
+      if: always() && hashFiles('./reports/gosec.sarif') != ''
       uses: github/codeql-action/upload-sarif@v3
       with:
-        sarif_file: ${{ github.workspace }}/gosec.sarif
+        sarif_file: ./reports/gosec.sarif
 
   # Build verification
   build:
@@ -207,12 +210,14 @@ jobs:
         go-version: ${{ env.GO_VERSION }}
         
     - name: Cache Go modules
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/go/pkg/mod
-        key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
+        key: ${{ runner.os }}-go-build-${{ matrix.goos }}-${{ matrix.goarch }}-${{ hashFiles('**/go.sum') }}
         restore-keys: |
+          ${{ runner.os }}-go-build-${{ matrix.goos }}-${{ matrix.goarch }}-
           ${{ runner.os }}-go-build-
+          ${{ runner.os }}-go-
 
     - name: Install dependencies
       run: go mod download
@@ -248,12 +253,14 @@ jobs:
         go-version: ${{ env.GO_VERSION }}
 
     - name: Cache Go modules
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/go/pkg/mod
-        key: ${{ runner.os }}-go-ecs-${{ hashFiles('**/go.sum') }}
+        key: ${{ runner.os }}-go-ecs-validation-${{ hashFiles('**/go.sum') }}
         restore-keys: |
+          ${{ runner.os }}-go-ecs-validation-
           ${{ runner.os }}-go-ecs-
+          ${{ runner.os }}-go-
 
     - name: Install dependencies
       run: go mod download
