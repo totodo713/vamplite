@@ -2,9 +2,19 @@
 
 ## 概要
 
-全タスク数: 28
-推定作業時間: 8週間（320時間）
-クリティカルパス: TASK-001 → TASK-002 → TASK-101 → TASK-102 → TASK-201 → TASK-401
+**設計根拠**: `docs/design/ecs-framework/` の包括的設計文書群  
+**全タスク数**: 32タスク  
+**推定作業時間**: 10週間（400時間）  
+**クリティカルパス**: TASK-001 → TASK-002 → TASK-101 → TASK-102 → TASK-201 → TASK-301 → TASK-401
+
+## 設計文書の対応関係
+
+- **要件定義**: `docs/spec/ecs-framework-requirements.md` - 32機能要件・22非機能要件
+- **アーキテクチャ**: `docs/design/ecs-framework/architecture.md` - DOD+ECS設計・5層アーキテクチャ
+- **データフロー**: `docs/design/ecs-framework/dataflow.md` - 詳細シーケンス図・パフォーマンス最適化フロー
+- **インターフェース**: `docs/design/ecs-framework/interfaces.go` - 14の完全なGo型定義
+- **API仕様**: `docs/design/ecs-framework/api-endpoints.md` - REST/WebSocket API
+- **データベース**: `docs/design/ecs-framework/database-schema.sql` - SQLite設計
 
 ## マイルストーン
 
@@ -286,7 +296,7 @@
 
 #### TASK-301: ModECSAPI実装
 
-- [ ] **タスク完了**
+- [x] **タスク完了**
 - **タスクタイプ**: TDD
 - **要件リンク**: NFR-101, REQ-301, REQ-302
 - **依存タスク**: TASK-204
@@ -408,6 +418,16 @@
   - [ ] 安定性テスト: 24時間連続実行
   - [ ] MODテスト: ゾンビMOD統合シナリオ
   - [ ] WebAssemblyテスト: ブラウザ動作確認
+- **統合テスト要件**:
+  - [ ] システム間データフロー検証
+  - [ ] エラー伝播・復旧テスト
+  - [ ] 並列システム実行安全性テスト
+  - [ ] リアルタイム監視機能統合テスト
+- **Web UI/UX要件** (デバッグ・管理インターフェース):
+  - [ ] ローディング状態: API呼び出し中のスピナー表示
+  - [ ] エラー表示: エラーメッセージのトースト通知
+  - [ ] レスポンシブ対応: モバイル・タブレット表示最適化
+  - [ ] アクセシビリティ: キーボード操作・スクリーンリーダー対応
 - **品質基準**:
   - [ ] エラー発生率<0.01%
   - [ ] メモリリーク<50MB/24h
