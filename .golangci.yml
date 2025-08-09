@@ -183,6 +183,7 @@ linters:
 
     # Additional quality linters
     - asciicheck
+    - shadow
     - bodyclose
     - contextcheck
     - cyclop
