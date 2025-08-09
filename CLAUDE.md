@@ -10,6 +10,8 @@ DO NOT install or use the git cli with the environment_run_cmd tool. All environ
 
 You MUST inform the user how to view your work using `container-use log <env_id>` AND `container-use checkout <env_id>`. Failure to do this will make your work inaccessible to others.
 
+ただし、GitHubのPull Requestの操作をする場合（作成、更新、コメント、レビューなど）はcontanierを利用しない。
+
 # Guidelines
 
 This document defines the project's rules, objectives, and progress management methods. Please proceed with the project according to the following content.
