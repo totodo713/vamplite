@@ -25,7 +25,7 @@ func TestBaseSystem_GetType(t *testing.T) {
 
 	systemType := system.GetType()
 
-	assert.Equal(t, TestSystemType, systemType)
+	assert.Equal(t, MockSystemType, systemType)
 	assert.NotEmpty(t, string(systemType))
 }
 
