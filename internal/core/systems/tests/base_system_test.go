@@ -138,7 +138,7 @@ type MockBaseSystem struct {
 }
 
 func createTestBaseSystem() *MockBaseSystem {
-	base := systems.NewBaseSystem(TestSystemType, ecs.PriorityNormal)
+	base := systems.NewBaseSystem(MockSystemType, ecs.PriorityNormal)
 	return &MockBaseSystem{BaseSystem: base}
 }
 
