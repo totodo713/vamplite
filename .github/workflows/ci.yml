@@ -7,7 +7,7 @@ on:
     branches: [ main, develop ]
 
 env:
-  GO_VERSION: '1.24'
+  GO_VERSION: '1.23'
   GOLANGCI_LINT_VERSION: 'v1.62'
 
 jobs:
@@ -55,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go-version: ['1.24']
+        go-version: ['1.23']
     steps:
     - uses: actions/checkout@v4
     
@@ -89,7 +89,7 @@ jobs:
         go tool cover -func=coverage.out
 
     - name: Upload coverage to Codecov
-      if: matrix.go-version == '1.24'
+      if: matrix.go-version == '1.23'
       uses: codecov/codecov-action@v3
       with:
         file: ./coverage.out
@@ -97,7 +97,7 @@ jobs:
         name: codecov-umbrella
 
     - name: Upload coverage artifacts
-      if: matrix.go-version == '1.24'
+      if: matrix.go-version == '1.23'
       uses: actions/upload-artifact@v4
       with:
         name: coverage-report
