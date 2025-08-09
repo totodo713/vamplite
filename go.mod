@@ -1,6 +1,8 @@
 module muscle-dreamer
 
-go 1.23
+go 1.23.0
+
+toolchain go1.24.0
 
 require (
 	github.com/hajimehoshi/ebiten/v2 v2.6.3
