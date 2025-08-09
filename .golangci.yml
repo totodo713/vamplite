@@ -241,7 +241,6 @@ linters:
   # - godox: Allow TODO/FIXME in development
   # - wsl: Too strict for game development patterns
 
-issues:
   exclude-rules:
     # Exclude some linters from running on tests files.
     - path: _test\.go
