@@ -117,6 +117,40 @@
 - **Description**: Metal API バインディング
 - **Usage**: macOS GPU アクセス
 
+## Webフロントエンド依存関係 (npm)
+
+webディレクトリのフロントエンド関連の依存関係です。`npx license-checker`により確認。
+
+### express@4.21.2
+- **Repository**: https://github.com/expressjs/express
+- **License**: MIT License
+- **Description**: Webアプリケーションフレームワーク
+- **Usage**: 開発用サーバーで使用
+
+### concurrently@8.2.2
+- **Repository**: https://github.com/open-cli-tools/concurrently
+- **License**: MIT License
+- **Description**: 複数コマンドの並列実行ツール
+- **Usage**: 開発スクリプトの実行
+
+### cors@2.8.5
+- **Repository**: https://github.com/expressjs/cors
+- **License**: MIT License
+- **Description**: CORS (Cross-Origin Resource Sharing) ミドルウェア
+- **Usage**: 開発サーバーでのAPIアクセス許可
+
+### serve@14.2.3
+- **Repository**: https://github.com/vercel/serve
+- **License**: MIT License
+- **Description**: 静的ファイルサービング
+- **Usage**: ビルド済みWebフロントエンドの配信
+
+### license-checker@25.0.1
+- **Repository**: https://github.com/davglass/license-checker
+- **License**: BSD-3-Clause
+- **Description**: ライセンス確認ツール
+- **Usage**: 依存関係のライセンス監査
+
 ## ライセンス互換性の評価
 
 ### 本プロジェクト（CC BY-NC 4.0）との互換性
