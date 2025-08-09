@@ -285,7 +285,7 @@ issues:
 
 run:
   timeout: 5m
-  go: "1.24"
+  go: "1.23"
   modules-download-mode: readonly
   allow-parallel-runners: true
 
