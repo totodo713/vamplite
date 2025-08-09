@@ -1,10 +1,9 @@
 package tests
 
 import (
-	"crypto/rand"
 	"fmt"
 	"math"
-	"math/big"
+	mathRand "math/rand"
 	"testing"
 	"time"
 
@@ -225,9 +224,9 @@ func TestSystemsPerformance_5000Entities(t *testing.T) {
 		}
 		physics := &components.PhysicsComponent{
 			Mass:     1.0,
-			Velocity: ecs.Vector2{X: rand.Float64()*200 - 100, Y: rand.Float64()*200 - 100},
-			IsStatic: rand.Intn(10) < 2, // 20%の確率で静的
-			Gravity:  rand.Intn(2) == 1, // 50%の確率で重力あり
+			Velocity: ecs.Vector2{X: mathRand.Float64()*200 - 100, Y: mathRand.Float64()*200 - 100},
+			IsStatic: mathRand.Intn(10) < 2, // 20%の確率で静的
+			Gravity:  mathRand.Intn(2) == 1, // 50%の確率で重力あり
 		}
 
 		world.AddComponent(entity, transform)
@@ -287,7 +286,7 @@ func TestSystemsPerformance_LargeEntityCounts(t *testing.T) {
 				}
 				physics := &components.PhysicsComponent{
 					Mass:     1.0,
-					Velocity: ecs.Vector2{X: rand.Float64() * 100, Y: rand.Float64() * 100},
+					Velocity: ecs.Vector2{X: mathRand.Float64() * 100, Y: mathRand.Float64() * 100},
 				}
 				world.AddComponent(entity, transform)
 				world.AddComponent(entity, physics)
