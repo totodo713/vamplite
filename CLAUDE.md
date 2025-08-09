@@ -27,7 +27,8 @@ This document defines the project's rules, objectives, and progress management m
 - タスクが完了したら変更を自分の作業ブランチにマージする
 - 作業ブランチをpushしてPullRequestを作成する
 - PRをレビューしてもらう
-- レビュー指摘があれば修正して再レビューを依頼する
+- レビュー指摘があれば修正する
+- 修正内容をもとにPullRequestを更新して再レビューを依頼する
 - レビューが完了したら通知する
 
 ## Top-Level Rules
