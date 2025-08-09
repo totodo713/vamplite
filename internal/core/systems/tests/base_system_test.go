@@ -130,7 +130,7 @@ func TestBaseSystem_MetricsReset(t *testing.T) {
 
 // Test helper functions and mock objects
 
-const TestSystemType = ecs.SystemType("test_system")
+const MockSystemType = ecs.SystemType("test_system")
 
 // MockBaseSystem extends BaseSystem for testing
 type MockBaseSystem struct {
