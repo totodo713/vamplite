@@ -278,6 +278,7 @@ linters:
   exclude-use-default: false
   max-issues-per-linter: 0
   max-same-issues: 0
+  uniq-by-line: true
 
 run:
   timeout: 5m
