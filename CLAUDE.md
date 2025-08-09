@@ -18,14 +18,12 @@ This document defines the project's rules, objectives, and progress management m
 
 ## 開発ワークフロー
 
-### 作業ブランチ(`develop/*`)で作業している場合
-
 - `main`から変更があれば同期する。
 - 作業を実施する
 - 変更があればこまめにコミットする
 - 全体のテストが通ることを確認する
-- タスクが完了したら変更を自分の作業ブランチにマージする
-- `container-use`で環境を削除する
+- タスクが完了したら変更を`container-use merge`で自分の作業ブランチにマージする
+- `container-use delete`で環境を削除する
 - 作業ブランチをpushしてPullRequestを作成する
 - PRをレビューしてもらう
 - レビュー指摘があれば修正する
