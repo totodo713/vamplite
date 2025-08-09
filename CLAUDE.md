@@ -30,6 +30,7 @@ This document defines the project's rules, objectives, and progress management m
 - レビュー指摘があれば修正する
 - 修正内容をもとにPullRequestを更新して再レビューを依頼する
 - レビューが完了したら通知する
+- `container-use`で作成したブランチを削除する
 
 ## Top-Level Rules
 
