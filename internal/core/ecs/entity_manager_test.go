@@ -172,8 +172,8 @@ func TestEntityManager_RecycleEntity(t *testing.T) {
 
 	t.Run("TC017: Recycled ID is reused on new creation", func(t *testing.T) {
 		entity1 := em.CreateEntity()
-		em.DestroyEntity(entity1)
-		em.RecycleEntity(entity1)
+		_ = em.DestroyEntity(entity1)
+		_ = em.RecycleEntity(entity1)
 
 		entity2 := em.CreateEntity()
 		if entity2 != entity1 {
@@ -236,8 +236,8 @@ func TestEntityManager_ClearRecycled(t *testing.T) {
 
 	t.Run("TC022: New entities get fresh IDs after clear", func(t *testing.T) {
 		entity1 := em.CreateEntity()
-		em.DestroyEntity(entity1)
-		em.RecycleEntity(entity1)
+		_ = em.DestroyEntity(entity1)
+		_ = em.RecycleEntity(entity1)
 		_ = em.ClearRecycled()
 
 		entity2 := em.CreateEntity()
@@ -302,7 +302,7 @@ func TestEntityManager_SetParent(t *testing.T) {
 		entity1 := em.CreateEntity()
 		entity2 := em.CreateEntity()
 
-		em.SetParent(entity2, entity1)
+		_ = em.SetParent(entity2, entity1)
 		err := em.SetParent(entity1, entity2)
 
 		if err == nil {
@@ -332,14 +332,18 @@ func TestEntityManager_SetParent(t *testing.T) {
 func TestEntityManager_GetHierarchy(t *testing.T) {
 	em := NewDefaultEntityManager()
 
-	t.Run("TC028: Get all descendants", func(t *testing.T) {
-		// Create hierarchy: grandparent -> parent -> child
-		grandparent := em.CreateEntity()
-		parent := em.CreateEntity()
-		child := em.CreateEntity()
-
-		em.SetParent(parent, grandparent)
+	// Helper function to create test hierarchy
+	createTestHierarchy := func() (grandparent, parent, child EntityID) {
+		grandparent = em.CreateEntity()
+		parent = em.CreateEntity()
+		child = em.CreateEntity()
+		_ = em.SetParent(parent, grandparent)
 		_ = em.SetParent(child, parent)
+		return
+	}
+
+	t.Run("TC028: Get all descendants", func(t *testing.T) {
+		grandparent, parent, child := createTestHierarchy()
 
 		descendants := em.GetDescendants(grandparent)
 		if len(descendants) != 2 {
@@ -357,13 +361,7 @@ func TestEntityManager_GetHierarchy(t *testing.T) {
 	})
 
 	t.Run("TC029: Get all ancestors", func(t *testing.T) {
-		// Create hierarchy: grandparent -> parent -> child
-		grandparent := em.CreateEntity()
-		parent := em.CreateEntity()
-		child := em.CreateEntity()
-
-		em.SetParent(parent, grandparent)
-		_ = em.SetParent(child, parent)
+		grandparent, parent, child := createTestHierarchy()
 
 		ancestors := em.GetAncestors(child)
 		if len(ancestors) != 2 {
@@ -388,7 +386,7 @@ func TestEntityManager_GetHierarchy(t *testing.T) {
 
 		// Create chain: 0 -> 1 -> 2 -> ... -> 10
 		for i := 1; i < len(entities); i++ {
-			em.SetParent(entities[i], entities[i-1])
+			_ = em.SetParent(entities[i], entities[i-1])
 		}
 
 		ancestors := em.GetAncestors(entities[10])
@@ -401,13 +399,18 @@ func TestEntityManager_GetHierarchy(t *testing.T) {
 			t.Errorf("Deep parent should have 10 descendants, got %d", len(descendants))
 		}
 	})
+}
+
+// TestEntityManager_IsAncestor tests ancestor relationship checks.
+func TestEntityManager_IsAncestor(t *testing.T) {
+	em := NewDefaultEntityManager()
 
 	t.Run("TC031: IsAncestor correctly identifies relationships", func(t *testing.T) {
 		grandparent := em.CreateEntity()
 		parent := em.CreateEntity()
 		child := em.CreateEntity()
 
-		em.SetParent(parent, grandparent)
+		_ = em.SetParent(parent, grandparent)
 		_ = em.SetParent(child, parent)
 
 		if !em.IsAncestor(grandparent, child) {
@@ -444,7 +447,7 @@ func TestEntityManager_RemoveFromParent(t *testing.T) {
 		child := em.CreateEntity()
 
 		_ = em.SetParent(child, parent)
-		em.RemoveFromParent(child)
+		_ = em.RemoveFromParent(child)
 
 		_, exists := em.GetParent(child)
 		if exists {
@@ -457,7 +460,7 @@ func TestEntityManager_RemoveFromParent(t *testing.T) {
 		child := em.CreateEntity()
 
 		_ = em.SetParent(child, parent)
-		em.RemoveFromParent(child)
+		_ = em.RemoveFromParent(child)
 
 		children := em.GetChildren(parent)
 		for _, c := range children {
@@ -468,7 +471,7 @@ func TestEntityManager_RemoveFromParent(t *testing.T) {
 	})
 }
 
-// TestEntityManager_Tags tests entity tagging functionality.
+// TestEntityManager_Tags tests basic entity tagging functionality.
 func TestEntityManager_Tags(t *testing.T) {
 	em := NewDefaultEntityManager()
 
@@ -486,7 +489,7 @@ func TestEntityManager_Tags(t *testing.T) {
 		entity := em.CreateEntity()
 		expectedTag := "enemy"
 
-		em.SetTag(entity, expectedTag)
+		_ = em.SetTag(entity, expectedTag)
 		retrievedTag, exists := em.GetTag(entity)
 
 		if !exists {
@@ -499,7 +502,7 @@ func TestEntityManager_Tags(t *testing.T) {
 
 	t.Run("TC037: Remove entity tag", func(t *testing.T) {
 		entity := em.CreateEntity()
-		em.SetTag(entity, "temporary")
+		_ = em.SetTag(entity, "temporary")
 
 		err := em.RemoveTag(entity)
 		if err != nil {
@@ -511,6 +514,11 @@ func TestEntityManager_Tags(t *testing.T) {
 			t.Error("Tag should not exist after removal")
 		}
 	})
+}
+
+// TestEntityManager_TagSearch tests tag-based entity search functionality.
+func TestEntityManager_TagSearch(t *testing.T) {
+	em := NewDefaultEntityManager()
 
 	t.Run("TC038: Find entities by tag", func(t *testing.T) {
 		entity1 := em.CreateEntity()
@@ -518,9 +526,9 @@ func TestEntityManager_Tags(t *testing.T) {
 		entity3 := em.CreateEntity()
 
 		tag := "collectible"
-		em.SetTag(entity1, tag)
-		em.SetTag(entity2, tag)
-		em.SetTag(entity3, "other")
+		_ = em.SetTag(entity1, tag)
+		_ = em.SetTag(entity2, tag)
+		_ = em.SetTag(entity3, "other")
 
 		entities := em.FindByTag(tag)
 		if len(entities) != 2 {
@@ -546,13 +554,18 @@ func TestEntityManager_Tags(t *testing.T) {
 			t.Errorf("Should return empty slice for non-existent tag, got %d entities", len(entities))
 		}
 	})
+}
+
+// TestEntityManager_TagManagement tests tag management functionality.
+func TestEntityManager_TagManagement(t *testing.T) {
+	em := NewDefaultEntityManager()
 
 	t.Run("TC040: Get all tags", func(t *testing.T) {
 		entity1 := em.CreateEntity()
 		entity2 := em.CreateEntity()
 
-		em.SetTag(entity1, "tag1")
-		em.SetTag(entity2, "tag2")
+		_ = em.SetTag(entity1, "tag1")
+		_ = em.SetTag(entity2, "tag2")
 
 		tags := em.GetAllTags()
 		if len(tags) < 2 {

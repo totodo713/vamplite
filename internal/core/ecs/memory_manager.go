@@ -669,9 +669,23 @@ func allocateAlignedFast(size int, alignment int) unsafe.Pointer {
 	// Fallback to standard aligned allocation
 	allocSize := size + alignment
 	b := make([]byte, allocSize)
-	ptr := uintptr(unsafe.Pointer(&b[0]))
-	aligned := (ptr + uintptr(alignment) - 1) &^ (uintptr(alignment) - 1)
-	return unsafe.Pointer(aligned)
+	ptr := unsafe.Pointer(&b[0])
+
+	// Calculate alignment offset
+	offset := uintptr(ptr) % uintptr(alignment)
+	if offset != 0 {
+		offset = uintptr(alignment) - offset
+	}
+
+	// Ensure the aligned pointer is within bounds
+	if int(offset) >= len(b)-size {
+		// If alignment would exceed bounds, just return the original pointer
+		return ptr
+	}
+
+	// Return aligned pointer
+	alignedPtr := unsafe.Add(ptr, offset)
+	return alignedPtr
 }
 
 // freeAlignedFast - fast aligned deallocation

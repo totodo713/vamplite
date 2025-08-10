@@ -9,6 +9,14 @@ import (
 const (
 	// bytesPerEntity is the approximate memory usage per entity in bytes
 	bytesPerEntity = 50
+	// defaultMaxEntityCount is the default maximum number of entities allowed
+	defaultMaxEntityCount = 100000
+	// defaultFragmentation is the default memory fragmentation ratio
+	defaultFragmentation = 0.1
+	// defaultHitRate is the default pool hit rate
+	defaultHitRate = 0.95
+	// defaultHierarchyDepth is the default hierarchy depth placeholder
+	defaultHierarchyDepth = 10
 )
 
 // DefaultEntityManager provides a concrete implementation of EntityManager interface.
@@ -54,7 +62,7 @@ func NewDefaultEntityManager() *DefaultEntityManager {
 		nextEntityID:          1, // Start from ID 1 (0 is reserved for invalid)
 		activeEntities:        make(map[EntityID]bool),
 		recycledIDs:           make([]EntityID, 0),
-		maxEntityCount:        100000, // Default max entity count
+		maxEntityCount:        defaultMaxEntityCount, // Default max entity count
 		parentMap:             make(map[EntityID]EntityID),
 		childrenMap:           make(map[EntityID][]EntityID),
 		entityTags:            make(map[EntityID]string),
@@ -672,7 +680,7 @@ func (em *DefaultEntityManager) Compact() error {
 // GetFragmentation returns the current memory fragmentation ratio.
 func (em *DefaultEntityManager) GetFragmentation() float64 {
 	// Minimal implementation - return low fragmentation
-	return 0.1
+	return defaultFragmentation
 }
 
 // GetMemoryUsage returns the current memory usage in bytes.
@@ -698,7 +706,7 @@ func (em *DefaultEntityManager) GetPoolStats() *EntityPoolStats {
 		MemoryUsed:       em.GetMemoryUsage(),
 		MemoryReserved:   int64(em.maxEntityCount * bytesPerEntity),
 		Fragmentation:    em.GetFragmentation(),
-		HitRate:          0.95, // Default good hit rate
+		HitRate:          defaultHitRate, // Default good hit rate
 	}
 }
 
@@ -788,7 +796,7 @@ func (em *DefaultEntityManager) GetDebugInfo() *EntityManagerDebugInfo {
 		ArchetypeCount: len(em.archetypeEntities),
 		TagCount:       len(em.tagEntities),
 		GroupCount:     len(em.groups),
-		HierarchyDepth: 10, // Placeholder
+		HierarchyDepth: defaultHierarchyDepth, // Placeholder
 		MemoryUsage:    em.GetMemoryUsage(),
 		PoolStats:      em.GetPoolStats(),
 	}
@@ -928,8 +936,8 @@ func (em *DefaultEntityManager) removeEntityFromGroup(entityID EntityID, group s
 // Error definitions for EntityManager - using existing ECS error framework
 var (
 	ErrInvalidEntity          = NewECSError(ErrInvalidEntityID, "invalid entity ID")
-	ErrEntityNotFoundEM      = NewECSError(ErrEntityNotFound, "entity not found")
-	ErrEntityAlreadyExistsEM = NewECSError(ErrEntityAlreadyExists, "entity already exists")
+	ErrEntityNotFoundEM       = NewECSError(ErrEntityNotFound, "entity not found")
+	ErrEntityAlreadyExistsEM  = NewECSError(ErrEntityAlreadyExists, "entity already exists")
 	ErrCircularReference      = NewECSError(ErrCircularDependency, "circular reference detected")
 	ErrTagNotFound            = NewECSError("TAG_NOT_FOUND", "tag not found")
 	ErrGroupNotFound          = NewECSError("GROUP_NOT_FOUND", "group not found")

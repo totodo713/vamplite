@@ -504,54 +504,54 @@ func (qb *MockQueryBuilder) Build() ecs.QueryResult {
 }
 
 // Required methods for ecs.QueryBuilder interface
-func (qb *MockQueryBuilder) WithAll(types []ecs.ComponentType) ecs.QueryBuilder  { return qb }
-func (qb *MockQueryBuilder) WithAny(types []ecs.ComponentType) ecs.QueryBuilder  { return qb }
-func (qb *MockQueryBuilder) WithNone(types []ecs.ComponentType) ecs.QueryBuilder { return qb }
-func (qb *MockQueryBuilder) Where(predicate func(ecs.EntityID, []ecs.Component) bool) ecs.QueryBuilder {
+func (qb *MockQueryBuilder) WithAll(_ []ecs.ComponentType) ecs.QueryBuilder  { return qb }
+func (qb *MockQueryBuilder) WithAny(_ []ecs.ComponentType) ecs.QueryBuilder  { return qb }
+func (qb *MockQueryBuilder) WithNone(_ []ecs.ComponentType) ecs.QueryBuilder { return qb }
+func (qb *MockQueryBuilder) Where(_ func(ecs.EntityID, []ecs.Component) bool) ecs.QueryBuilder {
 	return qb
 }
 
-func (qb *MockQueryBuilder) WhereComponent(componentType ecs.ComponentType, predicate func(ecs.Component) bool) ecs.QueryBuilder {
+func (qb *MockQueryBuilder) WhereComponent(_ ecs.ComponentType, _ func(ecs.Component) bool) ecs.QueryBuilder {
 	return qb
 }
 
-func (qb *MockQueryBuilder) WhereEntity(predicate func(ecs.EntityID) bool) ecs.QueryBuilder {
+func (qb *MockQueryBuilder) WhereEntity(_ func(ecs.EntityID) bool) ecs.QueryBuilder {
 	return qb
 }
-func (qb *MockQueryBuilder) Limit(n int) ecs.QueryBuilder  { return qb }
-func (qb *MockQueryBuilder) Offset(n int) ecs.QueryBuilder { return qb }
-func (qb *MockQueryBuilder) OrderBy(compareFn func(ecs.EntityID, ecs.EntityID) bool) ecs.QueryBuilder {
+func (qb *MockQueryBuilder) Limit(_ int) ecs.QueryBuilder  { return qb }
+func (qb *MockQueryBuilder) Offset(_ int) ecs.QueryBuilder { return qb }
+func (qb *MockQueryBuilder) OrderBy(_ func(ecs.EntityID, ecs.EntityID) bool) ecs.QueryBuilder {
 	return qb
 }
 
-func (qb *MockQueryBuilder) OrderByComponent(componentType ecs.ComponentType, compareFn func(ecs.Component, ecs.Component) bool) ecs.QueryBuilder {
+func (qb *MockQueryBuilder) OrderByComponent(_ ecs.ComponentType, _ func(ecs.Component, ecs.Component) bool) ecs.QueryBuilder {
 	return qb
 }
-func (qb *MockQueryBuilder) Cache(key string) ecs.QueryBuilder                { return qb }
-func (qb *MockQueryBuilder) CacheFor(duration time.Duration) ecs.QueryBuilder { return qb }
-func (qb *MockQueryBuilder) UseBitset(enable bool) ecs.QueryBuilder           { return qb }
-func (qb *MockQueryBuilder) UseIndex(indexName string) ecs.QueryBuilder       { return qb }
-func (qb *MockQueryBuilder) WithinRadius(center ecs.Vector2, radius float64) ecs.QueryBuilder {
+func (qb *MockQueryBuilder) Cache(_ string) ecs.QueryBuilder           { return qb }
+func (qb *MockQueryBuilder) CacheFor(_ time.Duration) ecs.QueryBuilder { return qb }
+func (qb *MockQueryBuilder) UseBitset(_ bool) ecs.QueryBuilder         { return qb }
+func (qb *MockQueryBuilder) UseIndex(_ string) ecs.QueryBuilder        { return qb }
+func (qb *MockQueryBuilder) WithinRadius(_ ecs.Vector2, _ float64) ecs.QueryBuilder {
 	return qb
 }
-func (qb *MockQueryBuilder) WithinBounds(bounds ecs.AABB) ecs.QueryBuilder      { return qb }
-func (qb *MockQueryBuilder) Intersects(bounds ecs.AABB) ecs.QueryBuilder        { return qb }
-func (qb *MockQueryBuilder) Nearest(point ecs.Vector2, n int) ecs.QueryBuilder  { return qb }
-func (qb *MockQueryBuilder) Children(parent ecs.EntityID) ecs.QueryBuilder      { return qb }
-func (qb *MockQueryBuilder) Descendants(ancestor ecs.EntityID) ecs.QueryBuilder { return qb }
-func (qb *MockQueryBuilder) Ancestors(descendant ecs.EntityID) ecs.QueryBuilder { return qb }
-func (qb *MockQueryBuilder) Siblings(entity ecs.EntityID) ecs.QueryBuilder      { return qb }
-func (qb *MockQueryBuilder) CreatedAfter(timestamp time.Time) ecs.QueryBuilder  { return qb }
-func (qb *MockQueryBuilder) ModifiedSince(timestamp time.Time) ecs.QueryBuilder { return qb }
-func (qb *MockQueryBuilder) OlderThan(duration time.Duration) ecs.QueryBuilder  { return qb }
-func (qb *MockQueryBuilder) InTimeRange(_, _ time.Time) ecs.QueryBuilder        { return qb }
-func (qb *MockQueryBuilder) GroupBy(_ ecs.ComponentType) ecs.QueryBuilder       { return qb }
+func (qb *MockQueryBuilder) WithinBounds(_ ecs.AABB) ecs.QueryBuilder      { return qb }
+func (qb *MockQueryBuilder) Intersects(_ ecs.AABB) ecs.QueryBuilder        { return qb }
+func (qb *MockQueryBuilder) Nearest(_ ecs.Vector2, _ int) ecs.QueryBuilder { return qb }
+func (qb *MockQueryBuilder) Children(_ ecs.EntityID) ecs.QueryBuilder      { return qb }
+func (qb *MockQueryBuilder) Descendants(_ ecs.EntityID) ecs.QueryBuilder   { return qb }
+func (qb *MockQueryBuilder) Ancestors(_ ecs.EntityID) ecs.QueryBuilder     { return qb }
+func (qb *MockQueryBuilder) Siblings(_ ecs.EntityID) ecs.QueryBuilder      { return qb }
+func (qb *MockQueryBuilder) CreatedAfter(_ time.Time) ecs.QueryBuilder     { return qb }
+func (qb *MockQueryBuilder) ModifiedSince(_ time.Time) ecs.QueryBuilder    { return qb }
+func (qb *MockQueryBuilder) OlderThan(_ time.Duration) ecs.QueryBuilder    { return qb }
+func (qb *MockQueryBuilder) InTimeRange(_, _ time.Time) ecs.QueryBuilder   { return qb }
+func (qb *MockQueryBuilder) GroupBy(_ ecs.ComponentType) ecs.QueryBuilder  { return qb }
 func (qb *MockQueryBuilder) Aggregate(_ func([]ecs.Component) interface{}) ecs.QueryBuilder {
 	return qb
 }
-func (qb *MockQueryBuilder) Count() ecs.QueryBuilder                                   { return qb }
-func (qb *MockQueryBuilder) Distinct(componentType ecs.ComponentType) ecs.QueryBuilder { return qb }
-func (qb *MockQueryBuilder) Execute() ecs.QueryResult                                  { return qb.Build() }
+func (qb *MockQueryBuilder) Count() ecs.QueryBuilder                       { return qb }
+func (qb *MockQueryBuilder) Distinct(_ ecs.ComponentType) ecs.QueryBuilder { return qb }
+func (qb *MockQueryBuilder) Execute() ecs.QueryResult                      { return qb.Build() }
 func (qb *MockQueryBuilder) ExecuteAsync() <-chan ecs.QueryResult {
 	ch := make(chan ecs.QueryResult, 1)
 	ch <- qb.Build()
@@ -726,12 +726,12 @@ func (qr *MockQueryResult) Filter(_ func(ecs.EntityID, []ecs.Component) bool) ec
 func (qr *MockQueryResult) Transform(_ func(ecs.EntityID, []ecs.Component) (ecs.EntityID, []ecs.Component)) ecs.QueryResult {
 	return qr
 }
-func (qr *MockQueryResult) Take(_ int) ecs.QueryResult                                { return qr }
-func (qr *MockQueryResult) Skip(n int) ecs.QueryResult                                { return qr }
-func (qr *MockQueryResult) Union(_ ecs.QueryResult) ecs.QueryResult                   { return qr }
-func (qr *MockQueryResult) Intersection(_ ecs.QueryResult) ecs.QueryResult            { return qr }
-func (qr *MockQueryResult) Difference(_ ecs.QueryResult) ecs.QueryResult              { return qr }
-func (qr *MockQueryResult) SymmetricDifference(other ecs.QueryResult) ecs.QueryResult { return qr }
+func (qr *MockQueryResult) Take(_ int) ecs.QueryResult                            { return qr }
+func (qr *MockQueryResult) Skip(_ int) ecs.QueryResult                            { return qr }
+func (qr *MockQueryResult) Union(_ ecs.QueryResult) ecs.QueryResult               { return qr }
+func (qr *MockQueryResult) Intersection(_ ecs.QueryResult) ecs.QueryResult        { return qr }
+func (qr *MockQueryResult) Difference(_ ecs.QueryResult) ecs.QueryResult          { return qr }
+func (qr *MockQueryResult) SymmetricDifference(_ ecs.QueryResult) ecs.QueryResult { return qr }
 func (qr *MockQueryResult) GroupBy(fn func(ecs.EntityID, []ecs.Component) string) map[string]ecs.QueryResult {
 	result := make(map[string]ecs.QueryResult)
 	for _, entity := range qr.GetEntities() {
@@ -935,7 +935,7 @@ func (e *MockAudioEngine) SetListenerPosition(pos ecs.Vector2) error {
 	return nil
 }
 
-func (e *MockAudioEngine) LoadSound(soundID, _ string) error {
+func (e *MockAudioEngine) LoadSound(_, _ string) error {
 	return nil // Mock implementation
 }
 
@@ -944,11 +944,11 @@ func (e *MockAudioEngine) PlaySound(soundID string, volume, pitch float64, loop 
 	return nil
 }
 
-func (e *MockAudioEngine) SetMasterVolume(volume float64) {
+func (e *MockAudioEngine) SetMasterVolume(_ float64) {
 	// No-op for mock
 }
 
-func (e *MockAudioEngine) SetVolume(soundID string, volume float64) error {
+func (e *MockAudioEngine) SetVolume(_ string, _ float64) error {
 	return nil // Mock implementation
 }
 
@@ -957,7 +957,7 @@ func (e *MockAudioEngine) StopSound(soundID string) error {
 	return nil
 }
 
-func (e *MockAudioEngine) UnloadSound(soundID string) error {
+func (e *MockAudioEngine) UnloadSound(_ string) error {
 	return nil // Mock implementation
 }
 
@@ -991,10 +991,13 @@ func CreateRandomEntities(world *MockWorld, count int) []ecs.EntityID {
 		world.AddComponent(entity, transform)
 
 		// 50% chance to add physics
+		// #nosec G404 -- Using weak random generator is acceptable for test data generation
 		if mathRand.Float32() < 0.5 {
 			physics := &components.PhysicsComponent{
 				Velocity: ecs.Vector2{
+					// #nosec G404 -- Using weak random generator is acceptable for test data generation
 					X: (mathRand.Float64() - 0.5) * 200,
+					// #nosec G404 -- Using weak random generator is acceptable for test data generation
 					Y: (mathRand.Float64() - 0.5) * 200,
 				},
 				Mass:     mathRand.Float64()*10 + 1,
