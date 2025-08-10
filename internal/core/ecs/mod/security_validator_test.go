@@ -314,7 +314,6 @@ func TestSecurityValidator_LogSecurityEvent(t *testing.T) {
 	}
 
 	err := validator.LogSecurityEvent(event)
-
 	// エラーなくログが記録される
 	if err != nil {
 		t.Errorf("LogSecurityEvent failed: %v", err)

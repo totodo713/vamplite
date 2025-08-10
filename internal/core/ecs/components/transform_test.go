@@ -43,7 +43,8 @@ func Test_TransformComponent_WorldLocalConversion(t *testing.T) {
 
 	child := NewTransformComponent()
 	child.SetPosition(ecs.Vector2{X: 5, Y: 0})
-	child.SetParent(parent)
+	err := child.SetParent(parent)
+	assert.NoError(t, err)
 
 	// Act
 	worldPos := child.GetWorldPosition()
@@ -66,8 +67,10 @@ func Test_TransformComponent_HierarchyManagement(t *testing.T) {
 	child2 := NewTransformComponent()
 
 	// Act
-	child1.SetParent(parent)
-	child2.SetParent(parent)
+	err := child1.SetParent(parent)
+	assert.NoError(t, err)
+	err = child2.SetParent(parent)
+	assert.NoError(t, err)
 
 	// Assert
 	assert.Equal(t, parent, child1.Parent)
@@ -81,7 +84,8 @@ func Test_TransformComponent_CircularParentReference(t *testing.T) {
 	// Arrange
 	parent := NewTransformComponent()
 	child := NewTransformComponent()
-	child.SetParent(parent)
+	err := child.SetParent(parent)
+	assert.NoError(t, err)
 
 	// Act & Assert
 	err := parent.SetParent(child)
@@ -166,8 +170,10 @@ func Test_TransformComponent_ParentChildRemoval(t *testing.T) {
 	child1 := NewTransformComponent()
 	child2 := NewTransformComponent()
 
-	child1.SetParent(parent)
-	child2.SetParent(parent)
+	err := child1.SetParent(parent)
+	assert.NoError(t, err)
+	err = child2.SetParent(parent)
+	assert.NoError(t, err)
 	assert.Len(t, parent.Children, 2)
 
 	// Act - remove child1 by setting different parent

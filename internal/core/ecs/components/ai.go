@@ -21,7 +21,7 @@ type AIComponent struct {
 	LastStateChange time.Time     `json:"lastStateChange"`
 
 	// Internal state
-	currentPatrolIndex int       `json:"currentPatrolIndex"`
+	currentPatrolIndex int       `json:"-"`
 	stateHistory       []AIState `json:"-"`
 }
 

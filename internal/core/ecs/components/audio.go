@@ -1,8 +1,9 @@
 package components
 
 import (
-	"muscle-dreamer/internal/core/ecs"
 	"time"
+
+	"muscle-dreamer/internal/core/ecs"
 )
 
 // AudioComponent handles 3D positional audio and sound effects for entities.
@@ -131,7 +132,7 @@ func (ac *AudioComponent) Serialize() ([]byte, error) {
 }
 
 // Deserialize loads component data from bytes.
-func (ac *AudioComponent) Deserialize(data []byte) error {
+func (ac *AudioComponent) Deserialize(_ []byte) error {
 	// TODO: Implement proper deserialization
 	return nil
 }
@@ -204,10 +205,11 @@ func (ac *AudioComponent) GetEffectiveVolume(currentTime float64) float64 {
 		volume *= fadeInRatio
 	}
 
-	if ac.FadeOut > 0 {
-		// This would need playback duration information
-		// For now, just return the base volume
-	}
+	// TODO: Implement fade out when playback duration information is available
+	// if ac.FadeOut > 0 {
+	// 	// This would need playback duration information
+	// 	// For now, just return the base volume
+	// }
 
 	return volume
 }

@@ -427,21 +427,21 @@ type ComponentValidator interface {
 
 // ValidationStats contains statistics about component validation.
 type ValidationStats struct {
-	TotalValidations      int64                   `json:"total_validations"`
-	SuccessfulValidations int64                   `json:"successful_validations"`
-	FailedValidations     int64                   `json:"failed_validations"`
-	ValidationsByType     map[ComponentType]int64 `json:"validations_by_type"`
-	FailuresByType        map[ComponentType]int64 `json:"failures_by_type"`
-	AverageTime           float64                 `json:"average_time_ns"`
-	LastValidation        time.Time               `json:"last_validation"`
+	TotalValidations      int64                   `json:"totalValidations"`
+	SuccessfulValidations int64                   `json:"successfulValidations"`
+	FailedValidations     int64                   `json:"failedValidations"`
+	ValidationsByType     map[ComponentType]int64 `json:"validationsByType"`
+	FailuresByType        map[ComponentType]int64 `json:"failuresByType"`
+	AverageTime           float64                 `json:"averageTimeNs"`
+	LastValidation        time.Time               `json:"lastValidation"`
 }
 
 // ValidationFailure represents a component validation failure.
 type ValidationFailure struct {
-	EntityID      EntityID           `json:"entity_id"`
-	ComponentType ComponentType      `json:"component_type"`
-	FieldName     string             `json:"field_name,omitempty"`
-	ErrorMessage  string             `json:"error_message"`
+	EntityID      EntityID           `json:"entityId"`
+	ComponentType ComponentType      `json:"componentType"`
+	FieldName     string             `json:"fieldName,omitempty"`
+	ErrorMessage  string             `json:"errorMessage"`
 	Timestamp     time.Time          `json:"timestamp"`
 	Severity      ValidationSeverity `json:"severity"`
 }

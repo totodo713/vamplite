@@ -348,7 +348,6 @@ func TestSystemsIntegration_ErrorHandling(t *testing.T) {
 	// システム実行してエラーハンドリング確認
 	for _, system := range systems {
 		err := system.Update(world, 0.016)
-
 		// エラーが適切に処理される（パニックしない）
 		if err != nil {
 			assert.Contains(t, err.Error(), "invalid") // エラーメッセージ確認

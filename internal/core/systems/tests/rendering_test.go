@@ -262,8 +262,8 @@ func NewEnhancedMockRenderer() *EnhancedMockRenderer {
 
 func (emr *EnhancedMockRenderer) DrawSpriteWithTransform(
 	textureID string, x, y, width, height float64,
-	scale ecs.Vector2, rotation float64, color ecs.Color) {
-
+	scale ecs.Vector2, rotation float64, color ecs.Color,
+) {
 	emr.DrawSprite(textureID, ecs.Vector2{X: x, Y: y}, scale, rotation, 0)
 
 	call := MockRenderCall{

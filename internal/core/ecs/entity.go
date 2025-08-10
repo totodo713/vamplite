@@ -106,36 +106,36 @@ type EntityData struct {
 	Tag        string                   `json:"tag,omitempty"`
 	Groups     []string                 `json:"groups,omitempty"`
 	Archetype  ArchetypeID              `json:"archetype"`
-	CreatedAt  time.Time                `json:"created_at"`
-	ModifiedAt time.Time                `json:"modified_at"`
+	CreatedAt  time.Time                `json:"createdAt"`
+	ModifiedAt time.Time                `json:"modifiedAt"`
 }
 
 // EntityPoolStats contains statistics about entity memory pools.
 type EntityPoolStats struct {
-	TotalEntities    int     `json:"total_entities"`
-	ActiveEntities   int     `json:"active_entities"`
-	RecycledEntities int     `json:"recycled_entities"`
-	PoolCapacity     int     `json:"pool_capacity"`
-	MemoryUsed       int64   `json:"memory_used_bytes"`
-	MemoryReserved   int64   `json:"memory_reserved_bytes"`
+	TotalEntities    int     `json:"totalEntities"`
+	ActiveEntities   int     `json:"activeEntities"`
+	RecycledEntities int     `json:"recycledEntities"`
+	PoolCapacity     int     `json:"poolCapacity"`
+	MemoryUsed       int64   `json:"memoryUsedBytes"`
+	MemoryReserved   int64   `json:"memoryReservedBytes"`
 	Fragmentation    float64 `json:"fragmentation"`
-	HitRate          float64 `json:"hit_rate"`
+	HitRate          float64 `json:"hitRate"`
 }
 
 // EntityManagerDebugInfo provides debugging information about entity management.
 type EntityManagerDebugInfo struct {
-	EntityCount     int                 `json:"entity_count"`
-	MaxEntityID     EntityID            `json:"max_entity_id"`
-	RecycledCount   int                 `json:"recycled_count"`
-	ArchetypeCount  int                 `json:"archetype_count"`
-	TagCount        int                 `json:"tag_count"`
-	GroupCount      int                 `json:"group_count"`
-	HierarchyDepth  int                 `json:"max_hierarchy_depth"`
-	MemoryUsage     int64               `json:"memory_usage_bytes"`
-	PoolStats       *EntityPoolStats    `json:"pool_stats"`
-	ArchetypeStats  map[ArchetypeID]int `json:"archetype_stats"`
-	TagDistribution map[string]int      `json:"tag_distribution"`
-	GroupSizes      map[string]int      `json:"group_sizes"`
+	EntityCount     int                 `json:"entityCount"`
+	MaxEntityID     EntityID            `json:"maxEntityId"`
+	RecycledCount   int                 `json:"recycledCount"`
+	ArchetypeCount  int                 `json:"archetypeCount"`
+	TagCount        int                 `json:"tagCount"`
+	GroupCount      int                 `json:"groupCount"`
+	HierarchyDepth  int                 `json:"maxHierarchyDepth"`
+	MemoryUsage     int64               `json:"memoryUsageBytes"`
+	PoolStats       *EntityPoolStats    `json:"poolStats"`
+	ArchetypeStats  map[ArchetypeID]int `json:"archetypeStats"`
+	TagDistribution map[string]int      `json:"tagDistribution"`
+	GroupSizes      map[string]int      `json:"groupSizes"`
 }
 
 // ==============================================
@@ -189,12 +189,12 @@ type HierarchyManager interface {
 
 // HierarchyStats contains statistics about entity hierarchies.
 type HierarchyStats struct {
-	TotalRelationships int     `json:"total_relationships"`
-	MaxDepth           int     `json:"max_depth"`
-	AverageDepth       float64 `json:"average_depth"`
-	RootEntities       int     `json:"root_entities"`
-	LeafEntities       int     `json:"leaf_entities"`
-	OrphanedEntities   int     `json:"orphaned_entities"`
+	TotalRelationships int     `json:"totalRelationships"`
+	MaxDepth           int     `json:"maxDepth"`
+	AverageDepth       float64 `json:"averageDepth"`
+	RootEntities       int     `json:"rootEntities"`
+	LeafEntities       int     `json:"leafEntities"`
+	OrphanedEntities   int     `json:"orphanedEntities"`
 }
 
 // ==============================================
@@ -238,23 +238,23 @@ type ArchetypeManager interface {
 // ArchetypeStats contains statistics about a specific archetype.
 type ArchetypeStats struct {
 	ID             ArchetypeID     `json:"id"`
-	ComponentTypes []ComponentType `json:"component_types"`
-	EntityCount    int             `json:"entity_count"`
-	MemoryUsage    int64           `json:"memory_usage_bytes"`
-	AccessCount    int64           `json:"access_count"`
-	LastAccessed   time.Time       `json:"last_accessed"`
-	CreatedAt      time.Time       `json:"created_at"`
+	ComponentTypes []ComponentType `json:"componentTypes"`
+	EntityCount    int             `json:"entityCount"`
+	MemoryUsage    int64           `json:"memoryUsageBytes"`
+	AccessCount    int64           `json:"accessCount"`
+	LastAccessed   time.Time       `json:"lastAccessed"`
+	CreatedAt      time.Time       `json:"createdAt"`
 }
 
 // ArchetypeManagerDebugInfo provides debugging information about archetypes.
 type ArchetypeManagerDebugInfo struct {
-	ArchetypeCount     int                             `json:"archetype_count"`
-	TotalEntities      int                             `json:"total_entities"`
-	MemoryUsage        int64                           `json:"memory_usage_bytes"`
-	MostCommon         []ArchetypeID                   `json:"most_common_archetypes"`
-	LeastCommon        []ArchetypeID                   `json:"least_common_archetypes"`
-	ArchetypeStats     map[ArchetypeID]*ArchetypeStats `json:"archetype_stats"`
-	ComponentFrequency map[ComponentType]int           `json:"component_frequency"`
+	ArchetypeCount     int                             `json:"archetypeCount"`
+	TotalEntities      int                             `json:"totalEntities"`
+	MemoryUsage        int64                           `json:"memoryUsageBytes"`
+	MostCommon         []ArchetypeID                   `json:"mostCommonArchetypes"`
+	LeastCommon        []ArchetypeID                   `json:"leastCommonArchetypes"`
+	ArchetypeStats     map[ArchetypeID]*ArchetypeStats `json:"archetypeStats"`
+	ComponentFrequency map[ComponentType]int           `json:"componentFrequency"`
 }
 
 // ==============================================
@@ -264,7 +264,7 @@ type ArchetypeManagerDebugInfo struct {
 // EntityEvent represents events related to entity lifecycle.
 type EntityEvent struct {
 	Type      EntityEventType `json:"type"`
-	EntityID  EntityID        `json:"entity_id"`
+	EntityID  EntityID        `json:"entityId"`
 	Timestamp time.Time       `json:"timestamp"`
 	Data      interface{}     `json:"data,omitempty"`
 }
@@ -315,13 +315,13 @@ type EntityEventBus interface {
 
 // EntityEventStats contains statistics about entity events.
 type EntityEventStats struct {
-	TotalEvents     int64                     `json:"total_events"`
-	EventsByType    map[EntityEventType]int64 `json:"events_by_type"`
-	SubscriberCount int                       `json:"subscriber_count"`
-	HistorySize     int                       `json:"history_size"`
-	QueueSize       int                       `json:"queue_size"`
-	ProcessedEvents int64                     `json:"processed_events"`
-	FailedEvents    int64                     `json:"failed_events"`
+	TotalEvents     int64                     `json:"totalEvents"`
+	EventsByType    map[EntityEventType]int64 `json:"eventsByType"`
+	SubscriberCount int                       `json:"subscriberCount"`
+	HistorySize     int                       `json:"historySize"`
+	QueueSize       int                       `json:"queueSize"`
+	ProcessedEvents int64                     `json:"processedEvents"`
+	FailedEvents    int64                     `json:"failedEvents"`
 }
 
 // ==============================================

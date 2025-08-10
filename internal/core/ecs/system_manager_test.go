@@ -203,7 +203,6 @@ func TestSystemManager_RegisterSystem_Success(t *testing.T) {
 
 	// When: システムを登録する
 	err := sm.RegisterSystem(system)
-
 	// Then: システムが正常に登録され、GetSystemで取得できる
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
@@ -303,7 +302,6 @@ func TestSystemManager_UnregisterSystem_Success(t *testing.T) {
 
 	// When: システムを登録解除する
 	err := sm.UnregisterSystem(SystemType("TestSystem"))
-
 	// Then: システムが削除され、GetSystemでエラーが返される
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
@@ -392,7 +390,6 @@ func TestSystemManager_SetSystemDependency_Success(t *testing.T) {
 
 	// When: システムAがシステムBに依存するよう設定する
 	err := sm.SetSystemDependency(SystemType("SystemA"), SystemType("SystemB"))
-
 	// Then: 依存関係が設定され、GetSystemDependenciesで取得できる
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
@@ -459,7 +456,6 @@ func TestSystemManager_UpdateSystems_Success(t *testing.T) {
 
 	// When: UpdateSystemsを呼び出す
 	err := sm.UpdateSystems(world, 0.016)
-
 	// Then: 全システムのUpdateが実行順序通りに呼び出される
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)

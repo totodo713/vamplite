@@ -50,10 +50,9 @@ func (h *HealthComponent) TakeDamage(damage int) int {
 		if h.Shield >= damage {
 			h.Shield -= damage
 			return 0
-		} else {
-			actualDamage = damage - h.Shield
-			h.Shield = 0
 		}
+		actualDamage = damage - h.Shield
+		h.Shield = 0
 	}
 
 	// Apply remaining damage to health

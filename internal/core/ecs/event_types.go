@@ -123,8 +123,10 @@ type GenericTestBusEvent struct {
 }
 
 // Handler types
-type HandlerID string
-type SubscriptionID uint64
+type (
+	HandlerID      string
+	SubscriptionID uint64
+)
 
 // EventBusHandler defines the interface for EventBus event handlers
 type EventBusHandler interface {

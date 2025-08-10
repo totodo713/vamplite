@@ -509,9 +509,11 @@ func (qb *MockQueryBuilder) WithNone(types []ecs.ComponentType) ecs.QueryBuilder
 func (qb *MockQueryBuilder) Where(predicate func(ecs.EntityID, []ecs.Component) bool) ecs.QueryBuilder {
 	return qb
 }
+
 func (qb *MockQueryBuilder) WhereComponent(componentType ecs.ComponentType, predicate func(ecs.Component) bool) ecs.QueryBuilder {
 	return qb
 }
+
 func (qb *MockQueryBuilder) WhereEntity(predicate func(ecs.EntityID) bool) ecs.QueryBuilder {
 	return qb
 }
@@ -520,6 +522,7 @@ func (qb *MockQueryBuilder) Offset(n int) ecs.QueryBuilder { return qb }
 func (qb *MockQueryBuilder) OrderBy(compareFn func(ecs.EntityID, ecs.EntityID) bool) ecs.QueryBuilder {
 	return qb
 }
+
 func (qb *MockQueryBuilder) OrderByComponent(componentType ecs.ComponentType, compareFn func(ecs.Component, ecs.Component) bool) ecs.QueryBuilder {
 	return qb
 }
@@ -554,6 +557,7 @@ func (qb *MockQueryBuilder) ExecuteAsync() <-chan ecs.QueryResult {
 	close(ch)
 	return ch
 }
+
 func (qb *MockQueryBuilder) Stream() <-chan ecs.EntityID {
 	ch := make(chan ecs.EntityID)
 	go func() {
@@ -564,6 +568,7 @@ func (qb *MockQueryBuilder) Stream() <-chan ecs.EntityID {
 	}()
 	return ch
 }
+
 func (qb *MockQueryBuilder) ExecuteWithCallback(callback func(ecs.EntityID, []ecs.Component)) error {
 	qb.Build().ForEach(callback)
 	return nil
@@ -627,6 +632,7 @@ func (qr *MockQueryResult) matchesQuery(entity ecs.EntityID) bool {
 
 // Required methods for ecs.QueryResult interface
 func (qr *MockQueryResult) GetEntityCount() int { return qr.GetCount() }
+
 func (qr *MockQueryResult) GetFirst() (ecs.EntityID, bool) {
 	entities := qr.GetEntities()
 	if len(entities) > 0 {
@@ -634,6 +640,7 @@ func (qr *MockQueryResult) GetFirst() (ecs.EntityID, bool) {
 	}
 	return 0, false
 }
+
 func (qr *MockQueryResult) GetLast() (ecs.EntityID, bool) {
 	entities := qr.GetEntities()
 	if len(entities) > 0 {
@@ -641,6 +648,7 @@ func (qr *MockQueryResult) GetLast() (ecs.EntityID, bool) {
 	}
 	return 0, false
 }
+
 func (qr *MockQueryResult) GetAt(index int) (ecs.EntityID, bool) {
 	entities := qr.GetEntities()
 	if index >= 0 && index < len(entities) {
@@ -658,9 +666,11 @@ func (qr *MockQueryResult) GetComponents(componentType ecs.ComponentType) []ecs.
 	}
 	return result
 }
+
 func (qr *MockQueryResult) GetComponentsFor(entity ecs.EntityID) []ecs.Component {
 	return qr.world.GetComponents(entity)
 }
+
 func (qr *MockQueryResult) GetComponentsForEntities(entities []ecs.EntityID) map[ecs.EntityID][]ecs.Component {
 	result := make(map[ecs.EntityID][]ecs.Component)
 	for _, entity := range entities {
@@ -668,6 +678,7 @@ func (qr *MockQueryResult) GetComponentsForEntities(entities []ecs.EntityID) map
 	}
 	return result
 }
+
 func (qr *MockQueryResult) GetComponentsByType() map[ecs.ComponentType][]ecs.Component {
 	result := make(map[ecs.ComponentType][]ecs.Component)
 	for _, entity := range qr.GetEntities() {
@@ -682,11 +693,13 @@ func (qr *MockQueryResult) GetComponentsByType() map[ecs.ComponentType][]ecs.Com
 	}
 	return result
 }
+
 func (qr *MockQueryResult) ForEachEntity(fn func(ecs.EntityID)) {
 	for _, entity := range qr.GetEntities() {
 		fn(entity)
 	}
 }
+
 func (qr *MockQueryResult) ForEachComponent(componentType ecs.ComponentType, fn func(ecs.EntityID, ecs.Component)) {
 	for _, entity := range qr.GetEntities() {
 		if comp, err := qr.world.GetComponent(entity, componentType); err == nil {
@@ -694,6 +707,7 @@ func (qr *MockQueryResult) ForEachComponent(componentType ecs.ComponentType, fn 
 		}
 	}
 }
+
 func (qr *MockQueryResult) Map(fn func(ecs.EntityID, []ecs.Component) interface{}) []interface{} {
 	result := make([]interface{}, 0)
 	for _, entity := range qr.GetEntities() {
@@ -702,10 +716,12 @@ func (qr *MockQueryResult) Map(fn func(ecs.EntityID, []ecs.Component) interface{
 	}
 	return result
 }
+
 func (qr *MockQueryResult) Filter(predicate func(ecs.EntityID, []ecs.Component) bool) ecs.QueryResult {
 	// Return a new MockQueryResult with filtered entities
 	return qr
 }
+
 func (qr *MockQueryResult) Transform(fn func(ecs.EntityID, []ecs.Component) (ecs.EntityID, []ecs.Component)) ecs.QueryResult {
 	return qr
 }
@@ -726,9 +742,11 @@ func (qr *MockQueryResult) GroupBy(fn func(ecs.EntityID, []ecs.Component) string
 	}
 	return result
 }
+
 func (qr *MockQueryResult) Aggregate(fn func([]ecs.EntityID) interface{}) interface{} {
 	return fn(qr.GetEntities())
 }
+
 func (qr *MockQueryResult) Reduce(fn func(interface{}, ecs.EntityID, []ecs.Component) interface{}, initial interface{}) interface{} {
 	result := initial
 	for _, entity := range qr.GetEntities() {

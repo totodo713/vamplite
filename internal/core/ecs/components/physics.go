@@ -38,7 +38,7 @@ func (p *PhysicsComponent) GetType() ecs.ComponentType {
 }
 
 // ApplyForce applies a force to the physics body
-func (p *PhysicsComponent) ApplyForce(force ecs.Vector2, deltaTime float64) {
+func (p *PhysicsComponent) ApplyForce(force ecs.Vector2, _ float64) {
 	if p.IsStatic || p.Mass <= 0 {
 		return
 	}
@@ -91,7 +91,7 @@ func (p *PhysicsComponent) ApplySpeedLimit() {
 }
 
 // ApplyGravity applies gravitational force
-func (p *PhysicsComponent) ApplyGravity(gravityForce ecs.Vector2, deltaTime float64) {
+func (p *PhysicsComponent) ApplyGravity(gravityForce ecs.Vector2, _ float64) {
 	if p.IsStatic || !p.Gravity {
 		return
 	}

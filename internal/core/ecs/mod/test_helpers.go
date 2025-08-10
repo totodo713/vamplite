@@ -92,6 +92,7 @@ func (t *TestQueryBuilderImpl) WithNone([]ecs.ComponentType) ecs.QueryBuilder { 
 func (t *TestQueryBuilderImpl) Where(func(ecs.EntityID, []ecs.Component) bool) ecs.QueryBuilder {
 	return t
 }
+
 func (t *TestQueryBuilderImpl) WhereComponent(ecs.ComponentType, func(ecs.Component) bool) ecs.QueryBuilder {
 	return t
 }
@@ -101,6 +102,7 @@ func (t *TestQueryBuilderImpl) Offset(int) ecs.QueryBuilder                     
 func (t *TestQueryBuilderImpl) OrderBy(func(ecs.EntityID, ecs.EntityID) bool) ecs.QueryBuilder {
 	return t
 }
+
 func (t *TestQueryBuilderImpl) OrderByComponent(ecs.ComponentType, func(ecs.Component, ecs.Component) bool) ecs.QueryBuilder {
 	return t
 }
@@ -139,8 +141,10 @@ func (t *TestQueryBuilderImpl) Clone() ecs.QueryBuilder { return &TestQueryBuild
 
 // テストヘルパー関数
 
-var globalTestFactory ModECSAPIFactory
-var testCounter int
+var (
+	globalTestFactory ModECSAPIFactory
+	testCounter       int
+)
 
 func init() {
 	globalTestFactory = NewModECSAPIFactory()
