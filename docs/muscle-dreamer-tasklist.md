@@ -9,7 +9,7 @@
 **Muscle Dreamer**は、Go言語とEbitengineを使用した2Dサバイバルアクションローグライクゲームです。筋トレをテーマにしたユニークなゲーム体験を提供し、モジュラーテーマシステムとセキュアなMOD機能を特徴としています。
 
 ### 技術スタック
-- **言語**: Go 1.22
+- **言語**: Go 1.23
 - **ゲームエンジン**: Ebitengine v2.6.3
 - **アーキテクチャ**: Entity Component System (ECS)
 - **プラットフォーム**: Windows/Linux/macOS/WebAssembly
