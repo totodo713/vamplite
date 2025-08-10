@@ -98,7 +98,7 @@ func TestEntityManager_DestroyEntity(t *testing.T) {
 
 	t.Run("TC009: Entity becomes invalid after destruction", func(t *testing.T) {
 		entity := em.CreateEntity()
-		em.DestroyEntity(entity)
+		_ = em.DestroyEntity(entity)
 		if em.IsValid(entity) {
 			t.Error("Entity should be invalid after destruction")
 		}
@@ -117,7 +117,7 @@ func TestEntityManager_DestroyEntity(t *testing.T) {
 	t.Run("TC011: Entity count decreases correctly", func(t *testing.T) {
 		entity := em.CreateEntity()
 		initialCount := em.GetEntityCount()
-		em.DestroyEntity(entity)
+		_ = em.DestroyEntity(entity)
 		newCount := em.GetEntityCount()
 		if newCount != initialCount-1 {
 			t.Errorf("Entity count should decrease by 1, expected %d, got %d", initialCount-1, newCount)
@@ -138,7 +138,7 @@ func TestEntityManager_IsValid(t *testing.T) {
 
 	t.Run("TC013: Destroyed entity is invalid", func(t *testing.T) {
 		entity := em.CreateEntity()
-		em.DestroyEntity(entity)
+		_ = em.DestroyEntity(entity)
 		if em.IsValid(entity) {
 			t.Error("Destroyed entity should be invalid")
 		}
@@ -163,7 +163,7 @@ func TestEntityManager_RecycleEntity(t *testing.T) {
 
 	t.Run("TC016: Add entity to recycle pool", func(t *testing.T) {
 		entity := em.CreateEntity()
-		em.DestroyEntity(entity)
+		_ = em.DestroyEntity(entity)
 		err := em.RecycleEntity(entity)
 		if err != nil {
 			t.Errorf("Should be able to recycle destroyed entity, got error: %v", err)
@@ -184,8 +184,8 @@ func TestEntityManager_RecycleEntity(t *testing.T) {
 	t.Run("TC018: Recycled count is tracked correctly", func(t *testing.T) {
 		initialCount := em.GetRecycledCount()
 		entity := em.CreateEntity()
-		em.DestroyEntity(entity)
-		em.RecycleEntity(entity)
+		_ = em.DestroyEntity(entity)
+		_ = em.RecycleEntity(entity)
 
 		newCount := em.GetRecycledCount()
 		if newCount != initialCount+1 {
@@ -212,8 +212,8 @@ func TestEntityManager_ClearRecycled(t *testing.T) {
 		// Add some entities to recycle pool
 		for i := 0; i < 5; i++ {
 			entity := em.CreateEntity()
-			em.DestroyEntity(entity)
-			em.RecycleEntity(entity)
+			_ = em.DestroyEntity(entity)
+			_ = em.RecycleEntity(entity)
 		}
 
 		err := em.ClearRecycled()
@@ -224,10 +224,10 @@ func TestEntityManager_ClearRecycled(t *testing.T) {
 
 	t.Run("TC021: Recycled count is zero after clear", func(t *testing.T) {
 		entity := em.CreateEntity()
-		em.DestroyEntity(entity)
-		em.RecycleEntity(entity)
+		_ = em.DestroyEntity(entity)
+		_ = em.RecycleEntity(entity)
 
-		em.ClearRecycled()
+		_ = em.ClearRecycled()
 		count := em.GetRecycledCount()
 		if count != 0 {
 			t.Errorf("Recycled count should be 0 after clear, got %d", count)
@@ -238,7 +238,7 @@ func TestEntityManager_ClearRecycled(t *testing.T) {
 		entity1 := em.CreateEntity()
 		em.DestroyEntity(entity1)
 		em.RecycleEntity(entity1)
-		em.ClearRecycled()
+		_ = em.ClearRecycled()
 
 		entity2 := em.CreateEntity()
 		if entity2 == entity1 {
@@ -264,7 +264,7 @@ func TestEntityManager_SetParent(t *testing.T) {
 	t.Run("TC024: Get parent returns correct parent", func(t *testing.T) {
 		parent := em.CreateEntity()
 		child := em.CreateEntity()
-		em.SetParent(child, parent)
+		_ = em.SetParent(child, parent)
 
 		retrievedParent, exists := em.GetParent(child)
 		if !exists {
@@ -280,8 +280,8 @@ func TestEntityManager_SetParent(t *testing.T) {
 		child1 := em.CreateEntity()
 		child2 := em.CreateEntity()
 
-		em.SetParent(child1, parent)
-		em.SetParent(child2, parent)
+		_ = em.SetParent(child1, parent)
+		_ = em.SetParent(child2, parent)
 
 		children := em.GetChildren(parent)
 		if len(children) != 2 {
@@ -339,7 +339,7 @@ func TestEntityManager_GetHierarchy(t *testing.T) {
 		child := em.CreateEntity()
 
 		em.SetParent(parent, grandparent)
-		em.SetParent(child, parent)
+		_ = em.SetParent(child, parent)
 
 		descendants := em.GetDescendants(grandparent)
 		if len(descendants) != 2 {
@@ -363,7 +363,7 @@ func TestEntityManager_GetHierarchy(t *testing.T) {
 		child := em.CreateEntity()
 
 		em.SetParent(parent, grandparent)
-		em.SetParent(child, parent)
+		_ = em.SetParent(child, parent)
 
 		ancestors := em.GetAncestors(child)
 		if len(ancestors) != 2 {
@@ -408,7 +408,7 @@ func TestEntityManager_GetHierarchy(t *testing.T) {
 		child := em.CreateEntity()
 
 		em.SetParent(parent, grandparent)
-		em.SetParent(child, parent)
+		_ = em.SetParent(child, parent)
 
 		if !em.IsAncestor(grandparent, child) {
 			t.Error("Grandparent should be ancestor of child")
@@ -432,7 +432,7 @@ func TestEntityManager_RemoveFromParent(t *testing.T) {
 		parent := em.CreateEntity()
 		child := em.CreateEntity()
 
-		em.SetParent(child, parent)
+		_ = em.SetParent(child, parent)
 		err := em.RemoveFromParent(child)
 		if err != nil {
 			t.Errorf("Should be able to remove parent relationship, got error: %v", err)
@@ -443,7 +443,7 @@ func TestEntityManager_RemoveFromParent(t *testing.T) {
 		parent := em.CreateEntity()
 		child := em.CreateEntity()
 
-		em.SetParent(child, parent)
+		_ = em.SetParent(child, parent)
 		em.RemoveFromParent(child)
 
 		_, exists := em.GetParent(child)
@@ -456,7 +456,7 @@ func TestEntityManager_RemoveFromParent(t *testing.T) {
 		parent := em.CreateEntity()
 		child := em.CreateEntity()
 
-		em.SetParent(child, parent)
+		_ = em.SetParent(child, parent)
 		em.RemoveFromParent(child)
 
 		children := em.GetChildren(parent)
@@ -971,7 +971,7 @@ func TestEntityManager_Concurrent(t *testing.T) {
 				for j := 0; j < operationsPerWorker; j++ {
 					entity := em.CreateEntity()
 					em.IsValid(entity)
-					em.DestroyEntity(entity)
+					_ = em.DestroyEntity(entity)
 				}
 			}()
 		}

@@ -146,7 +146,7 @@ func (as *AudioSystem) processAudioEntity(world ecs.World, entityID ecs.EntityID
 	finalVolume *= as.masterVolume
 
 	// Play the sound through the audio engine
-	as.audioEngine.PlaySound(soundID, finalVolume, pitch, isLoop)
+	_ = as.audioEngine.PlaySound(soundID, finalVolume, pitch, isLoop)
 
 	// Track active sound
 	as.activeSounds[soundID] = &ActiveSound{
@@ -173,7 +173,7 @@ func (as *AudioSystem) GetAudioEngine() AudioEngine {
 func (as *AudioSystem) SetListener(position ecs.Vector2) {
 	as.listenerPosition = position
 	if as.audioEngine != nil {
-		as.audioEngine.SetListenerPosition(position)
+		_ = as.audioEngine.SetListenerPosition(position)
 	}
 }
 

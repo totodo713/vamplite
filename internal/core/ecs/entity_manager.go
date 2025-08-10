@@ -6,6 +6,11 @@ import (
 	"time"
 )
 
+const (
+	// bytesPerEntity is the approximate memory usage per entity in bytes
+	bytesPerEntity = 50
+)
+
 // DefaultEntityManager provides a concrete implementation of EntityManager interface.
 type DefaultEntityManager struct {
 	// Entity lifecycle management
@@ -104,7 +109,7 @@ func (em *DefaultEntityManager) CreateEntityWithID(id EntityID) error {
 
 	// Check if entity already exists
 	if em.activeEntities[id] {
-		return ErrEntityAlreadyExists_EM
+		return ErrEntityAlreadyExistsEM
 	}
 
 	// Add to active entities
@@ -229,7 +234,7 @@ func (em *DefaultEntityManager) ClearRecycled() error {
 // Entity relationships and hierarchy
 
 // SetParent sets the parent-child relationship between entities.
-func (em *DefaultEntityManager) SetParent(child EntityID, parent EntityID) error {
+func (em *DefaultEntityManager) SetParent(child, parent EntityID) error {
 	em.mutex.Lock()
 	defer em.mutex.Unlock()
 
@@ -356,7 +361,7 @@ func (em *DefaultEntityManager) RemoveFromParent(child EntityID) error {
 }
 
 // IsAncestor checks if one entity is an ancestor of another.
-func (em *DefaultEntityManager) IsAncestor(ancestor EntityID, descendant EntityID) bool {
+func (em *DefaultEntityManager) IsAncestor(ancestor, descendant EntityID) bool {
 	em.mutex.RLock()
 	defer em.mutex.RUnlock()
 
@@ -676,7 +681,7 @@ func (em *DefaultEntityManager) GetMemoryUsage() int64 {
 	defer em.mutex.RUnlock()
 
 	// Approximate memory usage calculation
-	basicSize := int64(len(em.activeEntities) * 50) // ~50 bytes per entity
+	basicSize := int64(len(em.activeEntities) * bytesPerEntity)
 	return basicSize + em.memoryUsage
 }
 
@@ -691,7 +696,7 @@ func (em *DefaultEntityManager) GetPoolStats() *EntityPoolStats {
 		RecycledEntities: len(em.recycledIDs),
 		PoolCapacity:     em.maxEntityCount,
 		MemoryUsed:       em.GetMemoryUsage(),
-		MemoryReserved:   int64(em.maxEntityCount * 50),
+		MemoryReserved:   int64(em.maxEntityCount * bytesPerEntity),
 		Fragmentation:    em.GetFragmentation(),
 		HitRate:          0.95, // Default good hit rate
 	}
@@ -923,8 +928,8 @@ func (em *DefaultEntityManager) removeEntityFromGroup(entityID EntityID, group s
 // Error definitions for EntityManager - using existing ECS error framework
 var (
 	ErrInvalidEntity          = NewECSError(ErrInvalidEntityID, "invalid entity ID")
-	ErrEntityNotFound_EM      = NewECSError(ErrEntityNotFound, "entity not found")
-	ErrEntityAlreadyExists_EM = NewECSError(ErrEntityAlreadyExists, "entity already exists")
+	ErrEntityNotFoundEM      = NewECSError(ErrEntityNotFound, "entity not found")
+	ErrEntityAlreadyExistsEM = NewECSError(ErrEntityAlreadyExists, "entity already exists")
 	ErrCircularReference      = NewECSError(ErrCircularDependency, "circular reference detected")
 	ErrTagNotFound            = NewECSError("TAG_NOT_FOUND", "tag not found")
 	ErrGroupNotFound          = NewECSError("GROUP_NOT_FOUND", "group not found")

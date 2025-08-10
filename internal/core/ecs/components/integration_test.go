@@ -185,6 +185,8 @@ func Benchmark_Components_Clone(b *testing.B) {
 // Helper function to create components by type for testing
 func createComponentByType(componentType ecs.ComponentType) ecs.Component {
 	switch componentType {
+	case ecs.InvalidComponentType:
+		return nil
 	case ecs.ComponentTypeTransform:
 		return NewTransformComponent()
 	case ecs.ComponentTypeSprite:
@@ -195,6 +197,14 @@ func createComponentByType(componentType ecs.ComponentType) ecs.Component {
 		return NewHealthComponent(100)
 	case ecs.ComponentTypeAI:
 		return NewAIComponent()
+	case ecs.ComponentTypeInventory,
+		ecs.ComponentTypeAudio,
+		ecs.ComponentTypeInput,
+		ecs.ComponentTypeDisabled,
+		ecs.ComponentTypeEnergy,
+		ecs.ComponentTypeDead:
+		// These components are not implemented yet
+		return nil
 	default:
 		panic("Unknown component type: " + string(componentType))
 	}

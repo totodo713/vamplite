@@ -148,10 +148,10 @@ func createTestBaseSystem() *MockBaseSystem {
 }
 
 // TriggerError simulates an error for testing error handling
-func (mbs *MockBaseSystem) TriggerError(err error) {
+func (mbs *MockBaseSystem) TriggerError(_ error) {
 	// We need to access the handleError method, but it's not exported
 	// For now, we'll simulate the error handling manually
-	mbs.SetErrorHandler(func(e error) {
+	mbs.SetErrorHandler(func(_ error) {
 		// This will be called by the handler we set in the test
 	})
 }

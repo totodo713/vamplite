@@ -88,7 +88,7 @@ func Test_TransformComponent_CircularParentReference(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Act & Assert
-	err := parent.SetParent(child)
+	err = parent.SetParent(child)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "circular reference")
 }
@@ -178,7 +178,7 @@ func Test_TransformComponent_ParentChildRemoval(t *testing.T) {
 
 	// Act - remove child1 by setting different parent
 	newParent := NewTransformComponent()
-	child1.SetParent(newParent)
+	_ = child1.SetParent(newParent)
 
 	// Assert
 	assert.Len(t, parent.Children, 1)
@@ -188,7 +188,7 @@ func Test_TransformComponent_ParentChildRemoval(t *testing.T) {
 	assert.Contains(t, newParent.Children, child1)
 
 	// Test nil parent (remove from all parents)
-	child1.SetParent(nil)
+	_ = child1.SetParent(nil)
 	assert.Len(t, newParent.Children, 0)
 	assert.Nil(t, child1.Parent)
 }
@@ -200,11 +200,11 @@ func Test_TransformComponent_WorldTransforms(t *testing.T) {
 	grandparent.SetScale(ecs.Vector2{X: 2, Y: 2})
 
 	parent := NewTransformComponent()
-	parent.SetParent(grandparent)
+	_ = parent.SetParent(grandparent)
 	parent.SetPosition(ecs.Vector2{X: 10, Y: 0})
 
 	child := NewTransformComponent()
-	child.SetParent(parent)
+	_ = child.SetParent(parent)
 
 	// Act & Assert - world rotation
 	assert.InDelta(t, math.Pi/2, parent.GetWorldRotation(), 0.001)

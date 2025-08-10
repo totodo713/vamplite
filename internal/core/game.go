@@ -26,7 +26,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	screen.Fill(color.RGBA{50, 50, 100, 255})
 }
 
-func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
+func (g *Game) Layout(_, _ int) (screenWidth, screenHeight int) {
 	return 1280, 720
 }
 
