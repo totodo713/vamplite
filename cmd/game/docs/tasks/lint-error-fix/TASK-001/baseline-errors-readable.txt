@@ -1,0 +1,3 @@
+main.go:5:1: File is not properly formatted (gofumpt)
+
+^
