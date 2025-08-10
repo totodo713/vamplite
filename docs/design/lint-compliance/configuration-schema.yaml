@@ -1,0 +1,1167 @@
+# Lint Compliance Configuration Schema
+# This YAML file defines the complete configuration schema for the lint compliance system
+# It serves as both documentation and validation reference
+
+# =============================================================================
+# Root Configuration Schema
+# =============================================================================
+
+# Version of the configuration schema
+version: "1.0.0"
+
+# Schema definition
+schema:
+  type: object
+  properties:
+    
+    # Configuration format version
+    version:
+      type: string
+      pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+      description: "Configuration format version"
+      example: "1.0.0"
+    
+    # Linters configuration
+    linters:
+      $ref: "#/definitions/LintersConfig"
+    
+    # Linter-specific settings
+    linters-settings:
+      type: object
+      patternProperties:
+        "^[a-zA-Z][a-zA-Z0-9_-]*$":
+          type: object
+      description: "Linter-specific configuration settings"
+    
+    # Run configuration
+    run:
+      $ref: "#/definitions/RunConfig"
+    
+    # Issues configuration
+    issues:
+      $ref: "#/definitions/IssuesConfig"
+    
+    # Output configuration  
+    output:
+      $ref: "#/definitions/OutputConfig"
+    
+    # ECS framework specific settings
+    ecs:
+      $ref: "#/definitions/ECSConfig"
+    
+    # Environment-specific overrides
+    environments:
+      type: object
+      patternProperties:
+        "^(development|ci|production|testing)$":
+          $ref: "#/definitions/ConfigOverride"
+    
+    # Custom rules definitions
+    custom-rules:
+      $ref: "#/definitions/CustomRulesConfig"
+    
+    # Performance monitoring settings
+    performance-monitoring:
+      $ref: "#/definitions/PerformanceMonitoringConfig"
+    
+    # Quality gates configuration
+    quality-gates:
+      $ref: "#/definitions/QualityGatesConfig"
+
+  required:
+    - version
+    - linters
+  
+  additionalProperties: false
+
+# =============================================================================
+# Configuration Definitions
+# =============================================================================
+
+definitions:
+  
+  # Linters Configuration
+  LintersConfig:
+    type: object
+    properties:
+      disable-all:
+        type: boolean
+        default: false
+        description: "Disable all linters by default"
+      
+      enable:
+        type: array
+        items:
+          type: string
+          pattern: "^[a-zA-Z][a-zA-Z0-9_-]*$"
+        uniqueItems: true
+        description: "List of linters to enable"
+        examples:
+          - ["errcheck", "gosec", "govet"]
+      
+      disable:
+        type: array
+        items:
+          type: string
+          pattern: "^[a-zA-Z][a-zA-Z0-9_-]*$"
+        uniqueItems: true
+        description: "List of linters to disable"
+        examples:
+          - ["funlen", "gochecknoglobals"]
+      
+      fast:
+        type: boolean
+        default: false
+        description: "Run only fast linters"
+      
+      presets:
+        type: array
+        items:
+          type: string
+          enum: ["bugs", "complexity", "format", "performance", "style", "unused"]
+        uniqueItems: true
+        description: "Predefined linter presets to enable"
+      
+      exclude-rules:
+        type: array
+        items:
+          $ref: "#/definitions/ExclusionRule"
+        description: "Rules to exclude from linter execution"
+    
+    additionalProperties: false
+  
+  # Run Configuration  
+  RunConfig:
+    type: object
+    properties:
+      timeout:
+        type: string
+        pattern: "^[0-9]+(ns|us|µs|ms|s|m|h)$"
+        default: "5m"
+        description: "Total timeout for lint execution"
+        examples: ["5m", "300s", "180000ms"]
+      
+      concurrency:
+        type: integer
+        minimum: 1
+        maximum: 32
+        description: "Number of parallel workers (0 = auto-detect)"
+        examples: [4, 8, 0]
+      
+      go:
+        type: string
+        pattern: "^1\\.(1[6-9]|2[0-9]|[3-9][0-9])$"
+        default: "1.23"
+        description: "Target Go version"
+        examples: ["1.21", "1.22", "1.23"]
+      
+      skip-dirs:
+        type: array
+        items:
+          type: string
+        uniqueItems: true
+        default: ["vendor", "node_modules", ".git"]
+        description: "Directories to skip during analysis"
+        examples:
+          - ["vendor", "third_party", "generated"]
+      
+      skip-files:
+        type: array
+        items:
+          type: string
+        uniqueItems: true
+        description: "File patterns to skip"
+        examples:
+          - [".*\\.pb\\.go$", ".*\\.gen\\.go$"]
+      
+      allow-parallel-runners:
+        type: boolean
+        default: true
+        description: "Allow linters to run in parallel"
+      
+      modules-download-mode:
+        type: string
+        enum: ["mod", "readonly", "vendor", "off"]
+        default: "readonly"
+        description: "Go modules download mode"
+      
+      build-tags:
+        type: array
+        items:
+          type: string
+        uniqueItems: true
+        description: "Build tags to use during analysis"
+        examples:
+          - ["integration", "debug", "ecs"]
+    
+    additionalProperties: false
+  
+  # Issues Configuration
+  IssuesConfig:
+    type: object
+    properties:
+      exclude-rules:
+        type: array
+        items:
+          $ref: "#/definitions/ExclusionRule"
+        description: "Rules for excluding specific issues"
+      
+      include-files:
+        type: array
+        items:
+          type: string
+        description: "File patterns to include (overrides excludes)"
+      
+      exclude-files:
+        type: array
+        items:
+          type: string
+        description: "File patterns to exclude"
+      
+      max-issues-per-linter:
+        type: integer
+        minimum: 0
+        default: 50
+        description: "Maximum issues per linter (0 = unlimited)"
+      
+      max-same-issues:
+        type: integer
+        minimum: 0
+        default: 3
+        description: "Maximum same issues (0 = unlimited)"
+      
+      fix:
+        type: boolean
+        default: false
+        description: "Automatically fix issues when possible"
+      
+      severity-rules:
+        type: object
+        patternProperties:
+          "^[a-zA-Z][a-zA-Z0-9_-]*$":
+            type: string
+            enum: ["error", "warning", "info", "hint"]
+        description: "Override severity for specific linters"
+      
+      new-from-rev:
+        type: string
+        description: "Show only new issues from this git revision"
+      
+      new-from-patch:
+        type: string
+        description: "Show only new issues from this patch file"
+    
+    additionalProperties: false
+  
+  # Output Configuration
+  OutputConfig:
+    type: object
+    properties:
+      formats:
+        type: array
+        items:
+          $ref: "#/definitions/OutputFormat"
+        minItems: 1
+        description: "Output formats configuration"
+      
+      print-issued-lines:
+        type: boolean
+        default: true
+        description: "Print lines where issues occurred"
+      
+      print-linter-name:
+        type: boolean
+        default: true
+        description: "Print linter name for each issue"
+      
+      sort-results:
+        type: boolean
+        default: true
+        description: "Sort results by file path and line number"
+      
+      path-prefix:
+        type: string
+        description: "Path prefix to strip from file paths"
+      
+      uniq-by-line:
+        type: boolean
+        default: true
+        description: "Make issues output unique by line"
+      
+      annotations:
+        type: object
+        properties:
+          enabled:
+            type: boolean
+            default: false
+          
+          format:
+            type: string
+            enum: ["github", "gitlab", "generic"]
+            default: "github"
+        description: "CI/CD annotation settings"
+    
+    additionalProperties: false
+  
+  # ECS Framework Configuration
+  ECSConfig:
+    type: object
+    properties:
+      enabled:
+        type: boolean
+        default: true
+        description: "Enable ECS-specific optimizations"
+      
+      hot-path-exclusions:
+        type: array
+        items:
+          type: string
+        uniqueItems: true
+        description: "File paths to exclude from performance linting"
+        examples:
+          - ["internal/core/ecs/entity.go", "internal/core/ecs/query.go"]
+      
+      performance-rules:
+        $ref: "#/definitions/ECSPerformanceRules"
+      
+      naming-conventions:
+        $ref: "#/definitions/ECSNamingConventions"
+      
+      memory-optimization:
+        $ref: "#/definitions/ECSMemoryOptimization"
+      
+      query-optimization:
+        $ref: "#/definitions/ECSQueryOptimization"
+      
+      component-analysis:
+        $ref: "#/definitions/ECSComponentAnalysis"
+      
+      system-analysis:
+        $ref: "#/definitions/ECSSystemAnalysis"
+    
+    additionalProperties: false
+  
+  # ECS Performance Rules
+  ECSPerformanceRules:
+    type: object
+    properties:
+      max-entities-per-frame:
+        type: integer
+        minimum: 1
+        default: 10000
+        description: "Maximum entities to process per frame"
+      
+      max-component-size-bytes:
+        type: integer
+        minimum: 1
+        default: 256
+        description: "Maximum component size in bytes"
+      
+      require-memory-pools:
+        type: boolean
+        default: true
+        description: "Require memory pools for frequent allocations"
+      
+      check-cache-locality:
+        type: boolean
+        default: true
+        description: "Check for cache-friendly memory patterns"
+      
+      disallow-reflection:
+        type: boolean
+        default: true
+        description: "Disallow reflection in hot paths"
+      
+      prefer-value-types:
+        type: boolean
+        default: true
+        description: "Prefer value types over pointer types"
+    
+    additionalProperties: false
+  
+  # ECS Naming Conventions
+  ECSNamingConventions:
+    type: object
+    properties:
+      entity-suffix:
+        type: string
+        default: "Entity"
+        description: "Required suffix for entity types"
+      
+      component-suffix:
+        type: string
+        default: "Component"
+        description: "Required suffix for component types"
+      
+      system-suffix:
+        type: string
+        default: "System"
+        description: "Required suffix for system types"
+      
+      query-prefix:
+        type: string
+        default: "Query"
+        description: "Required prefix for query types"
+      
+      enforce-naming:
+        type: boolean
+        default: true
+        description: "Enforce naming conventions"
+    
+    additionalProperties: false
+  
+  # ECS Memory Optimization
+  ECSMemoryOptimization:
+    type: object
+    properties:
+      check-alignment:
+        type: boolean
+        default: true
+        description: "Check struct field alignment"
+      
+      max-component-size-bytes:
+        type: integer
+        minimum: 1
+        default: 64
+        description: "Maximum recommended component size"
+      
+      prefer-value-types:
+        type: boolean
+        default: true
+        description: "Prefer value types for components"
+      
+      pool-usage-patterns:
+        type: array
+        items:
+          type: string
+        description: "Required patterns for object pool usage"
+        examples:
+          - ["sync.Pool", "ObjectPool", "ComponentPool"]
+      
+      avoid-allocations:
+        type: boolean
+        default: true
+        description: "Flag allocations in hot paths"
+    
+    additionalProperties: false
+  
+  # ECS Query Optimization  
+  ECSQueryOptimization:
+    type: object
+    properties:
+      max-query-complexity:
+        type: integer
+        minimum: 1
+        default: 10
+        description: "Maximum query complexity score"
+      
+      cache-results:
+        type: boolean
+        default: true
+        description: "Encourage query result caching"
+      
+      batch-processing:
+        type: boolean
+        default: true
+        description: "Encourage batch processing patterns"
+      
+      parallel-processing:
+        type: boolean
+        default: true
+        description: "Encourage parallel query processing"
+      
+      avoid-nested-queries:
+        type: boolean
+        default: true
+        description: "Avoid nested query patterns"
+    
+    additionalProperties: false
+  
+  # ECS Component Analysis
+  ECSComponentAnalysis:
+    type: object
+    properties:
+      check-serialization:
+        type: boolean
+        default: true
+        description: "Check component serialization support"
+      
+      require-zero-value:
+        type: boolean
+        default: true
+        description: "Require meaningful zero values"
+      
+      check-immutability:
+        type: boolean
+        default: false
+        description: "Check for immutable component patterns"
+      
+      validate-lifecycle:
+        type: boolean
+        default: true
+        description: "Validate component lifecycle methods"
+    
+    additionalProperties: false
+  
+  # ECS System Analysis
+  ECSSystemAnalysis:
+    type: object
+    properties:
+      check-dependencies:
+        type: boolean
+        default: true
+        description: "Check system dependency declarations"
+      
+      validate-processing-order:
+        type: boolean
+        default: true
+        description: "Validate system processing order"
+      
+      check-side-effects:
+        type: boolean
+        default: true
+        description: "Check for uncontrolled side effects"
+      
+      require-error-handling:
+        type: boolean
+        default: true
+        description: "Require proper error handling in systems"
+    
+    additionalProperties: false
+  
+  # Configuration Override for Environments
+  ConfigOverride:
+    type: object
+    properties:
+      timeout:
+        type: string
+        pattern: "^[0-9]+(ns|us|µs|ms|s|m|h)$"
+        description: "Override execution timeout"
+      
+      concurrency:
+        type: integer
+        minimum: 1
+        maximum: 32
+        description: "Override concurrency level"
+      
+      additional-linters:
+        type: array
+        items:
+          type: string
+        uniqueItems: true
+        description: "Additional linters to enable"
+      
+      disabled-linters:
+        type: array
+        items:
+          type: string
+        uniqueItems: true
+        description: "Linters to disable for this environment"
+      
+      exclusion-rules:
+        type: array
+        items:
+          $ref: "#/definitions/ExclusionRule"
+        description: "Environment-specific exclusions"
+      
+      severity-overrides:
+        type: object
+        patternProperties:
+          "^[a-zA-Z][a-zA-Z0-9_-]*$":
+            type: string
+            enum: ["error", "warning", "info", "hint"]
+        description: "Severity overrides for this environment"
+      
+      quality-gates:
+        $ref: "#/definitions/QualityGatesConfig"
+        description: "Environment-specific quality gates"
+    
+    additionalProperties: false
+  
+  # Custom Rules Configuration
+  CustomRulesConfig:
+    type: object
+    patternProperties:
+      "^[a-zA-Z][a-zA-Z0-9_-]*$":
+        $ref: "#/definitions/CustomRule"
+    description: "Custom lint rules definitions"
+  
+  # Custom Rule Definition
+  CustomRule:
+    type: object
+    properties:
+      name:
+        type: string
+        description: "Human-readable rule name"
+      
+      description:
+        type: string
+        description: "Rule description"
+      
+      category:
+        type: string
+        enum: ["security", "performance", "reliability", "maintainability", "style"]
+        description: "Rule category"
+      
+      severity:
+        type: string
+        enum: ["error", "warning", "info", "hint"]
+        default: "warning"
+        description: "Rule severity level"
+      
+      pattern:
+        type: string
+        description: "Regex pattern to match"
+      
+      message:
+        type: string
+        description: "Error message template"
+      
+      fix-suggestion:
+        type: string
+        description: "Suggested fix template"
+      
+      tags:
+        type: array
+        items:
+          type: string
+        uniqueItems: true
+        description: "Rule tags for categorization"
+      
+      applies-to:
+        type: array
+        items:
+          type: string
+          enum: ["*.go", "main.go", "*_test.go", "internal/*", "cmd/*"]
+        description: "File patterns this rule applies to"
+      
+      excludes:
+        type: array
+        items:
+          type: string
+        description: "File patterns to exclude from this rule"
+    
+    required: ["name", "pattern", "message"]
+    additionalProperties: false
+  
+  # Performance Monitoring Configuration
+  PerformanceMonitoringConfig:
+    type: object
+    properties:
+      enabled:
+        type: boolean
+        default: true
+        description: "Enable performance monitoring"
+      
+      collect-metrics:
+        type: boolean
+        default: true
+        description: "Collect detailed performance metrics"
+      
+      memory-profiling:
+        type: boolean
+        default: false
+        description: "Enable memory profiling"
+      
+      cpu-profiling:
+        type: boolean
+        default: false
+        description: "Enable CPU profiling"
+      
+      thresholds:
+        $ref: "#/definitions/PerformanceThresholds"
+      
+      export-metrics:
+        $ref: "#/definitions/MetricsExportConfig"
+    
+    additionalProperties: false
+  
+  # Performance Thresholds
+  PerformanceThresholds:
+    type: object
+    properties:
+      max-execution-time:
+        type: string
+        pattern: "^[0-9]+(ns|us|µs|ms|s|m|h)$"
+        default: "5m"
+        description: "Maximum allowed execution time"
+      
+      max-memory-usage-mb:
+        type: integer
+        minimum: 100
+        default: 2048
+        description: "Maximum memory usage in MB"
+      
+      max-cpu-usage-percent:
+        type: number
+        minimum: 0
+        maximum: 100
+        default: 80
+        description: "Maximum CPU usage percentage"
+      
+      max-file-processing-time:
+        type: string
+        pattern: "^[0-9]+(ns|us|µs|ms|s|m|h)$"
+        default: "10s"
+        description: "Maximum time per file"
+    
+    additionalProperties: false
+  
+  # Metrics Export Configuration
+  MetricsExportConfig:
+    type: object
+    properties:
+      enabled:
+        type: boolean
+        default: false
+        description: "Enable metrics export"
+      
+      format:
+        type: string
+        enum: ["prometheus", "json", "csv"]
+        default: "json"
+        description: "Metrics export format"
+      
+      endpoint:
+        type: string
+        description: "Metrics export endpoint URL"
+      
+      interval:
+        type: string
+        pattern: "^[0-9]+(ns|us|µs|ms|s|m|h)$"
+        default: "30s"
+        description: "Export interval"
+      
+      include-labels:
+        type: array
+        items:
+          type: string
+        description: "Labels to include in exports"
+    
+    additionalProperties: false
+  
+  # Quality Gates Configuration
+  QualityGatesConfig:
+    type: object
+    properties:
+      enabled:
+        type: boolean
+        default: true
+        description: "Enable quality gates"
+      
+      blocking:
+        type: boolean
+        default: true
+        description: "Block on quality gate failures"
+      
+      gates:
+        type: array
+        items:
+          $ref: "#/definitions/QualityGate"
+        description: "Quality gate definitions"
+      
+      aggregate-score:
+        $ref: "#/definitions/AggregateScoreConfig"
+    
+    additionalProperties: false
+  
+  # Individual Quality Gate
+  QualityGate:
+    type: object
+    properties:
+      name:
+        type: string
+        description: "Gate name"
+      
+      metric:
+        type: string
+        enum: [
+          "error_count", "warning_count", "security_issues", 
+          "complexity_average", "duplication_percent", "coverage_percent"
+        ]
+        description: "Metric to evaluate"
+      
+      threshold:
+        type: number
+        description: "Threshold value"
+      
+      operator:
+        type: string
+        enum: ["<=", "<", ">=", ">", "=", "!="]
+        default: "<="
+        description: "Comparison operator"
+      
+      severity:
+        type: string
+        enum: ["blocking", "non-blocking"]
+        default: "blocking"
+        description: "Gate severity"
+      
+      message:
+        type: string
+        description: "Custom failure message"
+    
+    required: ["name", "metric", "threshold"]
+    additionalProperties: false
+  
+  # Aggregate Score Configuration
+  AggregateScoreConfig:
+    type: object
+    properties:
+      enabled:
+        type: boolean
+        default: true
+        description: "Enable aggregate quality scoring"
+      
+      min-score:
+        type: number
+        minimum: 0
+        maximum: 1
+        default: 0.8
+        description: "Minimum required quality score"
+      
+      weights:
+        type: object
+        properties:
+          security:
+            type: number
+            minimum: 0
+            default: 0.3
+          
+          reliability:
+            type: number
+            minimum: 0
+            default: 0.25
+          
+          maintainability:
+            type: number
+            minimum: 0
+            default: 0.2
+          
+          performance:
+            type: number
+            minimum: 0
+            default: 0.15
+          
+          style:
+            type: number
+            minimum: 0
+            default: 0.1
+        
+        description: "Category weights for score calculation"
+    
+    additionalProperties: false
+  
+  # Exclusion Rule
+  ExclusionRule:
+    type: object
+    properties:
+      path:
+        type: string
+        description: "File path pattern to exclude"
+        examples: [".*_test.go", "vendor/.*", "internal/generated/.*"]
+      
+      linters:
+        type: array
+        items:
+          type: string
+        uniqueItems: true
+        description: "Specific linters to exclude"
+        examples: [["errcheck", "gosec"]]
+      
+      text:
+        type: string
+        description: "Text pattern to exclude"
+        examples: ["FIXME", "TODO", "nolint"]
+      
+      source:
+        type: string
+        description: "Source code pattern to exclude"
+      
+      reason:
+        type: string
+        description: "Reason for exclusion (documentation)"
+    
+    additionalProperties: false
+  
+  # Output Format
+  OutputFormat:
+    type: object
+    properties:
+      format:
+        type: string
+        enum: [
+          "colored-line-number", "line-number", "json", "tab", 
+          "checkstyle", "code-climate", "html", "junit-xml",
+          "github-actions", "teamcity"
+        ]
+        description: "Output format type"
+      
+      path:
+        type: string
+        description: "Output file path (optional, defaults to stdout)"
+    
+    required: ["format"]
+    additionalProperties: false
+
+# =============================================================================
+# Example Configurations
+# =============================================================================
+
+examples:
+  
+  # Minimal Configuration
+  minimal:
+    version: "1.0.0"
+    linters:
+      disable-all: true
+      enable: ["errcheck", "gosimple", "govet", "staticcheck"]
+    run:
+      timeout: "3m"
+      concurrency: 4
+    output:
+      formats:
+        - format: "colored-line-number"
+  
+  # Development Environment
+  development:
+    version: "1.0.0"
+    linters:
+      disable-all: true
+      enable: [
+        "errcheck", "gosimple", "govet", "ineffassign", "staticcheck", 
+        "typecheck", "unused", "gofmt", "goimports", "misspell"
+      ]
+    run:
+      timeout: "5m"
+      concurrency: 0  # auto-detect
+    issues:
+      fix: true
+      max-issues-per-linter: 0
+    output:
+      formats:
+        - format: "colored-line-number"
+        - format: "json"
+          path: "lint-results.json"
+    ecs:
+      enabled: true
+      performance-rules:
+        max-entities-per-frame: 10000
+        require-memory-pools: true
+    performance-monitoring:
+      enabled: true
+      collect-metrics: true
+  
+  # CI/CD Environment
+  ci-cd:
+    version: "1.0.0"
+    linters:
+      disable-all: true
+      enable: [
+        "errcheck", "gosimple", "govet", "ineffassign", "staticcheck",
+        "typecheck", "unused", "gosec", "gocritic", "gocyclo"
+      ]
+    run:
+      timeout: "10m"
+      concurrency: 2
+    issues:
+      max-issues-per-linter: 0
+      max-same-issues: 0
+    output:
+      formats:
+        - format: "github-actions"
+        - format: "junit-xml"
+          path: "lint-results.xml"
+        - format: "json"
+          path: "lint-results.json"
+      annotations:
+        enabled: true
+        format: "github"
+    quality-gates:
+      enabled: true
+      blocking: true
+      gates:
+        - name: "no-security-issues"
+          metric: "security_issues"
+          threshold: 0
+          operator: "="
+        - name: "max-complexity"
+          metric: "complexity_average"
+          threshold: 15
+          operator: "<="
+    environments:
+      ci:
+        timeout: "8m"
+        additional-linters: ["gosec", "ineffassign"]
+  
+  # Production Ready
+  production:
+    version: "1.0.0"
+    linters:
+      disable-all: true
+      enable: [
+        "errcheck", "gosimple", "govet", "ineffassign", "staticcheck",
+        "typecheck", "unused", "gosec", "gocritic", "gocyclo", "dupl",
+        "gofmt", "goimports", "misspell", "unparam", "unconvert"
+      ]
+    run:
+      timeout: "15m"
+      concurrency: 4
+      go: "1.23"
+    linters-settings:
+      gocyclo:
+        min-complexity: 15
+      dupl:
+        threshold: 100
+      gosec:
+        includes: ["G401", "G501", "G502"]
+    issues:
+      max-issues-per-linter: 0
+      max-same-issues: 0
+      exclude-rules:
+        - path: "_test.go"
+          linters: ["dupl", "gosec"]
+          reason: "Test files may have duplication and security exemptions"
+    output:
+      formats:
+        - format: "colored-line-number"
+        - format: "json"
+          path: "lint-results.json"
+        - format: "html"
+          path: "lint-report.html"
+    ecs:
+      enabled: true
+      hot-path-exclusions:
+        - "internal/core/ecs/entity.go"
+        - "internal/core/ecs/component.go"
+        - "internal/core/ecs/system.go"
+        - "internal/core/ecs/query.go"
+      performance-rules:
+        max-entities-per-frame: 10000
+        max-component-size-bytes: 64
+        require-memory-pools: true
+        check-cache-locality: true
+      naming-conventions:
+        entity-suffix: "Entity"
+        component-suffix: "Component"
+        system-suffix: "System"
+        enforce-naming: true
+      memory-optimization:
+        check-alignment: true
+        max-component-size-bytes: 64
+        prefer-value-types: true
+        avoid-allocations: true
+    performance-monitoring:
+      enabled: true
+      collect-metrics: true
+      memory-profiling: false
+      cpu-profiling: false
+      thresholds:
+        max-execution-time: "10m"
+        max-memory-usage-mb: 2048
+        max-cpu-usage-percent: 80
+      export-metrics:
+        enabled: true
+        format: "json"
+        endpoint: "http://metrics-collector:8080/lint"
+        interval: "1m"
+    quality-gates:
+      enabled: true
+      blocking: true
+      gates:
+        - name: "zero-errors"
+          metric: "error_count"
+          threshold: 0
+          operator: "="
+        - name: "max-warnings"
+          metric: "warning_count"
+          threshold: 10
+          operator: "<="
+        - name: "no-security-issues"
+          metric: "security_issues"
+          threshold: 0
+          operator: "="
+        - name: "complexity-limit"
+          metric: "complexity_average"
+          threshold: 15
+          operator: "<="
+        - name: "duplication-limit"
+          metric: "duplication_percent"
+          threshold: 5
+          operator: "<="
+      aggregate-score:
+        enabled: true
+        min-score: 0.85
+        weights:
+          security: 0.35
+          reliability: 0.25
+          maintainability: 0.20
+          performance: 0.15
+          style: 0.05
+    custom-rules:
+      ecs-entity-naming:
+        name: "ECS Entity Naming Convention"
+        description: "Enforce Entity suffix for entity types"
+        category: "style"
+        severity: "warning"
+        pattern: "^type\\s+\\w+Entity\\s+struct"
+        message: "Entity types must end with 'Entity' suffix"
+        applies-to: ["internal/core/ecs/*.go"]
+      
+      no-global-state:
+        name: "No Global State in ECS"
+        description: "Prevent global state in ECS components"
+        category: "reliability"
+        severity: "error"
+        pattern: "^var\\s+\\w+\\s+(\\*)?\\w*Component"
+        message: "Global component variables are not allowed"
+        applies-to: ["internal/core/ecs/*.go"]
+
+# =============================================================================
+# Validation Rules
+# =============================================================================
+
+validation-rules:
+  - rule: "At least one linter must be enabled"
+    check: "linters.enable.length > 0 OR !linters.disable-all"
+  
+  - rule: "Timeout must be positive"
+    check: "run.timeout > 0"
+  
+  - rule: "Concurrency must be valid"
+    check: "run.concurrency >= 0 AND run.concurrency <= 32"
+  
+  - rule: "Go version must be supported"
+    check: "run.go >= '1.19'"
+  
+  - rule: "Quality gate thresholds must be numeric"
+    check: "quality-gates.gates[*].threshold is numeric"
+  
+  - rule: "ECS performance limits must be reasonable"
+    check: "ecs.performance-rules.max-entities-per-frame <= 100000"
+  
+  - rule: "Memory limits must be reasonable"  
+    check: "performance-monitoring.thresholds.max-memory-usage-mb <= 8192"
+
+# =============================================================================
+# Migration Guide
+# =============================================================================
+
+migration:
+  from-golangci-lint:
+    description: "Migration guide from standard golangci-lint configuration"
+    steps:
+      - "Copy existing .golangci.yml to .golangci.yml.backup"
+      - "Add version field at the top"
+      - "Wrap configuration in schema-compliant structure"
+      - "Add ECS-specific settings if applicable"
+      - "Configure quality gates"
+      - "Test configuration with --dry-run"
+  
+  version-updates:
+    "1.0.0":
+      changes:
+        - "Initial schema version"
+        - "Full compatibility with golangci-lint v1.55+"
+        - "ECS framework integration"
+        - "Quality gates support"
