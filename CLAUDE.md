@@ -18,9 +18,16 @@ This document defines the project's rules, objectives, and progress management m
 
 ## 開発ワークフロー
 
-- `main`から変更があれば同期する。
+- `main`から変更があれば同期する
 - 作業を実施する
 - 変更があればこまめにコミットする
+- **タスク完了前の必須品質チェック：**
+  1. `golangci-lint run` でlintエラー確認
+  2. `gofumpt -w .` でフォーマット適用
+  3. `goimports -w .` でimport整理
+  4. 再度 `golangci-lint run` で修正確認
+  5. エラーがあれば修正を実行
+  6. 全て解決後にコミット
 - 全体のテストが通ることを確認する
 - タスクが完了したら変更を`container-use merge`で自分の作業ブランチにマージする
 - `container-use delete`で環境を削除する
