@@ -14,7 +14,6 @@ import (
 	"muscle-dreamer/internal/core/systems"
 )
 
-
 func TestSystemsIntegration_MovementToPhysics(t *testing.T) {
 	movementSystem := systems.NewMovementSystem()
 	physicsSystem := systems.NewPhysicsSystem()

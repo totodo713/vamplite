@@ -7,7 +7,6 @@ import (
 	"time"
 )
 
-
 // ==============================================
 // Mock System Implementation for Testing
 // ==============================================
@@ -145,50 +144,52 @@ func NewMockWorld() *MockWorld {
 }
 
 // Minimal implementation of World interface for testing
-func (w *MockWorld) CreateEntity() EntityID                                  { return EntityID(1) }
-func (w *MockWorld) DestroyEntity(EntityID) error                            { return nil }
-func (w *MockWorld) IsEntityValid(EntityID) bool                             { return true }
-func (w *MockWorld) GetEntityCount() int                                     { return 0 }
-func (w *MockWorld) GetActiveEntities() []EntityID                           { return []EntityID{} }
-func (w *MockWorld) AddComponent(EntityID, Component) error                  { return nil }
-func (w *MockWorld) RemoveComponent(EntityID, ComponentType) error           { return nil }
-func (w *MockWorld) GetComponent(EntityID, ComponentType) (Component, error) { return nil, errors.New(ErrComponentNotFound) }
-func (w *MockWorld) HasComponent(EntityID, ComponentType) bool               { return false }
-func (w *MockWorld) GetComponents(EntityID) []Component                      { return []Component{} }
-func (w *MockWorld) RegisterSystem(System) error                             { return nil }
-func (w *MockWorld) UnregisterSystem(SystemType) error                       { return nil }
-func (w *MockWorld) GetSystem(SystemType) (System, error)                    { return nil, errors.New(ErrSystemNotFound) }
-func (w *MockWorld) GetAllSystems() []System                                 { return []System{} }
-func (w *MockWorld) EnableSystem(SystemType) error                           { return nil }
-func (w *MockWorld) DisableSystem(SystemType) error                          { return nil }
-func (w *MockWorld) IsSystemEnabled(SystemType) bool                         { return true }
-func (w *MockWorld) Update(float64) error                                    { return nil }
-func (w *MockWorld) Render(interface{}) error                                { return nil }
-func (w *MockWorld) Shutdown() error                                         { return nil }
-func (w *MockWorld) GetMetrics() *PerformanceMetrics                         { return nil }
-func (w *MockWorld) GetMemoryUsage() *MemoryUsage                            { return nil }
-func (w *MockWorld) GetStorageStats() []StorageStats                         { return []StorageStats{} }
-func (w *MockWorld) GetQueryStats() []QueryStats                             { return []QueryStats{} }
-func (w *MockWorld) GetConfig() *WorldConfig                                 { return nil }
-func (w *MockWorld) UpdateConfig(*WorldConfig) error                         { return nil }
-func (w *MockWorld) EmitEvent(Event) error                                   { return nil }
-func (w *MockWorld) Subscribe(EventType, EventHandler) error                 { return nil }
-func (w *MockWorld) Unsubscribe(EventType, EventHandler) error               { return nil }
-func (w *MockWorld) Query() QueryBuilder                                     { return nil }
-func (w *MockWorld) CreateQuery(QueryBuilder) QueryResult                    { return nil }
-func (w *MockWorld) ExecuteQuery(QueryBuilder) QueryResult                   { return nil }
-func (w *MockWorld) CreateEntities(int) []EntityID                           { return []EntityID{} }
-func (w *MockWorld) DestroyEntities([]EntityID) error                        { return nil }
-func (w *MockWorld) AddComponents(EntityID, []Component) error               { return nil }
-func (w *MockWorld) RemoveComponents(EntityID, []ComponentType) error        { return nil }
-func (w *MockWorld) SerializeEntity(EntityID) ([]byte, error)                { return nil, nil }
-func (w *MockWorld) DeserializeEntity([]byte) (EntityID, error)              { return EntityID(0), nil }
-func (w *MockWorld) SerializeWorld() ([]byte, error)                         { return nil, nil }
-func (w *MockWorld) DeserializeWorld([]byte) error                           { return nil }
-func (w *MockWorld) Lock()                                                   {}
-func (w *MockWorld) RLock()                                                  {}
-func (w *MockWorld) Unlock()                                                 {}
-func (w *MockWorld) RUnlock()                                                {}
+func (w *MockWorld) CreateEntity() EntityID                        { return EntityID(1) }
+func (w *MockWorld) DestroyEntity(EntityID) error                  { return nil }
+func (w *MockWorld) IsEntityValid(EntityID) bool                   { return true }
+func (w *MockWorld) GetEntityCount() int                           { return 0 }
+func (w *MockWorld) GetActiveEntities() []EntityID                 { return []EntityID{} }
+func (w *MockWorld) AddComponent(EntityID, Component) error        { return nil }
+func (w *MockWorld) RemoveComponent(EntityID, ComponentType) error { return nil }
+func (w *MockWorld) GetComponent(EntityID, ComponentType) (Component, error) {
+	return nil, errors.New(ErrComponentNotFound)
+}
+func (w *MockWorld) HasComponent(EntityID, ComponentType) bool        { return false }
+func (w *MockWorld) GetComponents(EntityID) []Component               { return []Component{} }
+func (w *MockWorld) RegisterSystem(System) error                      { return nil }
+func (w *MockWorld) UnregisterSystem(SystemType) error                { return nil }
+func (w *MockWorld) GetSystem(SystemType) (System, error)             { return nil, errors.New(ErrSystemNotFound) }
+func (w *MockWorld) GetAllSystems() []System                          { return []System{} }
+func (w *MockWorld) EnableSystem(SystemType) error                    { return nil }
+func (w *MockWorld) DisableSystem(SystemType) error                   { return nil }
+func (w *MockWorld) IsSystemEnabled(SystemType) bool                  { return true }
+func (w *MockWorld) Update(float64) error                             { return nil }
+func (w *MockWorld) Render(interface{}) error                         { return nil }
+func (w *MockWorld) Shutdown() error                                  { return nil }
+func (w *MockWorld) GetMetrics() *PerformanceMetrics                  { return nil }
+func (w *MockWorld) GetMemoryUsage() *MemoryUsage                     { return nil }
+func (w *MockWorld) GetStorageStats() []StorageStats                  { return []StorageStats{} }
+func (w *MockWorld) GetQueryStats() []QueryStats                      { return []QueryStats{} }
+func (w *MockWorld) GetConfig() *WorldConfig                          { return nil }
+func (w *MockWorld) UpdateConfig(*WorldConfig) error                  { return nil }
+func (w *MockWorld) EmitEvent(Event) error                            { return nil }
+func (w *MockWorld) Subscribe(EventType, EventHandler) error          { return nil }
+func (w *MockWorld) Unsubscribe(EventType, EventHandler) error        { return nil }
+func (w *MockWorld) Query() QueryBuilder                              { return nil }
+func (w *MockWorld) CreateQuery(QueryBuilder) QueryResult             { return nil }
+func (w *MockWorld) ExecuteQuery(QueryBuilder) QueryResult            { return nil }
+func (w *MockWorld) CreateEntities(int) []EntityID                    { return []EntityID{} }
+func (w *MockWorld) DestroyEntities([]EntityID) error                 { return nil }
+func (w *MockWorld) AddComponents(EntityID, []Component) error        { return nil }
+func (w *MockWorld) RemoveComponents(EntityID, []ComponentType) error { return nil }
+func (w *MockWorld) SerializeEntity(EntityID) ([]byte, error)         { return nil, nil }
+func (w *MockWorld) DeserializeEntity([]byte) (EntityID, error)       { return EntityID(0), nil }
+func (w *MockWorld) SerializeWorld() ([]byte, error)                  { return nil, nil }
+func (w *MockWorld) DeserializeWorld([]byte) error                    { return nil }
+func (w *MockWorld) Lock()                                            {}
+func (w *MockWorld) RLock()                                           {}
+func (w *MockWorld) Unlock()                                          {}
+func (w *MockWorld) RUnlock()                                         {}
 
 // ==============================================
 // TC-SM-001: システム登録機能テスト

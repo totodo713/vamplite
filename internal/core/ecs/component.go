@@ -280,16 +280,16 @@ type ComponentRegistryStats struct {
 
 // ComponentStoreDebugInfo provides comprehensive debugging information.
 type ComponentStoreDebugInfo struct {
-	RegisteredTypes       int                                  `json:"registered_types"`
-	TotalComponents       int64                                `json:"total_components"`
-	TotalMemoryUsage      int64                                `json:"total_memory_usage_bytes"`
-	StorageStats          []StorageStats                       `json:"storage_stats"`
-	MemoryPoolStats       map[ComponentType]*MemoryPoolStats   `json:"memory_pool_stats"`
-	SparseSetStats        map[ComponentType]*SparseSetStats    `json:"sparse_set_stats"`
-	TypeInfo              map[ComponentType]*ComponentTypeInfo `json:"type_info"`
-	DirtyComponents       map[EntityID][]ComponentType         `json:"dirty_components"`
-	ChangeTrackingEnabled bool                                 `json:"change_tracking_enabled"`
-	ThreadSafetyEnabled   bool                                 `json:"thread_safety_enabled"`
+	RegisteredTypes       int                                  `json:"registeredTypes"`
+	TotalComponents       int64                                `json:"totalComponents"`
+	TotalMemoryUsage      int64                                `json:"totalMemoryUsageBytes"`
+	StorageStats          []StorageStats                       `json:"storageStats"`
+	MemoryPoolStats       map[ComponentType]*MemoryPoolStats   `json:"memoryPoolStats"`
+	SparseSetStats        map[ComponentType]*SparseSetStats    `json:"sparseSetStats"`
+	TypeInfo              map[ComponentType]*ComponentTypeInfo `json:"typeInfo"`
+	DirtyComponents       map[EntityID][]ComponentType         `json:"dirtyComponents"`
+	ChangeTrackingEnabled bool                                 `json:"changeTrackingEnabled"`
+	ThreadSafetyEnabled   bool                                 `json:"threadSafetyEnabled"`
 }
 
 // ==============================================
@@ -374,25 +374,25 @@ type SoAStorage interface {
 
 // ArrayStats contains statistics about a specific component array.
 type ArrayStats struct {
-	ComponentType ComponentType `json:"component_type"`
+	ComponentType ComponentType `json:"componentType"`
 	Length        int           `json:"length"`
 	Capacity      int           `json:"capacity"`
-	ElementSize   int           `json:"element_size_bytes"`
-	TotalSize     int64         `json:"total_size_bytes"`
+	ElementSize   int           `json:"elementSizeBytes"`
+	TotalSize     int64         `json:"totalSizeBytes"`
 	Stride        int           `json:"stride"`
 	Alignment     int           `json:"alignment"`
 	Fragmentation float64       `json:"fragmentation"`
-	CacheHitRate  float64       `json:"cache_hit_rate"`
+	CacheHitRate  float64       `json:"cacheHitRate"`
 }
 
 // LayoutStats contains statistics about the overall memory layout.
 type LayoutStats struct {
-	TotalArrays        int     `json:"total_arrays"`
-	TotalMemory        int64   `json:"total_memory_bytes"`
-	AverageUtilization float64 `json:"average_utilization"`
-	CacheEfficiency    float64 `json:"cache_efficiency"`
+	TotalArrays        int     `json:"totalArrays"`
+	TotalMemory        int64   `json:"totalMemoryBytes"`
+	AverageUtilization float64 `json:"averageUtilization"`
+	CacheEfficiency    float64 `json:"cacheEfficiency"`
 	Fragmentation      float64 `json:"fragmentation"`
-	OptimalLayout      bool    `json:"optimal_layout"`
+	OptimalLayout      bool    `json:"optimalLayout"`
 }
 
 // ==============================================
