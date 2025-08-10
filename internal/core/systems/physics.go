@@ -93,8 +93,14 @@ func (ps *PhysicsSystem) Update(world ecs.World, deltaTime float64) error {
 			continue
 		}
 
-		transform := transformComp.(*components.TransformComponent)
-		physics := physicsComp.(*components.PhysicsComponent)
+		transform, ok := transformComp.(*components.TransformComponent)
+		if !ok {
+			continue
+		}
+		physics, ok := physicsComp.(*components.PhysicsComponent)
+		if !ok {
+			continue
+		}
 
 		// Skip static objects
 		if physics.IsStatic {

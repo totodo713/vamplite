@@ -62,14 +62,20 @@ func (ms *MovementSystem) Update(world ecs.World, deltaTime float64) error {
 		if err != nil {
 			continue
 		}
-		transform := transformComp.(*components.TransformComponent)
+		transform, ok := transformComp.(*components.TransformComponent)
+		if !ok {
+			continue
+		}
 
 		// PhysicsComponent取得
 		physicsComp, err := world.GetComponent(entity, ecs.ComponentTypePhysics)
 		if err != nil {
 			continue
 		}
-		physics := physicsComp.(*components.PhysicsComponent)
+		physics, ok := physicsComp.(*components.PhysicsComponent)
+		if !ok {
+			continue
+		}
 
 		// 加速度の適用（velocity += acceleration * deltaTime）
 		physics.Velocity.X += physics.Acceleration.X * deltaTime

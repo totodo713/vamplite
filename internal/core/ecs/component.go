@@ -188,16 +188,16 @@ type MemoryPool interface {
 // MemoryPoolStats contains statistics about memory pool usage.
 type MemoryPoolStats struct {
 	ComponentType  ComponentType `json:"componentType"`
-	TotalAllocated int           `json:"total_allocated"`
-	CurrentUsed    int           `json:"current_used"`
-	PeakUsed       int           `json:"peak_used"`
-	PoolCapacity   int           `json:"pool_capacity"`
-	MemoryUsage    int64         `json:"memory_usage_bytes"`
-	AllocCount     int64         `json:"alloc_count"`
-	DeallocCount   int64         `json:"dealloc_count"`
-	HitRate        float64       `json:"hit_rate"`
+	TotalAllocated int           `json:"totalAllocated"`
+	CurrentUsed    int           `json:"currentUsed"`
+	PeakUsed       int           `json:"peakUsed"`
+	PoolCapacity   int           `json:"poolCapacity"`
+	MemoryUsage    int64         `json:"memoryUsageBytes"`
+	AllocCount     int64         `json:"allocCount"`
+	DeallocCount   int64         `json:"deallocCount"`
+	HitRate        float64       `json:"hitRate"`
 	Fragmentation  float64       `json:"fragmentation"`
-	LastGrowth     time.Time     `json:"last_growth"`
+	LastGrowth     time.Time     `json:"lastGrowth"`
 }
 
 // ==============================================
@@ -208,20 +208,20 @@ type MemoryPoolStats struct {
 type ComponentTypeInfo struct {
 	Type         ComponentType                   `json:"type"`
 	ReflectType  reflect.Type                    `json:"-"`
-	Size         int                             `json:"size_bytes"`
+	Size         int                             `json:"sizeBytes"`
 	Alignment    int                             `json:"alignment"`
-	IsPointer    bool                            `json:"is_pointer"`
+	IsPointer    bool                            `json:"isPointer"`
 	Factory      func() Component                `json:"-"`
 	Validator    func(Component) error           `json:"-"`
 	Serializer   func(Component) ([]byte, error) `json:"-"`
 	Deserializer func([]byte) (Component, error) `json:"-"`
 
 	// Statistics
-	InstanceCount int64     `json:"instance_count"`
-	TotalMemory   int64     `json:"total_memory_bytes"`
-	CreatedAt     time.Time `json:"created_at"`
-	LastAccessed  time.Time `json:"last_accessed"`
-	AccessCount   int64     `json:"access_count"`
+	InstanceCount int64     `json:"instanceCount"`
+	TotalMemory   int64     `json:"totalMemoryBytes"`
+	CreatedAt     time.Time `json:"createdAt"`
+	LastAccessed  time.Time `json:"lastAccessed"`
+	AccessCount   int64     `json:"accessCount"`
 }
 
 // ComponentRegistry manages component type registration and metadata.
@@ -253,25 +253,25 @@ type ComponentRegistry interface {
 // ComponentTypeStats contains usage statistics for a component type.
 type ComponentTypeStats struct {
 	Type             ComponentType `json:"type"`
-	InstanceCount    int64         `json:"instance_count"`
-	TotalMemory      int64         `json:"total_memory_bytes"`
-	AverageSize      float64       `json:"average_size_bytes"`
-	AccessCount      int64         `json:"access_count"`
-	CreationCount    int64         `json:"creation_count"`
-	DestructionCount int64         `json:"destruction_count"`
-	LastAccessed     time.Time     `json:"last_accessed"`
-	FirstCreated     time.Time     `json:"first_created"`
+	InstanceCount    int64         `json:"instanceCount"`
+	TotalMemory      int64         `json:"totalMemoryBytes"`
+	AverageSize      float64       `json:"averageSizeBytes"`
+	AccessCount      int64         `json:"accessCount"`
+	CreationCount    int64         `json:"creationCount"`
+	DestructionCount int64         `json:"destructionCount"`
+	LastAccessed     time.Time     `json:"lastAccessed"`
+	FirstCreated     time.Time     `json:"firstCreated"`
 }
 
 // ComponentRegistryStats contains overall registry statistics.
 type ComponentRegistryStats struct {
-	RegisteredTypes  int                                   `json:"registered_types"`
-	TotalInstances   int64                                 `json:"total_instances"`
-	TotalMemory      int64                                 `json:"total_memory_bytes"`
-	TypeStats        map[ComponentType]*ComponentTypeStats `json:"type_stats"`
-	MostUsedTypes    []ComponentType                       `json:"most_used_types"`
-	LeastUsedTypes   []ComponentType                       `json:"least_used_types"`
-	MemoryHeavyTypes []ComponentType                       `json:"memory_heavy_types"`
+	RegisteredTypes  int                                   `json:"registeredTypes"`
+	TotalInstances   int64                                 `json:"totalInstances"`
+	TotalMemory      int64                                 `json:"totalMemoryBytes"`
+	TypeStats        map[ComponentType]*ComponentTypeStats `json:"typeStats"`
+	MostUsedTypes    []ComponentType                       `json:"mostUsedTypes"`
+	LeastUsedTypes   []ComponentType                       `json:"leastUsedTypes"`
+	MemoryHeavyTypes []ComponentType                       `json:"memoryHeavyTypes"`
 }
 
 // ==============================================
