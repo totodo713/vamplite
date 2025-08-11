@@ -29,13 +29,18 @@ type OptimizedComponentStore struct {
 	cacheAligned bool
 }
 
-// NewOptimizedComponentStore creates a new optimized component store
+// NewOptimizedComponentStore creates cache-aligned component store
 func NewOptimizedComponentStore() *OptimizedComponentStore {
-	return &OptimizedComponentStore{
-		transforms:     make(map[EntityID]TransformComponent),
-		sprites:        make(map[EntityID]SpriteComponent),
-		transformArray: make([]TransformComponent, 0),
+	store := &OptimizedComponentStore{
+		entityToIndex: make(map[EntityID]int32),
+		freeIndices:   make([]int32, 0),
+		sprites:       make(map[EntityID]SpriteComponent),
 	}
+	
+	// キャッシュライン境界でメモリ確保
+	store.allocateAlignedArrays(1000) // 初期容量
+	
+	return store
 }
 
 // AddTransform adds a transform component
