@@ -1,6 +1,9 @@
 package cache
 
 import (
+	"runtime"
+	"unsafe"
+
 	. "muscle-dreamer/internal/core/ecs/optimizations"
 )
 
