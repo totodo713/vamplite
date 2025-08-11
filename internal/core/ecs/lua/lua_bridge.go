@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/yuin/gopher-lua"
+	lua "github.com/yuin/gopher-lua"
 )
 
 // LuaBridgeImpl - LuaBridgeインターフェースの実装

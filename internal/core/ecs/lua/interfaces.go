@@ -3,7 +3,7 @@ package lua
 import (
 	"time"
 
-	"github.com/yuin/gopher-lua"
+	lua "github.com/yuin/gopher-lua"
 )
 
 // LuaBridge - メインのLua統合インターフェース
@@ -44,10 +44,10 @@ type LuaVMConfig struct {
 
 // LuaScript - Luaスクリプト管理
 type LuaScript struct {
-	path       string
-	content    []byte
-	loaded     bool
-	metadata   *ScriptMetadata
+	path     string
+	content  []byte
+	loaded   bool
+	metadata *ScriptMetadata
 }
 
 // APIPermissions - API権限管理
@@ -74,14 +74,14 @@ type Sandbox struct {
 
 // ScriptMetadata - スクリプトメタデータ
 type ScriptMetadata struct {
-	Name         string            `json:"name"`
-	Version      string            `json:"version"`
-	Author       string            `json:"author"`
-	Description  string            `json:"description"`
-	Dependencies []string          `json:"dependencies"`
-	Permissions  []string          `json:"permissions"`
-	APIVersion   string            `json:"api_version"`
-	EntryPoint   string            `json:"entry_point"`
+	Name         string   `json:"name"`
+	Version      string   `json:"version"`
+	Author       string   `json:"author"`
+	Description  string   `json:"description"`
+	Dependencies []string `json:"dependencies"`
+	Permissions  []string `json:"permissions"`
+	APIVersion   string   `json:"api_version"`
+	EntryPoint   string   `json:"entry_point"`
 }
 
 // ModECSAPI - MOD向けECS API制限インターフェース
