@@ -493,3 +493,28 @@ func convertLuaTableToSlice(table *lua.LTable, target interface{}) error {
 
 	return nil
 }
+
+// luaValueToInterface - Lua値をinterface{}に変換
+func luaValueToInterface(value lua.LValue) interface{} {
+	switch value.Type() {
+	case lua.LTString:
+		return string(value.(lua.LString))
+	case lua.LTNumber:
+		return float64(value.(lua.LNumber))
+	case lua.LTBool:
+		return bool(value.(lua.LBool))
+	case lua.LTNil:
+		return nil
+	case lua.LTTable:
+		// 簡易的なテーブル→マップ変換
+		result := make(map[string]interface{})
+		value.(*lua.LTable).ForEach(func(key, val lua.LValue) {
+			if keyStr, ok := key.(lua.LString); ok {
+				result[string(keyStr)] = luaValueToInterface(val)
+			}
+		})
+		return result
+	default:
+		return nil
+	}
+}
