@@ -1,7 +1,7 @@
 package cache
 
 import (
-	"github.com/muscle-dreamer/internal/core/ecs"
+	"muscle-dreamer/internal/core/ecs"
 )
 
 // OptimizedComponentStore は CPU キャッシュ効率を最適化したコンポーネントストア
