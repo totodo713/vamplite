@@ -29,9 +29,11 @@ func (cs *OptimizedComponentStore) AddTransform(entityID EntityID, component Tra
 	cs.transformArray = append(cs.transformArray, component)
 }
 
-// GetTransform gets a transform component (stub implementation)
+// GetTransform gets a transform component
 func (cs *OptimizedComponentStore) GetTransform(entityID EntityID) *TransformComponent {
-	// TODO: 実装予定
+	if component, exists := cs.transforms[entityID]; exists {
+		return &component
+	}
 	return nil
 }
 
