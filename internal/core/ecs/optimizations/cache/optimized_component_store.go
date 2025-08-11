@@ -37,10 +37,9 @@ func (cs *OptimizedComponentStore) GetTransform(entityID EntityID) *TransformCom
 	return nil
 }
 
-// GetTransformArray returns the transform array for SoA access (stub)
+// GetTransformArray returns the transform array for SoA access
 func (cs *OptimizedComponentStore) GetTransformArray() []TransformComponent {
-	// TODO: 実装予定
-	return nil
+	return cs.transformArray
 }
 
 // PrefetchComponents prefetches components for better cache performance (stub)
