@@ -147,8 +147,134 @@ func (lb *LuaBridgeImpl) RegisterECSAPI(vm *LuaVM, ecsAPI *ModECSAPI) error {
 		return errors.New("ecsAPI is nil")
 	}
 
-	// 最小実装: 基本的なダミー関数のみ登録
+	// ECS APIテーブル作成
 	ecsTable := vm.state.NewTable()
+
+	// create_entity関数登録
+	vm.state.SetField(ecsTable, "create_entity", vm.state.NewFunction(func(L *lua.LState) int {
+		entityID, err := (*ecsAPI).CreateEntity()
+		if err != nil {
+			L.Push(lua.LNil)
+			return 1
+		}
+
+		L.Push(lua.LNumber(entityID))
+		return 1
+	}))
+
+	// entity_exists関数登録
+	vm.state.SetField(ecsTable, "entity_exists", vm.state.NewFunction(func(L *lua.LState) int {
+		entityID := EntityID(L.CheckNumber(1))
+		exists := (*ecsAPI).EntityExists(entityID)
+		L.Push(lua.LBool(exists))
+		return 1
+	}))
+
+	// add_component関数登録
+	vm.state.SetField(ecsTable, "add_component", vm.state.NewFunction(func(L *lua.LState) int {
+		entityID := EntityID(L.CheckNumber(1))
+		componentType := L.CheckString(2)
+		dataTable := L.CheckTable(3)
+
+		// Luaテーブルをマップに変換
+		data := make(map[string]interface{})
+		dataTable.ForEach(func(key, value lua.LValue) {
+			if keyStr, ok := key.(lua.LString); ok {
+				data[string(keyStr)] = luaValueToInterface(value)
+			}
+		})
+
+		err := (*ecsAPI).AddComponent(entityID, componentType, data)
+		L.Push(lua.LBool(err == nil))
+		return 1
+	}))
+
+	// has_component関数登録
+	vm.state.SetField(ecsTable, "has_component", vm.state.NewFunction(func(L *lua.LState) int {
+		entityID := EntityID(L.CheckNumber(1))
+		componentType := L.CheckString(2)
+		has := (*ecsAPI).HasComponent(entityID, componentType)
+		L.Push(lua.LBool(has))
+		return 1
+	}))
+
+	// get_component関数登録
+	vm.state.SetField(ecsTable, "get_component", vm.state.NewFunction(func(L *lua.LState) int {
+		entityID := EntityID(L.CheckNumber(1))
+		componentType := L.CheckString(2)
+
+		component, err := (*ecsAPI).GetComponent(entityID, componentType)
+		if err != nil || component == nil {
+			L.Push(lua.LNil)
+			return 1
+		}
+
+		luaValue, convertErr := convertGoToLua(L, component)
+		if convertErr != nil {
+			L.Push(lua.LNil)
+			return 1
+		}
+
+		L.Push(luaValue)
+		return 1
+	}))
+
+	// remove_component関数登録
+	vm.state.SetField(ecsTable, "remove_component", vm.state.NewFunction(func(L *lua.LState) int {
+		entityID := EntityID(L.CheckNumber(1))
+		componentType := L.CheckString(2)
+
+		err := (*ecsAPI).RemoveComponent(entityID, componentType)
+		L.Push(lua.LBool(err == nil))
+		return 1
+	}))
+
+	// query関数登録（簡易版）
+	vm.state.SetField(ecsTable, "query", vm.state.NewFunction(func(L *lua.LState) int {
+		queryBuilder := (*ecsAPI).QueryEntities()
+
+		// QueryBuilderのLuaラッパーテーブル作成
+		queryTable := L.NewTable()
+
+		// with関数
+		L.SetField(queryTable, "with", L.NewFunction(func(L *lua.LState) int {
+			componentType := L.CheckString(1)
+			queryBuilder = queryBuilder.With(componentType)
+			L.Push(queryTable) // チェーンのため自身を返す
+			return 1
+		}))
+
+		// without関数
+		L.SetField(queryTable, "without", L.NewFunction(func(L *lua.LState) int {
+			componentType := L.CheckString(1)
+			queryBuilder = queryBuilder.Without(componentType)
+			L.Push(queryTable) // チェーンのため自身を返す
+			return 1
+		}))
+
+		// execute関数
+		L.SetField(queryTable, "execute", L.NewFunction(func(L *lua.LState) int {
+			entities, err := queryBuilder.Execute()
+			if err != nil {
+				L.Push(L.NewTable()) // 空のテーブルを返す
+				return 1
+			}
+
+			// エンティティIDリストをLuaテーブルに変換
+			entityTable := L.NewTable()
+			for i, entityID := range entities {
+				entityTable.RawSetInt(i+1, lua.LNumber(entityID)) // 1-indexed
+			}
+
+			L.Push(entityTable)
+			return 1
+		}))
+
+		L.Push(queryTable)
+		return 1
+	}))
+
+	// Global ecsテーブル設定
 	vm.state.SetGlobal("ecs", ecsTable)
 
 	return nil
