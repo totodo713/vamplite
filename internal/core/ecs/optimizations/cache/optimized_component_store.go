@@ -7,14 +7,26 @@ import (
 	. "muscle-dreamer/internal/core/ecs/optimizations"
 )
 
-// OptimizedComponentStore はコンポーネントストアの最小実装
+// OptimizedComponentStore は高性能SoA実装のコンポーネントストア
 type OptimizedComponentStore struct {
-	// 最小限のデータストレージ
-	transforms map[EntityID]TransformComponent
-	sprites    map[EntityID]SpriteComponent
+	// SoA - Structure of Arrays 実装
+	transformPositions []Vector3 // X, Y, Z連続配置
+	transformRotations []Vector3 // 回転データ連続配置
+	transformScales    []Vector3 // スケールデータ連続配置
 	
-	// SoA配列（テスト用）
-	transformArray []TransformComponent
+	// エンティティ管理
+	entityToIndex map[EntityID]int32 // エンティティ→インデックス
+	indexToEntity []EntityID         // インデックス→エンティティ
+	
+	// 空きインデックス管理（高速削除用）
+	freeIndices []int32
+	maxIndex    int32
+	
+	// スプライト管理（簡易実装）
+	sprites map[EntityID]SpriteComponent
+	
+	// メモリアライメント最適化
+	cacheAligned bool
 }
 
 // NewOptimizedComponentStore creates a new optimized component store
