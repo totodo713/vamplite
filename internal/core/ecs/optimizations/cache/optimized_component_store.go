@@ -47,6 +47,6 @@ func (cs *OptimizedComponentStore) AddSprite(entityID EntityID, component Sprite
 }
 
 // RemoveSprite removes a sprite component (stub)
-func (cs *OptimizedComponentStore) RemoveSprite(entityID ecs.EntityID) {
+func (cs *OptimizedComponentStore) RemoveSprite(entityID EntityID) {
 	// TODO: 実装予定
 }
