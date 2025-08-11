@@ -14,11 +14,11 @@ func TestOptimizedComponentStore_SoALayout(t *testing.T) {
 	store := NewOptimizedComponentStore()
 
 	// 連続するエンティティに対してコンポーネント追加
-	entities := make([]ecs.EntityID, 1000)
+	entities := make([]EntityID, 1000)
 	for i := 0; i < 1000; i++ {
-		entities[i] = ecs.EntityID(i)
-		store.AddTransform(entities[i], ecs.TransformComponent{
-			Position: ecs.Vector3{X: float32(i), Y: 0, Z: 0},
+		entities[i] = EntityID(i)
+		store.AddTransform(entities[i], TransformComponent{
+			Position: Vector3{X: float32(i), Y: 0, Z: 0},
 		})
 	}
 
