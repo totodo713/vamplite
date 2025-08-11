@@ -116,9 +116,26 @@ func (cs *OptimizedComponentStore) GetTransform(entityID EntityID) *TransformCom
 	}
 }
 
-// GetTransformArray returns the transform array for SoA access
+// GetTransformArray returns optimized SoA arrays
 func (cs *OptimizedComponentStore) GetTransformArray() []TransformComponent {
-	return cs.transformArray
+	// 注意: この操作は非効率なので、実用時は直接SoA配列を使用
+	count := len(cs.transformPositions)
+	result := make([]TransformComponent, count)
+	
+	for i := 0; i < count; i++ {
+		result[i] = TransformComponent{
+			Position: cs.transformPositions[i],
+			Rotation: cs.transformRotations[i],
+			Scale:    cs.transformScales[i],
+		}
+	}
+	
+	return result
+}
+
+// GetSoAArrays returns direct access to SoA arrays (high performance)
+func (cs *OptimizedComponentStore) GetSoAArrays() ([]Vector3, []Vector3, []Vector3) {
+	return cs.transformPositions, cs.transformRotations, cs.transformScales
 }
 
 // PrefetchComponents prefetches components (minimal implementation)
