@@ -42,7 +42,7 @@ func (cs *OptimizedComponentStore) RemoveTransform(entityID EntityID) {
 }
 
 // AddSprite adds a sprite component (stub)
-func (cs *OptimizedComponentStore) AddSprite(entityID ecs.EntityID, component ecs.SpriteComponent) {
+func (cs *OptimizedComponentStore) AddSprite(entityID EntityID, component SpriteComponent) {
 	// TODO: 実装予定
 }
 
