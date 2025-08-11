@@ -4,9 +4,14 @@ import (
 	. "muscle-dreamer/internal/core/ecs/optimizations"
 )
 
-// OptimizedComponentStore は CPU キャッシュ効率を最適化したコンポーネントストア
+// OptimizedComponentStore はコンポーネントストアの最小実装
 type OptimizedComponentStore struct {
-	// 現時点では空の構造体（テストがコンパイルできる最小限）
+	// 最小限のデータストレージ
+	transforms map[EntityID]TransformComponent
+	sprites    map[EntityID]SpriteComponent
+	
+	// SoA配列（テスト用）
+	transformArray []TransformComponent
 }
 
 // NewOptimizedComponentStore creates a new optimized component store
