@@ -23,9 +23,10 @@ func NewOptimizedComponentStore() *OptimizedComponentStore {
 	}
 }
 
-// AddTransform adds a transform component (stub implementation)
+// AddTransform adds a transform component
 func (cs *OptimizedComponentStore) AddTransform(entityID EntityID, component TransformComponent) {
-	// TODO: 実装予定
+	cs.transforms[entityID] = component
+	cs.transformArray = append(cs.transformArray, component)
 }
 
 // GetTransform gets a transform component (stub implementation)
