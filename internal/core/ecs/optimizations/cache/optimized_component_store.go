@@ -20,7 +20,7 @@ func (cs *OptimizedComponentStore) AddTransform(entityID EntityID, component Tra
 }
 
 // GetTransform gets a transform component (stub implementation)
-func (cs *OptimizedComponentStore) GetTransform(entityID ecs.EntityID) *ecs.TransformComponent {
+func (cs *OptimizedComponentStore) GetTransform(entityID EntityID) *TransformComponent {
 	// TODO: 実装予定
 	return nil
 }
