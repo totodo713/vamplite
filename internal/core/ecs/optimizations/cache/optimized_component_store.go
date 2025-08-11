@@ -16,7 +16,11 @@ type OptimizedComponentStore struct {
 
 // NewOptimizedComponentStore creates a new optimized component store
 func NewOptimizedComponentStore() *OptimizedComponentStore {
-	return &OptimizedComponentStore{}
+	return &OptimizedComponentStore{
+		transforms:     make(map[EntityID]TransformComponent),
+		sprites:        make(map[EntityID]SpriteComponent),
+		transformArray: make([]TransformComponent, 0),
+	}
 }
 
 // AddTransform adds a transform component (stub implementation)
