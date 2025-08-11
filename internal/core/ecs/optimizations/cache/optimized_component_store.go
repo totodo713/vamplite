@@ -37,7 +37,7 @@ func (cs *OptimizedComponentStore) PrefetchComponents(entities []EntityID) {
 }
 
 // RemoveTransform removes a transform component (stub)
-func (cs *OptimizedComponentStore) RemoveTransform(entityID ecs.EntityID) {
+func (cs *OptimizedComponentStore) RemoveTransform(entityID EntityID) {
 	// TODO: 実装予定
 }
 
