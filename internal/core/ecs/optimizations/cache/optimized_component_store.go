@@ -192,10 +192,34 @@ func (cs *OptimizedComponentStore) RemoveSprite(entityID EntityID) {
 	delete(cs.sprites, entityID)
 }
 
-// rebuildTransformArray rebuilds the transform array after removal
-func (cs *OptimizedComponentStore) rebuildTransformArray() {
-	cs.transformArray = cs.transformArray[:0] // クリア
-	for _, transform := range cs.transforms {
-		cs.transformArray = append(cs.transformArray, transform)
+// expandCapacity expands storage with optimal growth strategy
+func (cs *OptimizedComponentStore) expandCapacity() {
+	oldCap := cap(cs.transformPositions)
+	newCap := oldCap * 2
+	if newCap < 16 {
+		newCap = 16
 	}
+	
+	// 新しいアライメント済み配列を確保
+	newPositions := makeAlignedVector3Slice(newCap)
+	newRotations := makeAlignedVector3Slice(newCap)
+	newScales := makeAlignedVector3Slice(newCap)
+	
+	// データコピー
+	copy(newPositions, cs.transformPositions)
+	copy(newRotations, cs.transformRotations)
+	copy(newScales, cs.transformScales)
+	
+	// 旧データを明示的にクリア（GC支援）
+	for i := range cs.transformPositions {
+		cs.transformPositions[i] = Vector3{}
+	}
+	
+	// 新しい配列に切り替え
+	cs.transformPositions = newPositions[:len(cs.transformPositions)]
+	cs.transformRotations = newRotations[:len(cs.transformRotations)]
+	cs.transformScales = newScales[:len(cs.transformScales)]
+	
+	// GCヒント
+	runtime.GC()
 }
