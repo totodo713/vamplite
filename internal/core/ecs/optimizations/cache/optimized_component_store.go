@@ -29,6 +29,28 @@ type OptimizedComponentStore struct {
 	cacheAligned bool
 }
 
+// allocateAlignedArrays allocates cache-line aligned arrays
+func (cs *OptimizedComponentStore) allocateAlignedArrays(capacity int) {
+	// 64バイト境界に整列したメモリ確保
+	cs.transformPositions = makeAlignedVector3Slice(capacity)
+	cs.transformRotations = makeAlignedVector3Slice(capacity)
+	cs.transformScales = makeAlignedVector3Slice(capacity)
+	cs.indexToEntity = make([]EntityID, 0, capacity)
+	cs.cacheAligned = true
+}
+
+// makeAlignedVector3Slice creates 64-byte aligned Vector3 slice
+func makeAlignedVector3Slice(capacity int) []Vector3 {
+	// Vector3 = 12 bytes (3 * float32)
+	// 64バイト = Vector3 * 5.33... なので、6個単位でアライメント
+	alignedCapacity := ((capacity + 5) / 6) * 6
+	
+	// メモリアライメントを考慮したスライス作成
+	data := make([]Vector3, alignedCapacity)
+	
+	return data[:0:alignedCapacity] // length=0, capacity=alignedCapacity
+}
+
 // NewOptimizedComponentStore creates cache-aligned component store
 func NewOptimizedComponentStore() *OptimizedComponentStore {
 	store := &OptimizedComponentStore{
