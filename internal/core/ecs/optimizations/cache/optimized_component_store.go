@@ -42,9 +42,12 @@ func (cs *OptimizedComponentStore) GetTransformArray() []TransformComponent {
 	return cs.transformArray
 }
 
-// PrefetchComponents prefetches components for better cache performance (stub)
+// PrefetchComponents prefetches components (minimal implementation)
 func (cs *OptimizedComponentStore) PrefetchComponents(entities []EntityID) {
-	// TODO: 実装予定
+	// 最小実装: 実際のプリフェッチはせず、メモリアクセスのみ
+	for _, entityID := range entities {
+		_ = cs.transforms[entityID] // メモリアクセス
+	}
 }
 
 // RemoveTransform removes a transform component (stub)
