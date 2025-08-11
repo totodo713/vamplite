@@ -50,17 +50,28 @@ func (cs *OptimizedComponentStore) PrefetchComponents(entities []EntityID) {
 	}
 }
 
-// RemoveTransform removes a transform component (stub)
+// RemoveTransform removes a transform component
 func (cs *OptimizedComponentStore) RemoveTransform(entityID EntityID) {
-	// TODO: 実装予定
+	delete(cs.transforms, entityID)
+	
+	// transformArray からも削除（簡易実装）
+	cs.rebuildTransformArray()
 }
 
-// AddSprite adds a sprite component (stub)
+// AddSprite adds a sprite component
 func (cs *OptimizedComponentStore) AddSprite(entityID EntityID, component SpriteComponent) {
-	// TODO: 実装予定
+	cs.sprites[entityID] = component
 }
 
-// RemoveSprite removes a sprite component (stub)
+// RemoveSprite removes a sprite component
 func (cs *OptimizedComponentStore) RemoveSprite(entityID EntityID) {
-	// TODO: 実装予定
+	delete(cs.sprites, entityID)
+}
+
+// rebuildTransformArray rebuilds the transform array after removal
+func (cs *OptimizedComponentStore) rebuildTransformArray() {
+	cs.transformArray = cs.transformArray[:0] // クリア
+	for _, transform := range cs.transforms {
+		cs.transformArray = append(cs.transformArray, transform)
+	}
 }
