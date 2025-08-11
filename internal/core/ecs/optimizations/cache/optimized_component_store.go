@@ -65,10 +65,40 @@ func NewOptimizedComponentStore() *OptimizedComponentStore {
 	return store
 }
 
-// AddTransform adds a transform component
+// AddTransform adds a transform component with SoA optimization
 func (cs *OptimizedComponentStore) AddTransform(entityID EntityID, component TransformComponent) {
-	cs.transforms[entityID] = component
-	cs.transformArray = append(cs.transformArray, component)
+	var index int32
+	
+	// 空きインデックスがあれば再利用
+	if len(cs.freeIndices) > 0 {
+		index = cs.freeIndices[len(cs.freeIndices)-1]
+		cs.freeIndices = cs.freeIndices[:len(cs.freeIndices)-1]
+	} else {
+		// 新規インデックス
+		index = cs.maxIndex
+		cs.maxIndex++
+		
+		// 容量拡張チェック
+		if int(index) >= cap(cs.transformPositions) {
+			cs.expandCapacity()
+		}
+	}
+	
+	// SoA形式でデータ格納
+	if int(index) >= len(cs.transformPositions) {
+		cs.transformPositions = cs.transformPositions[:index+1]
+		cs.transformRotations = cs.transformRotations[:index+1]
+		cs.transformScales = cs.transformScales[:index+1]
+		cs.indexToEntity = cs.indexToEntity[:index+1]
+	}
+	
+	cs.transformPositions[index] = component.Position
+	cs.transformRotations[index] = component.Rotation
+	cs.transformScales[index] = component.Scale
+	cs.indexToEntity[index] = entityID
+	
+	// エンティティマッピング更新
+	cs.entityToIndex[entityID] = index
 }
 
 // GetTransform gets a transform component
