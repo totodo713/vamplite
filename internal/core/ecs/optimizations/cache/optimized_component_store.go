@@ -32,7 +32,7 @@ func (cs *OptimizedComponentStore) GetTransformArray() []TransformComponent {
 }
 
 // PrefetchComponents prefetches components for better cache performance (stub)
-func (cs *OptimizedComponentStore) PrefetchComponents(entities []ecs.EntityID) {
+func (cs *OptimizedComponentStore) PrefetchComponents(entities []EntityID) {
 	// TODO: 実装予定
 }
 
