@@ -101,12 +101,19 @@ func (cs *OptimizedComponentStore) AddTransform(entityID EntityID, component Tra
 	cs.entityToIndex[entityID] = index
 }
 
-// GetTransform gets a transform component
+// GetTransform gets a transform component with SoA access
 func (cs *OptimizedComponentStore) GetTransform(entityID EntityID) *TransformComponent {
-	if component, exists := cs.transforms[entityID]; exists {
-		return &component
+	index, exists := cs.entityToIndex[entityID]
+	if !exists || int(index) >= len(cs.transformPositions) {
+		return nil
 	}
-	return nil
+	
+	// SoAから再構築（最適化のため、可能な限り避ける）
+	return &TransformComponent{
+		Position: cs.transformPositions[index],
+		Rotation: cs.transformRotations[index],
+		Scale:    cs.transformScales[index],
+	}
 }
 
 // GetTransformArray returns the transform array for SoA access
