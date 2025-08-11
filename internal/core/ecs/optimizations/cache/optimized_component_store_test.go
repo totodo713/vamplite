@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/muscle-dreamer/internal/core/ecs"
+	"muscle-dreamer/internal/core/ecs"
 )
 
 func TestOptimizedComponentStore_SoALayout(t *testing.T) {
