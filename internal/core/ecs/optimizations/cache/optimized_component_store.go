@@ -26,7 +26,7 @@ func (cs *OptimizedComponentStore) GetTransform(entityID EntityID) *TransformCom
 }
 
 // GetTransformArray returns the transform array for SoA access (stub)
-func (cs *OptimizedComponentStore) GetTransformArray() []ecs.TransformComponent {
+func (cs *OptimizedComponentStore) GetTransformArray() []TransformComponent {
 	// TODO: 実装予定
 	return nil
 }
