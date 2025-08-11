@@ -15,7 +15,7 @@ func NewOptimizedComponentStore() *OptimizedComponentStore {
 }
 
 // AddTransform adds a transform component (stub implementation)
-func (cs *OptimizedComponentStore) AddTransform(entityID ecs.EntityID, component ecs.TransformComponent) {
+func (cs *OptimizedComponentStore) AddTransform(entityID EntityID, component TransformComponent) {
 	// TODO: 実装予定
 }
 
