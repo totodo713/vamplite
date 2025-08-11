@@ -54,14 +54,14 @@ func TestOptimizedComponentStore_Prefetch(t *testing.T) {
 }
 
 // setupTestEntities creates test entities for benchmarking
-func setupTestEntities(store *OptimizedComponentStore, count int) []ecs.EntityID {
-	entities := make([]ecs.EntityID, count)
+func setupTestEntities(store *OptimizedComponentStore, count int) []EntityID {
+	entities := make([]EntityID, count)
 	for i := 0; i < count; i++ {
-		entities[i] = ecs.EntityID(i)
-		store.AddTransform(entities[i], ecs.TransformComponent{
-			Position: ecs.Vector3{X: float32(i), Y: float32(i), Z: float32(i)},
-			Rotation: ecs.Vector3{X: 0, Y: 0, Z: 0},
-			Scale:    ecs.Vector3{X: 1, Y: 1, Z: 1},
+		entities[i] = EntityID(i)
+		store.AddTransform(entities[i], TransformComponent{
+			Position: Vector3{X: float32(i), Y: float32(i), Z: float32(i)},
+			Rotation: Vector3{X: 0, Y: 0, Z: 0},
+			Scale:    Vector3{X: 1, Y: 1, Z: 1},
 		})
 	}
 	return entities
