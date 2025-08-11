@@ -162,12 +162,24 @@ func (cs *OptimizedComponentStore) PrefetchComponents(entities []EntityID) {
 	}
 }
 
-// RemoveTransform removes a transform component
+// RemoveTransform removes with optimal memory management
 func (cs *OptimizedComponentStore) RemoveTransform(entityID EntityID) {
-	delete(cs.transforms, entityID)
+	index, exists := cs.entityToIndex[entityID]
+	if !exists {
+		return
+	}
 	
-	// transformArray からも削除（簡易実装）
-	cs.rebuildTransformArray()
+	// エンティティマッピング削除
+	delete(cs.entityToIndex, entityID)
+	
+	// データクリア
+	cs.transformPositions[index] = Vector3{}
+	cs.transformRotations[index] = Vector3{}
+	cs.transformScales[index] = Vector3{}
+	cs.indexToEntity[index] = 0
+	
+	// 空きインデックスとして登録
+	cs.freeIndices = append(cs.freeIndices, index)
 }
 
 // AddSprite adds a sprite component
