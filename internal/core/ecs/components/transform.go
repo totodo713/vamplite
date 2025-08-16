@@ -82,8 +82,8 @@ func (t *TransformComponent) GetWorldPosition() ecs.Vector2 {
 	sin := math.Sin(parentRotation)
 
 	// Rotate and scale the local position
-	worldX := (t.Position.X*cos-t.Position.Y*sin)*parentScale.X + parentWorldPos.X
-	worldY := (t.Position.X*sin+t.Position.Y*cos)*parentScale.Y + parentWorldPos.Y
+	worldX := (float32(t.Position.X)*float32(cos)-float32(t.Position.Y)*float32(sin))*parentScale.X + parentWorldPos.X
+	worldY := (float32(t.Position.X)*float32(sin)+float32(t.Position.Y)*float32(cos))*parentScale.Y + parentWorldPos.Y
 
 	return ecs.Vector2{X: worldX, Y: worldY}
 }
