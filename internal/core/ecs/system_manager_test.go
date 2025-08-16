@@ -199,7 +199,7 @@ func (w *MockWorld) RUnlock()                                         {}
 func TestSystemManager_RegisterSystem_Success(t *testing.T) {
 	// Given: 新しいSystemManagerとMockSystem
 	sm := NewSystemManager()
-	system := NewMockSystem(SystemType("TestSystem"))
+	system := NewMockSystem(SystemTypeFromString("TestSystem"))
 
 	// When: システムを登録する
 	err := sm.RegisterSystem(system)
@@ -208,7 +208,7 @@ func TestSystemManager_RegisterSystem_Success(t *testing.T) {
 		t.Errorf("Expected no error, got %v", err)
 	}
 
-	retrievedSystem, err := sm.GetSystem(SystemType("TestSystem"))
+	retrievedSystem, err := sm.GetSystem(SystemTypeFromString("TestSystem"))
 	if err != nil {
 		t.Errorf("Expected no error when getting system, got %v", err)
 	}
@@ -225,8 +225,8 @@ func TestSystemManager_RegisterSystem_Success(t *testing.T) {
 func TestSystemManager_RegisterSystem_DuplicateError(t *testing.T) {
 	// Given: 既に登録済みのシステムがあるSystemManager
 	sm := NewSystemManager()
-	system1 := NewMockSystem(SystemType("TestSystem"))
-	system2 := NewMockSystem(SystemType("TestSystem"))
+	system1 := NewMockSystem(SystemTypeFromString("TestSystem"))
+	system2 := NewMockSystem(SystemTypeFromString("TestSystem"))
 
 	sm.RegisterSystem(system1)
 
@@ -238,7 +238,7 @@ func TestSystemManager_RegisterSystem_DuplicateError(t *testing.T) {
 		t.Error("Expected error for duplicate system registration")
 	}
 
-	retrievedSystem, _ := sm.GetSystem(SystemType("TestSystem"))
+	retrievedSystem, _ := sm.GetSystem(SystemTypeFromString("TestSystem"))
 	if retrievedSystem != system1 {
 		t.Error("Expected original system to be preserved")
 	}
@@ -297,17 +297,17 @@ func TestSystemManager_RegisterSystem_NilSystemError(t *testing.T) {
 func TestSystemManager_UnregisterSystem_Success(t *testing.T) {
 	// Given: 登録済みシステムがあるSystemManager
 	sm := NewSystemManager()
-	system := NewMockSystem(SystemType("TestSystem"))
+	system := NewMockSystem(SystemTypeFromString("TestSystem"))
 	sm.RegisterSystem(system)
 
 	// When: システムを登録解除する
-	err := sm.UnregisterSystem(SystemType("TestSystem"))
+	err := sm.UnregisterSystem(SystemTypeFromString("TestSystem"))
 	// Then: システムが削除され、GetSystemでエラーが返される
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
 
-	_, err = sm.GetSystem(SystemType("TestSystem"))
+	_, err = sm.GetSystem(SystemTypeFromString("TestSystem"))
 	if err == nil {
 		t.Error("Expected error when getting unregistered system")
 	}
@@ -325,15 +325,15 @@ func TestSystemManager_UnregisterSystem_Success(t *testing.T) {
 func TestSystemManager_EnableDisableSystem_Success(t *testing.T) {
 	// Given: 登録済みシステムがあるSystemManager
 	sm := NewSystemManager()
-	system := NewMockSystem(SystemType("TestSystem"))
+	system := NewMockSystem(SystemTypeFromString("TestSystem"))
 	sm.RegisterSystem(system)
 
 	// When: システムを無効化・有効化する
-	err1 := sm.DisableSystem(SystemType("TestSystem"))
-	enabled1 := sm.IsSystemEnabled(SystemType("TestSystem"))
+	err1 := sm.DisableSystem(SystemTypeFromString("TestSystem"))
+	enabled1 := sm.IsSystemEnabled(SystemTypeFromString("TestSystem"))
 
-	err2 := sm.EnableSystem(SystemType("TestSystem"))
-	enabled2 := sm.IsSystemEnabled(SystemType("TestSystem"))
+	err2 := sm.EnableSystem(SystemTypeFromString("TestSystem"))
+	enabled2 := sm.IsSystemEnabled(SystemTypeFromString("TestSystem"))
 
 	// Then: IsSystemEnabledが正しい状態を返す
 	if err1 != nil || err2 != nil {
