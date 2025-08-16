@@ -1,0 +1,1 @@
+level=error msg="Running error: can't combine options --disable-all and --disable typecheck"
