@@ -1,0 +1,85 @@
+# Muscle Dreamer プロジェクト用 golangci-lint 設定
+# パフォーマンス重視のゲーム開発に最適化
+
+run:
+  timeout: 5m
+  go: "1.23"
+  modules-download-mode: readonly
+  skip-dirs:
+    - docs
+
+output:
+  formats:
+    - format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+
+linters:
+  enable:
+    # 基本的なリンター
+    - gofmt
+    - goimports
+    - govet
+    - ineffassign
+    - misspell
+    - unused
+    
+    # セキュリティ
+    - gosec
+    - goconst
+    
+    # エラーハンドリング
+    - errcheck
+    
+    # 可読性・保守性（軽量版）
+    - gocognit
+    - cyclop
+    - funlen
+
+  disable:
+    # 新しいバージョンで不要
+    - bodyclose
+    - noctx
+    - prealloc
+    - gocritic
+    - errorlint
+    - wrapcheck
+
+linters-settings:
+  gocognit:
+    # ECSシステムロジックを考慮した複雑度制限
+    min-complexity: 15
+
+  cyclop:
+    # パフォーマンス重視の関数を考慮
+    max-complexity: 15
+
+  funlen:
+    # ゲームループやシステム処理を考慮
+    lines: 80
+    statements: 40
+
+  gosec:
+    # セキュリティ設定（MODシステム対応）
+    excludes:
+      - G104 # Allow unhandled errors for some game operations
+
+  errcheck:
+    # エラーハンドリング設定
+    check-type-assertions: true
+    check-blank: false
+
+issues:
+  
+  exclude-rules:
+    # テストファイルの除外設定
+    - path: _test\.go
+      linters:
+        - funlen
+        - gocognit
+        - cyclop
+    
+    # インターフェース定義ファイルの除外
+    - path: "interfaces\\.go"
+      linters:
+        - funlen

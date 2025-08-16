@@ -1,13 +1,13 @@
 package main
 
 import (
-	    "log"
-	        "muscle-dreamer/internal/core"
-	)
+	"log"
+	"muscle-dreamer/internal/core"
+)
 
-	func main() {
-		    game := core.NewGame()
-		        if err := game.Run(); err != nil {
-				        log.Fatal(err)
-					    }
-				    }
+func main() {
+	game := core.NewGame()
+	if err := game.Run(); err != nil {
+		log.Fatal(err)
+	}
+}
