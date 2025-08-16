@@ -1,0 +1,14 @@
+internal/core/ecs/component.go:1: : # muscle-dreamer/internal/core/ecs [muscle-dreamer/internal/core/ecs.test]
+internal/core/ecs/world.go:196:6: SystemMetrics redeclared in this block
+	internal/core/ecs/types.go:74:6: other declaration of SystemMetrics
+internal/core/ecs/query.go:111:15: undefined: Vector2
+internal/core/ecs/query.go:112:15: undefined: AABB
+internal/core/ecs/query.go:113:13: undefined: AABB
+internal/core/ecs/query.go:114:10: undefined: Vector2
+internal/core/ecs/query.go:220:22: undefined: Vector2
+internal/core/ecs/query.go:221:22: undefined: AABB
+internal/core/ecs/query.go:222:26: undefined: AABB
+internal/core/ecs/query.go:223:22: undefined: Vector2
+internal/core/ecs/query.go:226:16: undefined: Vector2
+internal/core/ecs/query.go:226:16: too many errors (typecheck)
+// Package ecs provides the core Entity Component System framework for Muscle Dreamer.
