@@ -400,9 +400,9 @@ func TestAssetManagerInterface(t *testing.T) {
 
 // TestAssetManagerErrorHandling - AssetManager エラーハンドリングテスト
 func TestAssetManagerErrorHandling(t *testing.T) {
-	am := NewMockAssetManager()
-	
-
+	t.Run("InvalidPaths", func(t *testing.T) {
+		am := NewMockAssetManager()
+		
 		invalidPaths := []string{
 			"nonexistent.png",
 			"../../../etc/passwd",
@@ -410,10 +410,10 @@ func TestAssetManagerErrorHandling(t *testing.T) {
 			"assets/images/\x00malicious.png",
 		}
 		
-
+		for _, path := range invalidPaths {
 			am.On("LoadImage", path).Return((*ebiten.Image)(nil), errors.New("invalid path"))
 			
-
+			_, err := am.LoadImage(path)
 			assert.Error(t, err)
 		}
 	})
