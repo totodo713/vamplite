@@ -119,13 +119,13 @@ func NewMockFont(path, name string) *MockFont {
 func (m *MockFont) RenderText(text string, size int) *ebiten.Image {
 	args := m.Called(text, size)
 	
-
+	if args.Get(0) != nil {
+		return args.Get(0).(*ebiten.Image)
+	}
+	
 	img := ebiten.NewImage(len(text)*size/2, size)
 	img.Fill(color.White)
 	
-
-		return args.Get(0).(*ebiten.Image)
-	}
 	return img
 }
 
