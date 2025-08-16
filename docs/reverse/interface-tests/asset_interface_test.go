@@ -287,16 +287,14 @@ func TestFontInterface(t *testing.T) {
 	t.Run("TextRendering", func(t *testing.T) {
 		font := NewMockFont("assets/fonts/ui.ttf", "UIFont")
 		
-
+		font.On("RenderText", "Hello World", 16).Return((*ebiten.Image)(nil))
 		
-
+		textImage := font.RenderText("Hello World", 16)
 		assert.NotNil(t, textImage)
 		
-
+		bounds := textImage.Bounds()
 		assert.Greater(t, bounds.Dx(), 0)
 		assert.Greater(t, bounds.Dy(), 0)
-		
-
 	})
 	
 	t.Run("FontSizes", func(t *testing.T) {
