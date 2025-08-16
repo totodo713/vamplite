@@ -44,8 +44,8 @@ func (p *PhysicsComponent) ApplyForce(force ecs.Vector2, _ float64) {
 	}
 
 	// F = ma, so a = F/m
-	p.Acceleration.X = force.X / p.Mass
-	p.Acceleration.Y = force.Y / p.Mass
+	p.Acceleration.X = force.X / float32(p.Mass)
+	p.Acceleration.Y = force.Y / float32(p.Mass)
 }
 
 // UpdateVelocity updates velocity based on acceleration
