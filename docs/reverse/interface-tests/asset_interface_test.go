@@ -361,19 +361,18 @@ func TestAssetManagerInterface(t *testing.T) {
 		assert.Implements(t, (*interfaces.AudioClip)(nil), audio)
 	})
 	
-
+	t.Run("FontLoading", func(t *testing.T) {
+		am := NewMockAssetManager()
+		
 		fontPath := "assets/fonts/ui.ttf"
 		
-
+		am.On("LoadFont", fontPath).Return((interfaces.Font)(nil), nil)
 		
-
+		font, err := am.LoadFont(fontPath)
 		assert.NoError(t, err)
 		assert.NotNil(t, font)
 		
-
 		assert.Implements(t, (*interfaces.Font)(nil), font)
-		
-
 	})
 	
 
