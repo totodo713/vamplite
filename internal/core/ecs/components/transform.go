@@ -211,9 +211,9 @@ func (t *TransformComponent) calculateTransformMatrix() {
 	// [sx*sin   sy*cos  ty]
 	// [0        0       1 ]
 	t.transformMatrix = TransformMatrix{
-		t.Scale.X * cos, t.Scale.X * sin, 0,
-		-t.Scale.Y * sin, t.Scale.Y * cos, 0,
-		t.Position.X, t.Position.Y, 1,
+		float64(t.Scale.X) * cos, float64(t.Scale.X) * sin, 0,
+		float64(-t.Scale.Y) * sin, float64(t.Scale.Y) * cos, 0,
+		float64(t.Position.X), float64(t.Position.Y), 1,
 	}
 }
 
