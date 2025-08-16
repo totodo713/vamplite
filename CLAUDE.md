@@ -175,3 +175,93 @@ This document defines the project's rules, objectives, and progress management m
 - Performance targets: 60 FPS, <256MB memory usage, <3s startup time
 - The game is designed to run completely without internet connectivity
 - Maintain backwards compatibility for save files and theme formats
+
+## Development Process Rules (XP + GitHub Flow)
+
+### Branch Strategy
+- **Feature branches**: Use `developer/*` naming convention
+  - Example: `developer/ecs-implementation`
+  - Example: `developer/ui-system`
+- **Main branch**: Protected, always deployable
+- **No direct commits to main**: Always use PRs
+
+### Commit Strategy
+1. **Frequent Small Commits**: Commit every meaningful change
+2. **TDD Cycle Commits**: Separate commits for Red-Green-Refactor
+3. **30-Minute Rule**: Commit at least every 30 minutes
+4. **Boy Scout Rule**: Leave code cleaner than you found it
+
+### Quality Assurance Before Commit
+```bash
+# Run before EVERY commit - NO EXCEPTIONS
+make format  # Auto-format code
+make lint    # Check for issues
+make test    # Run tests
+
+# Fix ALL warnings and errors before committing
+```
+
+### GitHub Flow Implementation
+1. Create feature branch: `git checkout -b developer/feature-name`
+2. Keep commits atomic and buildable
+3. Regularly sync with main: `git pull origin main`
+4. Push frequently: `git push origin developer/feature-name`
+5. Create PR when feature is complete
+6. Merge after review and CI passes
+
+### Commit Message Format (Japanese)
+```
+<type>: <概要>
+
+<なぜこの変更が必要か>
+
+Refs: #issue-number
+```
+
+**Types:**
+- `feat`: 機能追加
+- `fix`: バグ修正
+- `test`: テスト追加・修正
+- `refactor`: リファクタリング
+- `style`: フォーマット修正
+- `docs`: ドキュメント更新
+- `chore`: ビルド・ツール関連
+- `perf`: パフォーマンス改善
+
+**Examples:**
+- `feat: EntityManagerの基本実装を追加`
+- `test: EntityManagerのユニットテストを作成`
+- `fix: メモリリークを修正`
+- `refactor: コンポーネントストアの構造を改善`
+- `style: go fmtでコードを整形`
+
+### Task Implementation Workflow
+1. Create/checkout feature branch: `developer/*`
+2. Pull latest main changes
+3. Implement feature/fix with TDD
+4. Run quality checks (format, lint, test)
+5. Fix any issues found
+6. Commit with descriptive Japanese message
+7. Push to feature branch
+8. Create PR when ready
+
+### Continuous Integration Rules
+- Every commit MUST compile
+- Every commit MUST pass lint
+- Every commit MUST pass tests
+- No broken commits in history
+
+### Boy Scout Rule Examples
+- See unused import? Remove it and commit
+- Find unformatted code? Format it and commit
+- Notice missing test? Add it and commit
+- Spot unclear variable name? Refactor and commit
+
+### PR Guidelines
+- **Title**: Clear description of changes (Japanese OK)
+- **Description**: Why the change is needed, what it does
+- **Checklist**:
+  - Tests pass (`make test`)
+  - Lint passes (`make lint`)
+  - Code formatted (`make format`)
+  - Documentation updated if needed
