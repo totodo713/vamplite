@@ -452,15 +452,14 @@ func TestAssetManagerPerformance(t *testing.T) {
 	t.Run("BulkAssetLoading", func(t *testing.T) {
 		am := NewMockAssetManager()
 		
-
+		assetCount := 100
 		
-
 		for i := 0; i < assetCount; i++ {
 			path := fmt.Sprintf("assets/test_%d.png", i)
 			am.On("LoadImage", path).Return((*ebiten.Image)(nil), nil)
 		}
 		
-
+		start := time.Now()
 		for i := 0; i < assetCount; i++ {
 			path := fmt.Sprintf("assets/test_%d.png", i)
 			_, err := am.LoadImage(path)
@@ -468,12 +467,9 @@ func TestAssetManagerPerformance(t *testing.T) {
 		}
 		elapsed := time.Since(start)
 		
-
 		assert.Less(t, elapsed, time.Second)
 		
-
-		
-
+		t.Logf("Loaded %d assets in %v", assetCount, elapsed)
 	})
 	
 
