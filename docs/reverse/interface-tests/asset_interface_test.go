@@ -375,25 +375,22 @@ func TestAssetManagerInterface(t *testing.T) {
 		assert.Implements(t, (*interfaces.Font)(nil), font)
 	})
 	
-
+	t.Run("AssetUnloading", func(t *testing.T) {
+		am := NewMockAssetManager()
+		
 		assetPath := "assets/temp/temp.png"
 		
-
 		am.On("LoadImage", assetPath).Return((*ebiten.Image)(nil), nil)
 		am.On("UnloadAsset", assetPath).Return()
 		am.On("GetLoadedAssets").Return((map[string]interfaces.Asset)(nil))
 		
-
+		_, err := am.LoadImage(assetPath)
 		assert.NoError(t, err)
 		
-
 		am.UnloadAsset(assetPath)
 		
-
 		loadedAssets := am.GetLoadedAssets()
 		assert.NotContains(t, loadedAssets, assetPath)
-		
-
 	})
 }
 
