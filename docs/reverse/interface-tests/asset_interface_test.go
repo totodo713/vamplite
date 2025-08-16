@@ -7,13 +7,15 @@ package interfaces_test
 
 import (
 	"errors"
+	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"image"
 	"image/color"
-	"muscle-dreamer/docs/reverse/interfaces"
-	"
+	interfaces "muscle-dreamer/docs/reverse"
+	"testing"
+	"time"
 )
 
 // ========================================================
@@ -117,13 +119,13 @@ func NewMockFont(path, name string) *MockFont {
 func (m *MockFont) RenderText(text string, size int) *ebiten.Image {
 	args := m.Called(text, size)
 	
-
+	if args.Get(0) != nil {
+		return args.Get(0).(*ebiten.Image)
+	}
+	
 	img := ebiten.NewImage(len(text)*size/2, size)
 	img.Fill(color.White)
 	
-
-		return args.Get(0).(*ebiten.Image)
-	}
 	return img
 }
 
@@ -142,41 +144,35 @@ func NewMockAssetManager() *MockAssetManager {
 func (m *MockAssetManager) LoadImage(path string) (*ebiten.Image, error) {
 	args := m.Called(path)
 	
+	if args.Get(0) != nil {
+		return args.Get(0).(*ebiten.Image), args.Error(1)
+	}
 
 	img := ebiten.NewImage(64, 64)
 	img.Fill(color.RGBA{255, 0, 0, 255})
 	
-
-		return args.Get(0).(*ebiten.Image), args.Error(1)
-	}
-	
-
 	return img, nil
 }
 
 func (m *MockAssetManager) LoadAudio(path string) (interfaces.AudioClip, error) {
 	args := m.Called(path)
 	
-
-	
-
+	if args.Get(0) != nil {
 		return args.Get(0).(interfaces.AudioClip), args.Error(1)
 	}
-	
 
+	audioClip := NewMockAudioClip(path, time.Second)
 	return audioClip, nil
 }
 
 func (m *MockAssetManager) LoadFont(path string) (interfaces.Font, error) {
 	args := m.Called(path)
 	
-
-	
-
+	if args.Get(0) != nil {
 		return args.Get(0).(interfaces.Font), args.Error(1)
 	}
-	
 
+	font := NewMockFont(path, "DefaultFont")
 	return font, nil
 }
 
@@ -213,14 +209,14 @@ func TestAssetInterface(t *testing.T) {
 
 	})
 	
-
+	t.Run("ValidAssetPaths", func(t *testing.T) {
 		validPaths := []string{
 			"assets/sprites/player.png",
 			"assets/audio/bgm.ogg",
 			"assets/fonts/ui_font.ttf",
 		}
 		
-
+		for _, path := range validPaths {
 			asset := NewMockAsset(path, 512)
 			assert.Equal(t, path, asset.GetPath())
 			assert.Greater(t, len(asset.GetPath()), 0)
@@ -259,33 +255,30 @@ func TestAudioClipInterface(t *testing.T) {
 
 	})
 	
-
+	t.Run("VolumeControl", func(t *testing.T) {
 		audioClip := NewMockAudioClip("test.ogg", time.Second)
 		
-
-		
-
+		volumes := []float64{0.0, 0.5, 1.0}
+		for _, vol := range volumes {
 			audioClip.On("SetVolume", vol).Return()
 			audioClip.SetVolume(vol)
 			assert.Equal(t, vol, audioClip.volume)
 		}
 	})
 	
-
+	t.Run("ErrorHandling", func(t *testing.T) {
 		audioClip := NewMockAudioClip("corrupted.ogg", 0)
 		
-
+		audioClip.On("Play").Return(errors.New("audio format not supported"))
 		audioClip.On("Stop").Return(errors.New("audio not playing"))
 		
-
+		err := audioClip.Play()
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "audio format not supported")
 		
-
+		err = audioClip.Stop()
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "audio not playing")
-		
-
 	})
 }
 
@@ -294,43 +287,39 @@ func TestFontInterface(t *testing.T) {
 	t.Run("TextRendering", func(t *testing.T) {
 		font := NewMockFont("assets/fonts/ui.ttf", "UIFont")
 		
-
+		font.On("RenderText", "Hello World", 16).Return((*ebiten.Image)(nil))
 		
-
+		textImage := font.RenderText("Hello World", 16)
 		assert.NotNil(t, textImage)
 		
-
+		bounds := textImage.Bounds()
 		assert.Greater(t, bounds.Dx(), 0)
 		assert.Greater(t, bounds.Dy(), 0)
-		
-
 	})
 	
-
+	t.Run("FontSizes", func(t *testing.T) {
 		font := NewMockFont("test.ttf", "TestFont")
 		
-
-		
-
+		sizes := []int{12, 16, 24, 32}
+		for _, size := range sizes {
 			font.On("RenderText", "Test", size).Return((*ebiten.Image)(nil))
 			
-
+			img := font.RenderText("Test", size)
 			assert.NotNil(t, img)
 			
-
+			bounds := img.Bounds()
 			assert.Equal(t, size, bounds.Dy()) // 高さがサイズと一致
 		}
 	})
 	
-
+	t.Run("EmptyText", func(t *testing.T) {
 		font := NewMockFont("test.ttf", "TestFont")
 		
-
+		font.On("RenderText", "", 16).Return((*ebiten.Image)(nil))
 		
-
+		img := font.RenderText("", 16)
 		assert.NotNil(t, img)
 		
-
 		bounds := img.Bounds()
 		assert.GreaterOrEqual(t, bounds.Dx(), 0)
 	})
@@ -342,74 +331,66 @@ func TestFontInterface(t *testing.T) {
 
 // TestAssetManagerInterface - AssetManager インターフェース契約テスト
 func TestAssetManagerInterface(t *testing.T) {
-	am := NewMockAssetManager()
-	
-
+	t.Run("ImageLoading", func(t *testing.T) {
+		am := NewMockAssetManager()
+		
 		imagePath := "assets/sprites/player.png"
 		
-
+		am.On("LoadImage", imagePath).Return((*ebiten.Image)(nil), nil)
 		am.On("GetLoadedAssets").Return((map[string]interfaces.Asset)(nil))
 		
-
+		img, err := am.LoadImage(imagePath)
 		assert.NoError(t, err)
 		assert.NotNil(t, img)
 		
-
 		loadedAssets := am.GetLoadedAssets()
 		assert.Contains(t, loadedAssets, imagePath)
-		
-
 	})
 	
-
+	t.Run("AudioLoading", func(t *testing.T) {
+		am := NewMockAssetManager()
+		
 		audioPath := "assets/audio/bgm.ogg"
 		
-
+		am.On("LoadAudio", audioPath).Return((interfaces.AudioClip)(nil), nil)
 		
-
+		audio, err := am.LoadAudio(audioPath)
 		assert.NoError(t, err)
 		assert.NotNil(t, audio)
 		
-
 		assert.Implements(t, (*interfaces.AudioClip)(nil), audio)
-		
-
 	})
 	
-
+	t.Run("FontLoading", func(t *testing.T) {
+		am := NewMockAssetManager()
+		
 		fontPath := "assets/fonts/ui.ttf"
 		
-
+		am.On("LoadFont", fontPath).Return((interfaces.Font)(nil), nil)
 		
-
+		font, err := am.LoadFont(fontPath)
 		assert.NoError(t, err)
 		assert.NotNil(t, font)
 		
-
 		assert.Implements(t, (*interfaces.Font)(nil), font)
-		
-
 	})
 	
-
+	t.Run("AssetUnloading", func(t *testing.T) {
+		am := NewMockAssetManager()
+		
 		assetPath := "assets/temp/temp.png"
 		
-
 		am.On("LoadImage", assetPath).Return((*ebiten.Image)(nil), nil)
 		am.On("UnloadAsset", assetPath).Return()
 		am.On("GetLoadedAssets").Return((map[string]interfaces.Asset)(nil))
 		
-
+		_, err := am.LoadImage(assetPath)
 		assert.NoError(t, err)
 		
-
 		am.UnloadAsset(assetPath)
 		
-
 		loadedAssets := am.GetLoadedAssets()
 		assert.NotContains(t, loadedAssets, assetPath)
-		
-
 	})
 }
 
@@ -419,9 +400,9 @@ func TestAssetManagerInterface(t *testing.T) {
 
 // TestAssetManagerErrorHandling - AssetManager エラーハンドリングテスト
 func TestAssetManagerErrorHandling(t *testing.T) {
-	am := NewMockAssetManager()
-	
-
+	t.Run("InvalidPaths", func(t *testing.T) {
+		am := NewMockAssetManager()
+		
 		invalidPaths := []string{
 			"nonexistent.png",
 			"../../../etc/passwd",
@@ -429,36 +410,36 @@ func TestAssetManagerErrorHandling(t *testing.T) {
 			"assets/images/\x00malicious.png",
 		}
 		
-
+		for _, path := range invalidPaths {
 			am.On("LoadImage", path).Return((*ebiten.Image)(nil), errors.New("invalid path"))
 			
-
+			_, err := am.LoadImage(path)
 			assert.Error(t, err)
 		}
 	})
 	
-
+	t.Run("UnsupportedFormat", func(t *testing.T) {
+		am := NewMockAssetManager()
+		
 		unsupportedPath := "assets/audio/unsupported.mp3"
 		
-
+		am.On("LoadAudio", unsupportedPath).Return((interfaces.AudioClip)(nil), errors.New("unsupported format"))
 		
-
+		_, err := am.LoadAudio(unsupportedPath)
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "unsupported format")
-		
-
 	})
 	
-
+	t.Run("LargeFile", func(t *testing.T) {
+		am := NewMockAssetManager()
+		
 		largePath := "assets/huge_image.png"
 		
-
+		am.On("LoadImage", largePath).Return((*ebiten.Image)(nil), errors.New("file too large"))
 		
-
+		_, err := am.LoadImage(largePath)
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "too large")
-		
-
 	})
 }
 
@@ -471,15 +452,14 @@ func TestAssetManagerPerformance(t *testing.T) {
 	t.Run("BulkAssetLoading", func(t *testing.T) {
 		am := NewMockAssetManager()
 		
-
+		assetCount := 100
 		
-
 		for i := 0; i < assetCount; i++ {
 			path := fmt.Sprintf("assets/test_%d.png", i)
 			am.On("LoadImage", path).Return((*ebiten.Image)(nil), nil)
 		}
 		
-
+		start := time.Now()
 		for i := 0; i < assetCount; i++ {
 			path := fmt.Sprintf("assets/test_%d.png", i)
 			_, err := am.LoadImage(path)
@@ -487,36 +467,28 @@ func TestAssetManagerPerformance(t *testing.T) {
 		}
 		elapsed := time.Since(start)
 		
-
 		assert.Less(t, elapsed, time.Second)
 		
-
-		
-
+		t.Logf("Loaded %d assets in %v", assetCount, elapsed)
 	})
 	
-
+	t.Run("CachePerformance", func(t *testing.T) {
 		am := NewMockAssetManager()
 		
-
+		assetPath := "assets/test_cache.png"
 		
-
 		am.On("LoadImage", assetPath).Return((*ebiten.Image)(nil), nil).Once()
 		am.On("GetLoadedAssets").Return((map[string]interfaces.Asset)(nil))
 		
-
 		firstLoadStart := time.Now()
 		_, err := am.LoadImage(assetPath)
 		firstLoadTime := time.Since(firstLoadStart)
 		assert.NoError(t, err)
 		
-
 		loadedAssets := am.GetLoadedAssets()
 		assert.Contains(t, loadedAssets, assetPath)
 		
-
-		
-
+		t.Logf("First load took %v", firstLoadTime)
 	})
 }
 

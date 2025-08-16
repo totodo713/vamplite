@@ -3,10 +3,8 @@
 
 run:
   timeout: 5m
-  go: "1.23"
+  go: "1.22"
   modules-download-mode: readonly
-  skip-dirs:
-    - docs
 
 output:
   formats:
@@ -70,6 +68,8 @@ linters-settings:
     check-blank: false
 
 issues:
+  exclude-dirs:
+    - docs
   
   exclude-rules:
     # テストファイルの除外設定
