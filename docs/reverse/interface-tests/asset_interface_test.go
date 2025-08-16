@@ -157,13 +157,11 @@ func (m *MockAssetManager) LoadImage(path string) (*ebiten.Image, error) {
 func (m *MockAssetManager) LoadAudio(path string) (interfaces.AudioClip, error) {
 	args := m.Called(path)
 	
-
-	
-
+	if args.Get(0) != nil {
 		return args.Get(0).(interfaces.AudioClip), args.Error(1)
 	}
-	
 
+	audioClip := NewMockAudioClip(path, time.Second)
 	return audioClip, nil
 }
 
