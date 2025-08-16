@@ -472,28 +472,23 @@ func TestAssetManagerPerformance(t *testing.T) {
 		t.Logf("Loaded %d assets in %v", assetCount, elapsed)
 	})
 	
-
+	t.Run("CachePerformance", func(t *testing.T) {
 		am := NewMockAssetManager()
 		
-
+		assetPath := "assets/test_cache.png"
 		
-
 		am.On("LoadImage", assetPath).Return((*ebiten.Image)(nil), nil).Once()
 		am.On("GetLoadedAssets").Return((map[string]interfaces.Asset)(nil))
 		
-
 		firstLoadStart := time.Now()
 		_, err := am.LoadImage(assetPath)
 		firstLoadTime := time.Since(firstLoadStart)
 		assert.NoError(t, err)
 		
-
 		loadedAssets := am.GetLoadedAssets()
 		assert.Contains(t, loadedAssets, assetPath)
 		
-
-		
-
+		t.Logf("First load took %v", firstLoadTime)
 	})
 }
 
