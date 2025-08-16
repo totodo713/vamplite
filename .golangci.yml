@@ -57,7 +57,7 @@ linters-settings:
   goimports:
     local-prefixes: muscle-dreamer
 
-  mnd:
+  gomnd:
         checks: 
           - argument
           - case
