@@ -331,23 +331,20 @@ func TestFontInterface(t *testing.T) {
 
 // TestAssetManagerInterface - AssetManager インターフェース契約テスト
 func TestAssetManagerInterface(t *testing.T) {
-	am := NewMockAssetManager()
-	
-
+	t.Run("ImageLoading", func(t *testing.T) {
+		am := NewMockAssetManager()
+		
 		imagePath := "assets/sprites/player.png"
 		
-
+		am.On("LoadImage", imagePath).Return((*ebiten.Image)(nil), nil)
 		am.On("GetLoadedAssets").Return((map[string]interfaces.Asset)(nil))
 		
-
+		img, err := am.LoadImage(imagePath)
 		assert.NoError(t, err)
 		assert.NotNil(t, img)
 		
-
 		loadedAssets := am.GetLoadedAssets()
 		assert.Contains(t, loadedAssets, imagePath)
-		
-
 	})
 	
 
