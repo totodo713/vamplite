@@ -144,15 +144,13 @@ func NewMockAssetManager() *MockAssetManager {
 func (m *MockAssetManager) LoadImage(path string) (*ebiten.Image, error) {
 	args := m.Called(path)
 	
+	if args.Get(0) != nil {
+		return args.Get(0).(*ebiten.Image), args.Error(1)
+	}
 
 	img := ebiten.NewImage(64, 64)
 	img.Fill(color.RGBA{255, 0, 0, 255})
 	
-
-		return args.Get(0).(*ebiten.Image), args.Error(1)
-	}
-	
-
 	return img, nil
 }
 
