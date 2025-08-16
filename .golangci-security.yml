@@ -1,0 +1,17 @@
+# Security-only configuration for focused analysis
+linters:
+  disable-all: true
+  enable:
+    - gosec
+
+run:
+  timeout: 5m
+  go: "1.23"
+  
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  exclude-dirs:
+    - vendor
+    - node_modules
+    - docs
