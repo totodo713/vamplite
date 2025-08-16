@@ -197,7 +197,7 @@ linters:
     - gofmt
     - gofumpt
     - goimports
-    - mnd
+    - gomnd
     - goprintffuncname
     - gosec
     - lll
