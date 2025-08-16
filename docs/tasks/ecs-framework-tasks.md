@@ -33,9 +33,9 @@
   - [ ] VSCode Go拡張設定（保存時自動format）
   - [ ] Makefileのlint・formatコマンド動作確認
 - **完了条件**:
-  - [ ] `make lint`がエラーなく実行される
-  - [ ] `make format`でコードが自動整形される
-  - [ ] コミット前にlint・formatが自動実行される
+  - [ ] `make lint`がエラーなく実行される（現在：コードエラーで失敗）
+  - [ ] `make format`でコードが自動整形される（現在：構文エラーで失敗）
+  - [ ] コミット前にlint・formatが自動実行される（未実装）
 - **設定ファイル例**:
   ```yaml
   # .golangci.yml の主要設定
