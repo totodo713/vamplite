@@ -8,7 +8,7 @@ package interfaces
 import (
 	"image/color"
 	"time"
-	
+
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
