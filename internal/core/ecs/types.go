@@ -130,6 +130,8 @@ const (
 	ComponentTypeAnimation ComponentType = 8
 	ComponentTypeInventory ComponentType = 9
 	ComponentTypeEnergy    ComponentType = 10
+	ComponentTypeDisabled  ComponentType = 11
+	ComponentTypeDead      ComponentType = 12
 )
 
 // ==============================================
