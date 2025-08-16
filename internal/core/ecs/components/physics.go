@@ -71,8 +71,8 @@ func (p *PhysicsComponent) ApplyFriction(deltaTime float64) {
 		frictionFactor = 0
 	}
 
-	p.Velocity.X *= frictionFactor
-	p.Velocity.Y *= frictionFactor
+	p.Velocity.X *= float32(frictionFactor)
+	p.Velocity.Y *= float32(frictionFactor)
 }
 
 // ApplySpeedLimit applies maximum speed limitation
