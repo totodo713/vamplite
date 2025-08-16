@@ -83,3 +83,33 @@ type Vector2 struct {
 type AABB struct {
 	Min, Max Vector2
 }
+
+// ==============================================
+// World Configuration Types - World設定型
+// ==============================================
+
+// WorldConfig represents configuration for the ECS world.
+type WorldConfig struct {
+	MaxEntities       int     `json:"maxEntities"`
+	InitialCapacity   int     `json:"initialCapacity"`
+	ComponentPoolSize int     `json:"componentPoolSize"`
+	EnableMetrics     bool    `json:"enableMetrics"`
+	TargetFPS         float64 `json:"targetFPS"`
+}
+
+// PerformanceMetrics represents world performance data.
+type PerformanceMetrics struct {
+	FPS                float64 `json:"fps"`
+	FrameTime          float64 `json:"frameTime"`
+	EntityCount        int     `json:"entityCount"`
+	SystemUpdateTime   float64 `json:"systemUpdateTime"`
+	MemoryUsage        int64   `json:"memoryUsage"`
+}
+
+// MemoryUsage represents memory usage statistics.
+type MemoryUsage struct {
+	TotalAllocated int64 `json:"totalAllocated"`
+	CurrentUsage   int64 `json:"currentUsage"`
+	PeakUsage      int64 `json:"peakUsage"`
+	GCCount        int64 `json:"gcCount"`
+}
