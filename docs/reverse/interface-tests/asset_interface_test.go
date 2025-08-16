@@ -418,28 +418,28 @@ func TestAssetManagerErrorHandling(t *testing.T) {
 		}
 	})
 	
-
+	t.Run("UnsupportedFormat", func(t *testing.T) {
+		am := NewMockAssetManager()
+		
 		unsupportedPath := "assets/audio/unsupported.mp3"
 		
-
+		am.On("LoadAudio", unsupportedPath).Return((interfaces.AudioClip)(nil), errors.New("unsupported format"))
 		
-
+		_, err := am.LoadAudio(unsupportedPath)
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "unsupported format")
-		
-
 	})
 	
-
+	t.Run("LargeFile", func(t *testing.T) {
+		am := NewMockAssetManager()
+		
 		largePath := "assets/huge_image.png"
 		
-
+		am.On("LoadImage", largePath).Return((*ebiten.Image)(nil), errors.New("file too large"))
 		
-
+		_, err := am.LoadImage(largePath)
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "too large")
-		
-
 	})
 }
 
