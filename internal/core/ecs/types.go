@@ -70,10 +70,16 @@ type StorageStats struct {
 	AverageAccessTime float64 `json:"averageAccessTime"`
 }
 
-// SystemMetrics represents system performance data.
-type SystemMetrics struct {
-	ExecutionTime    float64 `json:"executionTime"`
-	EntitiesProcessed int    `json:"entitiesProcessed"`
-	MemoryUsage      int64   `json:"memoryUsage"`
-	ErrorCount       int     `json:"errorCount"`
+// ==============================================
+// Missing Math Types - 数学型定義
+// ==============================================
+
+// Vector2 represents a 2D vector for spatial operations.
+type Vector2 struct {
+	X, Y float32
+}
+
+// AABB represents an Axis-Aligned Bounding Box for collision detection.
+type AABB struct {
+	Min, Max Vector2
 }
