@@ -209,14 +209,14 @@ func TestAssetInterface(t *testing.T) {
 
 	})
 	
-
+	t.Run("ValidAssetPaths", func(t *testing.T) {
 		validPaths := []string{
 			"assets/sprites/player.png",
 			"assets/audio/bgm.ogg",
 			"assets/fonts/ui_font.ttf",
 		}
 		
-
+		for _, path := range validPaths {
 			asset := NewMockAsset(path, 512)
 			assert.Equal(t, path, asset.GetPath())
 			assert.Greater(t, len(asset.GetPath()), 0)
