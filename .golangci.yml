@@ -238,7 +238,7 @@ linters:
     # Exclude some linters from running on tests files.
     - path: _test\.go
       linters:
-        - mnd
+        - gomnd
         - goconst
         - dupl
         - lll
