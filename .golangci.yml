@@ -68,6 +68,8 @@ linters-settings:
     check-blank: false
 
 issues:
+  exclude-dirs:
+    - docs
   
   exclude-rules:
     # テストファイルの除外設定
