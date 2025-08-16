@@ -84,7 +84,7 @@ func (p *PhysicsComponent) ApplySpeedLimit() {
 	speed := math.Sqrt(float64(p.Velocity.X*p.Velocity.X + p.Velocity.Y*p.Velocity.Y))
 	if speed > p.MaxSpeed {
 		// Normalize and scale to max speed
-		scale := p.MaxSpeed / speed
+		scale := float32(p.MaxSpeed / speed)
 		p.Velocity.X *= scale
 		p.Velocity.Y *= scale
 	}
