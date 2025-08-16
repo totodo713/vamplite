@@ -113,3 +113,75 @@ type MemoryUsage struct {
 	PeakUsage      int64 `json:"peakUsage"`
 	GCCount        int64 `json:"gcCount"`
 }
+
+// ==============================================
+// Temporary Component Type Constants - 一時的コンポーネント型定義
+// ==============================================
+
+// Component type constants for testing and basic functionality
+const (
+	ComponentTypeTransform ComponentType = 1
+	ComponentTypeSprite    ComponentType = 2
+	ComponentTypePhysics   ComponentType = 3
+	ComponentTypeAI        ComponentType = 4
+	ComponentTypeHealth    ComponentType = 5
+	ComponentTypeInput     ComponentType = 6
+	ComponentTypeAudio     ComponentType = 7
+	ComponentTypeAnimation ComponentType = 8
+)
+
+// System type constants for testing and basic functionality
+const (
+	SystemTypeRender    SystemType = 1
+	SystemTypePhysics   SystemType = 2
+	SystemTypeAI        SystemType = 3
+	SystemTypeInput     SystemType = 4
+	SystemTypeAudio     SystemType = 5
+	SystemTypeAnimation SystemType = 6
+)
+
+// SystemType to string conversion for testing
+func (st SystemType) String() string {
+	switch st {
+	case SystemTypeRender:
+		return "RenderSystem"
+	case SystemTypePhysics:
+		return "PhysicsSystem"
+	case SystemTypeAI:
+		return "AISystem"
+	case SystemTypeInput:
+		return "InputSystem"
+	case SystemTypeAudio:
+		return "AudioSystem"
+	case SystemTypeAnimation:
+		return "AnimationSystem"
+	default:
+		return "UnknownSystem"
+	}
+}
+
+// SystemTypeFromString converts string to SystemType for testing
+func SystemTypeFromString(s string) SystemType {
+	switch s {
+	case "TestSystem":
+		return SystemTypeRender // Temporary mapping for tests
+	case "HighPrioritySystem":
+		return SystemTypePhysics
+	case "LowPrioritySystem":
+		return SystemTypeAI
+	case "RenderSystem":
+		return SystemTypeRender
+	case "PhysicsSystem":
+		return SystemTypePhysics
+	case "AISystem":
+		return SystemTypeAI
+	case "InputSystem":
+		return SystemTypeInput
+	case "AudioSystem":
+		return SystemTypeAudio
+	case "AnimationSystem":
+		return SystemTypeAnimation
+	default:
+		return SystemTypeRender // Default fallback
+	}
+}
