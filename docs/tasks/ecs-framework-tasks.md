@@ -30,7 +30,7 @@
 - **設定内容**:
   - [x] golangci-lint: 基本ルール + パフォーマンス重視設定
   - [x] gofmt + goimports自動実行
-  - [ ] VSCode Go拡張設定（保存時自動format）
+  - [x] VSCode Go拡張設定（保存時自動format）
   - [ ] Makefileのlint・formatコマンド動作確認
 - **完了条件**:
   - [ ] `make lint`がエラーなく実行される（現在：コードエラーで失敗）
