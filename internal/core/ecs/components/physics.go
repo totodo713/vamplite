@@ -55,8 +55,8 @@ func (p *PhysicsComponent) UpdateVelocity(deltaTime float64) {
 	}
 
 	// v = v0 + at
-	p.Velocity.X += p.Acceleration.X * deltaTime
-	p.Velocity.Y += p.Acceleration.Y * deltaTime
+	p.Velocity.X += p.Acceleration.X * float32(deltaTime)
+	p.Velocity.Y += p.Acceleration.Y * float32(deltaTime)
 }
 
 // ApplyFriction applies friction to the velocity
