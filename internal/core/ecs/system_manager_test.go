@@ -253,7 +253,7 @@ func TestSystemManager_RegisterSystemWithPriority_Success(t *testing.T) {
 	// Given: SystemManagerと異なる優先度のシステム
 	sm := NewSystemManager()
 	systemHigh := NewMockSystem(SystemTypeFromString("HighPrioritySystem"))
-	systemLow := NewMockSystem(SystemType("LowPrioritySystem"))
+	systemLow := NewMockSystem(SystemTypeFromString("LowPrioritySystem"))
 
 	// When: 優先度付きでシステムを登録する
 	err1 := sm.RegisterSystemWithPriority(systemHigh, PriorityHigh)
