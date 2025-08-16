@@ -1,38 +1,39 @@
 package core
 
 import (
-	    "github.com/hajimehoshi/ebiten/v2"
-	        "github.com/hajimehoshi/ebiten/v2/ebitenutil"
-		    "image/color"
-	    )
+	"image/color"
 
-	    type Game struct {
-		        // ゲーム状態
-		}
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+)
 
-		func NewGame() *Game {
-			    return &Game{}
-		    }
+type Game struct {
+	// ゲーム状態
+}
 
-		    func (g *Game) Update() error {
-			        // ゲーム更新ロジック
-				    return nil
-			    }
+func NewGame() *Game {
+	return &Game{}
+}
 
-			    func (g *Game) Draw(screen *ebiten.Image) {
-				        // 描画ロジック
-					    ebitenutil.DebugPrint(screen, "マッスルドリーマー開発中...")
-					        screen.Fill(color.RGBA{50, 50, 100, 255})
-					}
+func (g *Game) Update() error {
+	// ゲーム更新ロジック
+	return nil
+}
 
-					func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-						    return 1280, 720
-					    }
+func (g *Game) Draw(screen *ebiten.Image) {
+	// 描画ロジック
+	ebitenutil.DebugPrint(screen, "マッスルドリーマー開発中...")
+	screen.Fill(color.RGBA{50, 50, 100, 255})
+}
 
-					    func (g *Game) Run() error {
-						        ebiten.SetWindowSize(1280, 720)
-							    ebiten.SetWindowTitle("マッスルドリーマー〜観光編〜")
-							        ebiten.SetWindowResizable(true)
-								    
-								    return ebiten.RunGame(g)
-							    }
+func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
+	return 1280, 720
+}
+
+func (g *Game) Run() error {
+	ebiten.SetWindowSize(1280, 720)
+	ebiten.SetWindowTitle("マッスルドリーマー〜観光編〜")
+	ebiten.SetWindowResizable(true)
+
+	return ebiten.RunGame(g)
+}

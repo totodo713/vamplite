@@ -39,22 +39,22 @@ type EntityManager interface {
 	DestroyEntity(entity EntityID) error
 	IsEntityValid(entity EntityID) bool
 	GetEntityCount() int
-	
+
 	// Component Operations
 	AddComponent(entity EntityID, component Component) error
 	RemoveComponent(entity EntityID, componentType ComponentType) error
 	GetComponent(entity EntityID, componentType ComponentType) (Component, error)
 	HasComponent(entity EntityID, componentType ComponentType) bool
-	
+
 	// Batch Operations
 	CreateEntities(count int) ([]EntityID, error)
 	DestroyEntities(entities []EntityID) error
-	
+
 	// Query Operations
 	Query(mask ComponentMask) EntityIterator
 	QueryWith(componentTypes ...ComponentType) EntityIterator
 	QueryWithout(componentTypes ...ComponentType) EntityIterator
-	
+
 	// Memory Management
 	Compact() error
 	GetMemoryStats() MemoryStats
@@ -70,13 +70,13 @@ type Component interface {
 
 // MemoryStats provides memory usage information
 type MemoryStats struct {
-	EntityCount       int
-	ComponentCount    int
-	MemoryUsed        int64
-	MemoryAllocated   int64
-	FragmentedMemory  int64
-	PoolMemoryUsed    int64
-	PoolMemoryTotal   int64
+	EntityCount      int
+	ComponentCount   int
+	MemoryUsed       int64
+	MemoryAllocated  int64
+	FragmentedMemory int64
+	PoolMemoryUsed   int64
+	PoolMemoryTotal  int64
 }
 
 // =============================================================================
@@ -89,16 +89,16 @@ type ComponentStore interface {
 	RegisterComponentType(componentType ComponentType, factory ComponentFactory) error
 	IsComponentTypeRegistered(componentType ComponentType) bool
 	GetRegisteredComponentTypes() []ComponentType
-	
+
 	// Component Storage
 	StoreComponent(entity EntityID, component Component) error
 	RetrieveComponent(entity EntityID, componentType ComponentType) (Component, error)
 	DeleteComponent(entity EntityID, componentType ComponentType) error
-	
+
 	// Batch Operations
 	GetComponentsOfType(componentType ComponentType) ComponentIterator
 	GetEntityComponents(entity EntityID) []Component
-	
+
 	// Memory Management
 	DefragmentStorage(componentType ComponentType) error
 	GetStorageStats(componentType ComponentType) StorageStats
@@ -131,21 +131,21 @@ type SystemManager interface {
 	UnregisterSystem(systemType SystemType) error
 	GetRegisteredSystems() []SystemType
 	IsSystemRegistered(systemType SystemType) bool
-	
+
 	// System Execution
 	UpdateSystems(ctx context.Context, deltaTime time.Duration) error
 	RenderSystems(ctx context.Context, screen *ebiten.Image) error
-	
+
 	// System Dependencies
 	SetSystemDependency(dependent, dependency SystemType) error
 	RemoveSystemDependency(dependent, dependency SystemType) error
 	GetExecutionOrder() []SystemType
-	
+
 	// System State Management
 	EnableSystem(systemType SystemType) error
 	DisableSystem(systemType SystemType) error
 	IsSystemEnabled(systemType SystemType) bool
-	
+
 	// Performance Monitoring
 	GetSystemPerformance(systemType SystemType) SystemPerformance
 	GetOverallPerformance() OverallPerformance
@@ -157,16 +157,16 @@ type System interface {
 	GetType() SystemType
 	GetRequiredComponents() []ComponentType
 	GetOptionalComponents() []ComponentType
-	
+
 	// System Lifecycle
 	Initialize(entityManager EntityManager, componentStore ComponentStore) error
 	Update(ctx context.Context, deltaTime time.Duration) error
 	Cleanup() error
-	
+
 	// System State
 	IsEnabled() bool
 	SetEnabled(enabled bool)
-	
+
 	// Performance Monitoring
 	GetPerformanceMetrics() SystemPerformance
 }
@@ -180,26 +180,26 @@ type RenderSystem interface {
 
 // SystemPerformance provides performance metrics for a system
 type SystemPerformance struct {
-	SystemType           SystemType
-	LastUpdateTime       time.Duration
-	AverageUpdateTime    time.Duration
-	MaxUpdateTime        time.Duration
-	UpdateCount          int64
-	ErrorCount           int64
-	EntitiesProcessed    int
-	ComponentsAccessed   int64
+	SystemType         SystemType
+	LastUpdateTime     time.Duration
+	AverageUpdateTime  time.Duration
+	MaxUpdateTime      time.Duration
+	UpdateCount        int64
+	ErrorCount         int64
+	EntitiesProcessed  int
+	ComponentsAccessed int64
 }
 
 // OverallPerformance provides overall system performance metrics
 type OverallPerformance struct {
-	TotalUpdateTime      time.Duration
-	SystemCount          int
-	EntitiesProcessed    int
-	ComponentsAccessed   int64
-	MemoryUsage          int64
-	GCPressure          float64
-	FrameTime           time.Duration
-	TargetFrameTime     time.Duration
+	TotalUpdateTime    time.Duration
+	SystemCount        int
+	EntitiesProcessed  int
+	ComponentsAccessed int64
+	MemoryUsage        int64
+	GCPressure         float64
+	FrameTime          time.Duration
+	TargetFrameTime    time.Duration
 }
 
 // =============================================================================
@@ -212,11 +212,11 @@ type QueryEngine interface {
 	NewQuery() QueryBuilder
 	CreateCachedQuery(name string, mask ComponentMask) error
 	GetCachedQuery(name string) (EntityIterator, error)
-	
+
 	// Query Execution
 	ExecuteQuery(mask ComponentMask) EntityIterator
 	ExecuteComplexQuery(query ComplexQuery) EntityIterator
-	
+
 	// Index Management
 	RebuildIndices() error
 	GetIndexStats() IndexStats
@@ -234,22 +234,22 @@ type QueryBuilder interface {
 
 // ComplexQuery represents a complex entity query
 type ComplexQuery struct {
-	RequiredComponents   []ComponentType
-	ForbiddenComponents  []ComponentType
-	AnyOfComponents      []ComponentType
-	AllOfComponents      []ComponentType
+	RequiredComponents  []ComponentType
+	ForbiddenComponents []ComponentType
+	AnyOfComponents     []ComponentType
+	AllOfComponents     []ComponentType
 	Limit               int
 	Offset              int
 }
 
 // IndexStats provides information about query indices
 type IndexStats struct {
-	IndexCount          int
-	CachedQueryCount    int
-	IndexMemoryUsage    int64
-	IndexHitRate        float64
-	IndexMissRate       float64
-	RebuildCount        int64
+	IndexCount       int
+	CachedQueryCount int
+	IndexMemoryUsage int64
+	IndexHitRate     float64
+	IndexMissRate    float64
+	RebuildCount     int64
 }
 
 // =============================================================================
@@ -296,19 +296,19 @@ func (t *TransformComponent) Clone() Component {
 		Scale:    t.Scale,
 	}
 }
-func (t *TransformComponent) Serialize() ([]byte, error)   { /* Implementation */ return nil, nil }
+func (t *TransformComponent) Serialize() ([]byte, error)    { /* Implementation */ return nil, nil }
 func (t *TransformComponent) Deserialize(data []byte) error { /* Implementation */ return nil }
 
 // SpriteComponent manages sprite rendering
 type SpriteComponent struct {
-	Image        *ebiten.Image
-	SourceRect   Rectangle
-	Color        colorm.ColorM
-	Visible      bool
-	Layer        int
-	FlipX        bool
-	FlipY        bool
-	Opacity      float64
+	Image      *ebiten.Image
+	SourceRect Rectangle
+	Color      colorm.ColorM
+	Visible    bool
+	Layer      int
+	FlipX      bool
+	FlipY      bool
+	Opacity    float64
 }
 
 func (s *SpriteComponent) GetType() ComponentType { return SpriteComponentType }
@@ -324,7 +324,7 @@ func (s *SpriteComponent) Clone() Component {
 		Opacity:    s.Opacity,
 	}
 }
-func (s *SpriteComponent) Serialize() ([]byte, error)   { /* Implementation */ return nil, nil }
+func (s *SpriteComponent) Serialize() ([]byte, error)    { /* Implementation */ return nil, nil }
 func (s *SpriteComponent) Deserialize(data []byte) error { /* Implementation */ return nil }
 
 // VelocityComponent manages entity movement
@@ -344,15 +344,15 @@ func (v *VelocityComponent) Clone() Component {
 		Friction:     v.Friction,
 	}
 }
-func (v *VelocityComponent) Serialize() ([]byte, error)   { /* Implementation */ return nil, nil }
+func (v *VelocityComponent) Serialize() ([]byte, error)    { /* Implementation */ return nil, nil }
 func (v *VelocityComponent) Deserialize(data []byte) error { /* Implementation */ return nil }
 
 // HealthComponent manages entity health and damage
 type HealthComponent struct {
-	Current     int
-	Maximum     int
-	Regeneration float64
-	Invulnerable bool
+	Current        int
+	Maximum        int
+	Regeneration   float64
+	Invulnerable   bool
 	LastDamageTime time.Time
 }
 
@@ -366,17 +366,17 @@ func (h *HealthComponent) Clone() Component {
 		LastDamageTime: h.LastDamageTime,
 	}
 }
-func (h *HealthComponent) Serialize() ([]byte, error)   { /* Implementation */ return nil, nil }
+func (h *HealthComponent) Serialize() ([]byte, error)    { /* Implementation */ return nil, nil }
 func (h *HealthComponent) Deserialize(data []byte) error { /* Implementation */ return nil }
 
 // CollisionComponent manages entity collision detection
 type CollisionComponent struct {
-	Bounds      Rectangle
-	Layer       int
-	Mask        int
-	IsTrigger   bool
-	IsStatic    bool
-	Material    PhysicsMaterial
+	Bounds    Rectangle
+	Layer     int
+	Mask      int
+	IsTrigger bool
+	IsStatic  bool
+	Material  PhysicsMaterial
 }
 
 func (c *CollisionComponent) GetType() ComponentType { return CollisionComponentType }
@@ -390,7 +390,7 @@ func (c *CollisionComponent) Clone() Component {
 		Material:  c.Material,
 	}
 }
-func (c *CollisionComponent) Serialize() ([]byte, error)   { /* Implementation */ return nil, nil }
+func (c *CollisionComponent) Serialize() ([]byte, error)    { /* Implementation */ return nil, nil }
 func (c *CollisionComponent) Deserialize(data []byte) error { /* Implementation */ return nil }
 
 // =============================================================================
@@ -437,15 +437,15 @@ const (
 // =============================================================================
 
 const (
-	MovementSystemType     SystemType = "movement"
-	RenderSystemType       SystemType = "render"
-	PhysicsSystemType      SystemType = "physics"
-	InputSystemType        SystemType = "input"
-	AudioSystemType        SystemType = "audio"
-	AISystemType           SystemType = "ai"
-	AnimationSystemType    SystemType = "animation"
-	ParticleSystemType     SystemType = "particle"
-	CollisionSystemType    SystemType = "collision"
+	MovementSystemType  SystemType = "movement"
+	RenderSystemType    SystemType = "render"
+	PhysicsSystemType   SystemType = "physics"
+	InputSystemType     SystemType = "input"
+	AudioSystemType     SystemType = "audio"
+	AISystemType        SystemType = "ai"
+	AnimationSystemType SystemType = "animation"
+	ParticleSystemType  SystemType = "particle"
+	CollisionSystemType SystemType = "collision"
 	// Add more system types as needed
 )
 
@@ -483,19 +483,19 @@ type ModECSAPI interface {
 	// Read-only Entity Operations
 	IsEntityValid(entity EntityID) bool
 	GetEntityCount() int
-	
+
 	// Read-only Component Operations
 	GetComponent(entity EntityID, componentType ComponentType) (Component, error)
 	HasComponent(entity EntityID, componentType ComponentType) bool
-	
+
 	// Restricted Query Operations
 	QueryReadOnly(mask ComponentMask) EntityIterator
 	QueryWithReadOnly(componentTypes ...ComponentType) EntityIterator
-	
+
 	// Limited Component Creation (only for mod-owned entities)
 	CreateModEntity() (EntityID, error)
 	AddModComponent(entity EntityID, component Component) error
-	
+
 	// Event System Access
 	SubscribeToEvents(eventType string, handler EventHandler) error
 	PublishModEvent(event Event) error
@@ -510,10 +510,10 @@ type ModSystem interface {
 
 // ModPermissions defines what a mod is allowed to do
 type ModPermissions struct {
-	CanCreateEntities    bool
-	CanModifyComponents  bool
-	CanAccessSaveData    bool
-	CanAccessNetwork     bool
+	CanCreateEntities     bool
+	CanModifyComponents   bool
+	CanAccessSaveData     bool
+	CanAccessNetwork      bool
 	AllowedComponentTypes []ComponentType
 	AllowedSystemTypes    []SystemType
 }
