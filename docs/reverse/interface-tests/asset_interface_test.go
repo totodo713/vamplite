@@ -299,31 +299,29 @@ func TestFontInterface(t *testing.T) {
 
 	})
 	
-
+	t.Run("FontSizes", func(t *testing.T) {
 		font := NewMockFont("test.ttf", "TestFont")
 		
-
-		
-
+		sizes := []int{12, 16, 24, 32}
+		for _, size := range sizes {
 			font.On("RenderText", "Test", size).Return((*ebiten.Image)(nil))
 			
-
+			img := font.RenderText("Test", size)
 			assert.NotNil(t, img)
 			
-
+			bounds := img.Bounds()
 			assert.Equal(t, size, bounds.Dy()) // 高さがサイズと一致
 		}
 	})
 	
-
+	t.Run("EmptyText", func(t *testing.T) {
 		font := NewMockFont("test.ttf", "TestFont")
 		
-
+		font.On("RenderText", "", 16).Return((*ebiten.Image)(nil))
 		
-
+		img := font.RenderText("", 16)
 		assert.NotNil(t, img)
 		
-
 		bounds := img.Bounds()
 		assert.GreaterOrEqual(t, bounds.Dx(), 0)
 	})
