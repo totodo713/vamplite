@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "container-use": {
+      "type": "stdio",
+      "command": "container-use",
+      "args": [
+        "stdio"
+      ],
+      "env": {}
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ],
+      "env": {}
+    }
+  }
+}
