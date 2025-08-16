@@ -347,19 +347,18 @@ func TestAssetManagerInterface(t *testing.T) {
 		assert.Contains(t, loadedAssets, imagePath)
 	})
 	
-
+	t.Run("AudioLoading", func(t *testing.T) {
+		am := NewMockAssetManager()
+		
 		audioPath := "assets/audio/bgm.ogg"
 		
-
+		am.On("LoadAudio", audioPath).Return((interfaces.AudioClip)(nil), nil)
 		
-
+		audio, err := am.LoadAudio(audioPath)
 		assert.NoError(t, err)
 		assert.NotNil(t, audio)
 		
-
 		assert.Implements(t, (*interfaces.AudioClip)(nil), audio)
-		
-
 	})
 	
 
