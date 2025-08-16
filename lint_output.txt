@@ -1,0 +1,1 @@
+level=error msg="Running error: unknown linters: 'copyloopvar,mnd', run 'golangci-lint help linters' to see the list of supported linters"
