@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"image"
 	"image/color"
-	"muscle-dreamer/docs/reverse/interfaces"
+	interfaces "muscle-dreamer/docs/reverse"
 	"testing"
 	"time"
 )
