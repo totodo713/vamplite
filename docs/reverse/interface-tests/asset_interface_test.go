@@ -168,13 +168,11 @@ func (m *MockAssetManager) LoadAudio(path string) (interfaces.AudioClip, error) 
 func (m *MockAssetManager) LoadFont(path string) (interfaces.Font, error) {
 	args := m.Called(path)
 	
-
-	
-
+	if args.Get(0) != nil {
 		return args.Get(0).(interfaces.Font), args.Error(1)
 	}
-	
 
+	font := NewMockFont(path, "DefaultFont")
 	return font, nil
 }
 
