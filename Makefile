@@ -95,7 +95,7 @@ test-all:
 
 # コード品質
 lint:
-	golangci-lint run --skip-dirs docs
+	golangci-lint run --exclude-dirs docs
 
 format:
 	go fmt ./...
