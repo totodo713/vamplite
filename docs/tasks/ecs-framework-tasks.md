@@ -28,8 +28,8 @@
   - pre-commit hook設定（オプション）
   - 開発用Dockerコンテナでのツール準備
 - **設定内容**:
-  - [ ] golangci-lint: 基本ルール + パフォーマンス重視設定
-  - [ ] gofmt + goimports自動実行
+  - [x] golangci-lint: 基本ルール + パフォーマンス重視設定
+  - [x] gofmt + goimports自動実行
   - [ ] VSCode Go拡張設定（保存時自動format）
   - [ ] Makefileのlint・formatコマンド動作確認
 - **完了条件**:
