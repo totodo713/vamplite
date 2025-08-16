@@ -204,3 +204,33 @@ func SystemTypeFromString(s string) SystemType {
 		return SystemTypeRender // Default fallback
 	}
 }
+
+// ComponentTypeFromString converts string to ComponentType for testing
+func ComponentTypeFromString(s string) ComponentType {
+	switch s {
+	case "test-fileio":
+		return ComponentTypeInventory // Temporary mapping for test
+	case "transform":
+		return ComponentTypeTransform
+	case "sprite":
+		return ComponentTypeSprite
+	case "physics":
+		return ComponentTypePhysics
+	case "ai":
+		return ComponentTypeAI
+	case "health":
+		return ComponentTypeHealth
+	case "input":
+		return ComponentTypeInput
+	case "audio":
+		return ComponentTypeAudio
+	case "animation":
+		return ComponentTypeAnimation
+	case "inventory":
+		return ComponentTypeInventory
+	case "energy":
+		return ComponentTypeEnergy
+	default:
+		return ComponentTypeTransform // Default fallback
+	}
+}
