@@ -169,6 +169,14 @@ func SystemTypeFromString(s string) SystemType {
 		return SystemTypePhysics
 	case "LowPrioritySystem":
 		return SystemTypeAI
+	case "EnabledSystem":
+		return SystemTypeInput
+	case "DisabledSystem":
+		return SystemTypeAudio
+	case "SystemA":
+		return SystemTypeAnimation
+	case "SystemB":
+		return SystemTypeRender
 	case "RenderSystem":
 		return SystemTypeRender
 	case "PhysicsSystem":
