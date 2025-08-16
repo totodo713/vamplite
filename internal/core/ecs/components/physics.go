@@ -44,8 +44,8 @@ func (p *PhysicsComponent) ApplyForce(force ecs.Vector2, _ float64) {
 	}
 
 	// F = ma, so a = F/m
-	p.Acceleration.X = force.X / p.Mass
-	p.Acceleration.Y = force.Y / p.Mass
+	p.Acceleration.X = force.X / float32(p.Mass)
+	p.Acceleration.Y = force.Y / float32(p.Mass)
 }
 
 // UpdateVelocity updates velocity based on acceleration
@@ -55,8 +55,8 @@ func (p *PhysicsComponent) UpdateVelocity(deltaTime float64) {
 	}
 
 	// v = v0 + at
-	p.Velocity.X += p.Acceleration.X * deltaTime
-	p.Velocity.Y += p.Acceleration.Y * deltaTime
+	p.Velocity.X += p.Acceleration.X * float32(deltaTime)
+	p.Velocity.Y += p.Acceleration.Y * float32(deltaTime)
 }
 
 // ApplyFriction applies friction to the velocity
@@ -71,8 +71,8 @@ func (p *PhysicsComponent) ApplyFriction(deltaTime float64) {
 		frictionFactor = 0
 	}
 
-	p.Velocity.X *= frictionFactor
-	p.Velocity.Y *= frictionFactor
+	p.Velocity.X *= float32(frictionFactor)
+	p.Velocity.Y *= float32(frictionFactor)
 }
 
 // ApplySpeedLimit applies maximum speed limitation
@@ -81,10 +81,10 @@ func (p *PhysicsComponent) ApplySpeedLimit() {
 		return
 	}
 
-	speed := math.Sqrt(p.Velocity.X*p.Velocity.X + p.Velocity.Y*p.Velocity.Y)
+	speed := math.Sqrt(float64(p.Velocity.X*p.Velocity.X + p.Velocity.Y*p.Velocity.Y))
 	if speed > p.MaxSpeed {
 		// Normalize and scale to max speed
-		scale := p.MaxSpeed / speed
+		scale := float32(p.MaxSpeed / speed)
 		p.Velocity.X *= scale
 		p.Velocity.Y *= scale
 	}

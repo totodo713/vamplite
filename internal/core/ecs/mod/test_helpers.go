@@ -58,7 +58,7 @@ func (t *TestSpriteComponentImpl) Deserialize([]byte) error {
 type TestFileIOComponentImpl struct{}
 
 func (t *TestFileIOComponentImpl) GetType() ecs.ComponentType {
-	return ecs.ComponentType("test-fileio") // 未定義の型番号
+	return ecs.ComponentTypeFromString("test-fileio") // テスト用の型番号
 }
 
 func (t *TestFileIOComponentImpl) Clone() ecs.Component {

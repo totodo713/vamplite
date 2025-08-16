@@ -111,7 +111,7 @@ func (a *AIComponent) GetStateHistory() []AIState {
 func (a *AIComponent) calculateDistance(pos1, pos2 ecs.Vector2) float64 {
 	dx := pos2.X - pos1.X
 	dy := pos2.Y - pos1.Y
-	return math.Sqrt(dx*dx + dy*dy)
+	return math.Sqrt(float64(dx*dx + dy*dy))
 }
 
 // Clone creates a deep copy of the component

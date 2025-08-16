@@ -199,7 +199,7 @@ func (w *MockWorld) RUnlock()                                         {}
 func TestSystemManager_RegisterSystem_Success(t *testing.T) {
 	// Given: 新しいSystemManagerとMockSystem
 	sm := NewSystemManager()
-	system := NewMockSystem(SystemType("TestSystem"))
+	system := NewMockSystem(SystemTypeFromString("TestSystem"))
 
 	// When: システムを登録する
 	err := sm.RegisterSystem(system)
@@ -208,7 +208,7 @@ func TestSystemManager_RegisterSystem_Success(t *testing.T) {
 		t.Errorf("Expected no error, got %v", err)
 	}
 
-	retrievedSystem, err := sm.GetSystem(SystemType("TestSystem"))
+	retrievedSystem, err := sm.GetSystem(SystemTypeFromString("TestSystem"))
 	if err != nil {
 		t.Errorf("Expected no error when getting system, got %v", err)
 	}
@@ -225,8 +225,8 @@ func TestSystemManager_RegisterSystem_Success(t *testing.T) {
 func TestSystemManager_RegisterSystem_DuplicateError(t *testing.T) {
 	// Given: 既に登録済みのシステムがあるSystemManager
 	sm := NewSystemManager()
-	system1 := NewMockSystem(SystemType("TestSystem"))
-	system2 := NewMockSystem(SystemType("TestSystem"))
+	system1 := NewMockSystem(SystemTypeFromString("TestSystem"))
+	system2 := NewMockSystem(SystemTypeFromString("TestSystem"))
 
 	sm.RegisterSystem(system1)
 
@@ -238,7 +238,7 @@ func TestSystemManager_RegisterSystem_DuplicateError(t *testing.T) {
 		t.Error("Expected error for duplicate system registration")
 	}
 
-	retrievedSystem, _ := sm.GetSystem(SystemType("TestSystem"))
+	retrievedSystem, _ := sm.GetSystem(SystemTypeFromString("TestSystem"))
 	if retrievedSystem != system1 {
 		t.Error("Expected original system to be preserved")
 	}
@@ -252,8 +252,8 @@ func TestSystemManager_RegisterSystem_DuplicateError(t *testing.T) {
 func TestSystemManager_RegisterSystemWithPriority_Success(t *testing.T) {
 	// Given: SystemManagerと異なる優先度のシステム
 	sm := NewSystemManager()
-	systemHigh := NewMockSystem(SystemType("HighPrioritySystem"))
-	systemLow := NewMockSystem(SystemType("LowPrioritySystem"))
+	systemHigh := NewMockSystem(SystemTypeFromString("HighPrioritySystem"))
+	systemLow := NewMockSystem(SystemTypeFromString("LowPrioritySystem"))
 
 	// When: 優先度付きでシステムを登録する
 	err1 := sm.RegisterSystemWithPriority(systemHigh, PriorityHigh)
@@ -297,17 +297,17 @@ func TestSystemManager_RegisterSystem_NilSystemError(t *testing.T) {
 func TestSystemManager_UnregisterSystem_Success(t *testing.T) {
 	// Given: 登録済みシステムがあるSystemManager
 	sm := NewSystemManager()
-	system := NewMockSystem(SystemType("TestSystem"))
+	system := NewMockSystem(SystemTypeFromString("TestSystem"))
 	sm.RegisterSystem(system)
 
 	// When: システムを登録解除する
-	err := sm.UnregisterSystem(SystemType("TestSystem"))
+	err := sm.UnregisterSystem(SystemTypeFromString("TestSystem"))
 	// Then: システムが削除され、GetSystemでエラーが返される
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
 
-	_, err = sm.GetSystem(SystemType("TestSystem"))
+	_, err = sm.GetSystem(SystemTypeFromString("TestSystem"))
 	if err == nil {
 		t.Error("Expected error when getting unregistered system")
 	}
@@ -325,15 +325,15 @@ func TestSystemManager_UnregisterSystem_Success(t *testing.T) {
 func TestSystemManager_EnableDisableSystem_Success(t *testing.T) {
 	// Given: 登録済みシステムがあるSystemManager
 	sm := NewSystemManager()
-	system := NewMockSystem(SystemType("TestSystem"))
+	system := NewMockSystem(SystemTypeFromString("TestSystem"))
 	sm.RegisterSystem(system)
 
 	// When: システムを無効化・有効化する
-	err1 := sm.DisableSystem(SystemType("TestSystem"))
-	enabled1 := sm.IsSystemEnabled(SystemType("TestSystem"))
+	err1 := sm.DisableSystem(SystemTypeFromString("TestSystem"))
+	enabled1 := sm.IsSystemEnabled(SystemTypeFromString("TestSystem"))
 
-	err2 := sm.EnableSystem(SystemType("TestSystem"))
-	enabled2 := sm.IsSystemEnabled(SystemType("TestSystem"))
+	err2 := sm.EnableSystem(SystemTypeFromString("TestSystem"))
+	enabled2 := sm.IsSystemEnabled(SystemTypeFromString("TestSystem"))
 
 	// Then: IsSystemEnabledが正しい状態を返す
 	if err1 != nil || err2 != nil {
@@ -353,23 +353,23 @@ func TestSystemManager_EnableDisableSystem_Success(t *testing.T) {
 func TestSystemManager_GetEnabledDisabledSystems_Success(t *testing.T) {
 	// Given: 有効・無効システムが混在するSystemManager
 	sm := NewSystemManager()
-	system1 := NewMockSystem(SystemType("EnabledSystem"))
-	system2 := NewMockSystem(SystemType("DisabledSystem"))
+	system1 := NewMockSystem(SystemTypeFromString("EnabledSystem"))
+	system2 := NewMockSystem(SystemTypeFromString("DisabledSystem"))
 
 	sm.RegisterSystem(system1)
 	sm.RegisterSystem(system2)
-	sm.DisableSystem(SystemType("DisabledSystem"))
+	sm.DisableSystem(SystemTypeFromString("DisabledSystem"))
 
 	// When: 有効・無効システム一覧を取得する
 	enabledSystems := sm.GetEnabledSystems()
 	disabledSystems := sm.GetDisabledSystems()
 
 	// Then: 正しいシステム一覧が返される
-	if len(enabledSystems) != 1 || enabledSystems[0] != SystemType("EnabledSystem") {
+	if len(enabledSystems) != 1 || enabledSystems[0] != SystemTypeFromString("EnabledSystem") {
 		t.Errorf("Expected 1 enabled system 'EnabledSystem', got %v", enabledSystems)
 	}
 
-	if len(disabledSystems) != 1 || disabledSystems[0] != SystemType("DisabledSystem") {
+	if len(disabledSystems) != 1 || disabledSystems[0] != SystemTypeFromString("DisabledSystem") {
 		t.Errorf("Expected 1 disabled system 'DisabledSystem', got %v", disabledSystems)
 	}
 }
@@ -382,26 +382,26 @@ func TestSystemManager_GetEnabledDisabledSystems_Success(t *testing.T) {
 func TestSystemManager_SetSystemDependency_Success(t *testing.T) {
 	// Given: 2つの登録済みシステムがあるSystemManager
 	sm := NewSystemManager()
-	systemA := NewMockSystem(SystemType("SystemA"))
-	systemB := NewMockSystem(SystemType("SystemB"))
+	systemA := NewMockSystem(SystemTypeFromString("SystemA"))
+	systemB := NewMockSystem(SystemTypeFromString("SystemB"))
 
 	sm.RegisterSystem(systemA)
 	sm.RegisterSystem(systemB)
 
 	// When: システムAがシステムBに依存するよう設定する
-	err := sm.SetSystemDependency(SystemType("SystemA"), SystemType("SystemB"))
+	err := sm.SetSystemDependency(SystemTypeFromString("SystemA"), SystemTypeFromString("SystemB"))
 	// Then: 依存関係が設定され、GetSystemDependenciesで取得できる
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
 
-	dependencies := sm.GetSystemDependencies(SystemType("SystemA"))
-	if len(dependencies) != 1 || dependencies[0] != SystemType("SystemB") {
+	dependencies := sm.GetSystemDependencies(SystemTypeFromString("SystemA"))
+	if len(dependencies) != 1 || dependencies[0] != SystemTypeFromString("SystemB") {
 		t.Errorf("Expected SystemA to depend on SystemB, got %v", dependencies)
 	}
 
-	dependents := sm.GetSystemDependents(SystemType("SystemB"))
-	if len(dependents) != 1 || dependents[0] != SystemType("SystemA") {
+	dependents := sm.GetSystemDependents(SystemTypeFromString("SystemB"))
+	if len(dependents) != 1 || dependents[0] != SystemTypeFromString("SystemA") {
 		t.Errorf("Expected SystemB to have SystemA as dependent, got %v", dependents)
 	}
 }
@@ -410,15 +410,15 @@ func TestSystemManager_SetSystemDependency_Success(t *testing.T) {
 func TestSystemManager_SetSystemDependency_CyclicError(t *testing.T) {
 	// Given: A→B依存が設定済みのSystemManager
 	sm := NewSystemManager()
-	systemA := NewMockSystem(SystemType("SystemA"))
-	systemB := NewMockSystem(SystemType("SystemB"))
+	systemA := NewMockSystem(SystemTypeFromString("SystemA"))
+	systemB := NewMockSystem(SystemTypeFromString("SystemB"))
 
 	sm.RegisterSystem(systemA)
 	sm.RegisterSystem(systemB)
-	sm.SetSystemDependency(SystemType("SystemA"), SystemType("SystemB"))
+	sm.SetSystemDependency(SystemTypeFromString("SystemA"), SystemTypeFromString("SystemB"))
 
 	// When: B→A依存を設定しようとする
-	err := sm.SetSystemDependency(SystemType("SystemB"), SystemType("SystemA"))
+	err := sm.SetSystemDependency(SystemTypeFromString("SystemB"), SystemTypeFromString("SystemA"))
 
 	// Then: 循環依存エラーが返される
 	if err == nil {
@@ -426,13 +426,13 @@ func TestSystemManager_SetSystemDependency_CyclicError(t *testing.T) {
 	}
 
 	// A→Bの依存関係は保持される
-	dependencies := sm.GetSystemDependencies(SystemType("SystemA"))
-	if len(dependencies) != 1 || dependencies[0] != SystemType("SystemB") {
+	dependencies := sm.GetSystemDependencies(SystemTypeFromString("SystemA"))
+	if len(dependencies) != 1 || dependencies[0] != SystemTypeFromString("SystemB") {
 		t.Error("Expected original dependency to be preserved")
 	}
 
 	// B→Aの依存関係は設定されない
-	dependencies = sm.GetSystemDependencies(SystemType("SystemB"))
+	dependencies = sm.GetSystemDependencies(SystemTypeFromString("SystemB"))
 	if len(dependencies) != 0 {
 		t.Error("Expected no dependencies for SystemB")
 	}
@@ -448,8 +448,8 @@ func TestSystemManager_UpdateSystems_Success(t *testing.T) {
 	sm := NewSystemManager()
 	world := NewMockWorld()
 
-	system1 := NewMockSystem(SystemType("System1"))
-	system2 := NewMockSystem(SystemType("System2"))
+	system1 := NewMockSystem(SystemTypeFromString("System1"))
+	system2 := NewMockSystem(SystemTypeFromString("System2"))
 
 	sm.RegisterSystem(system1)
 	sm.RegisterSystem(system2)

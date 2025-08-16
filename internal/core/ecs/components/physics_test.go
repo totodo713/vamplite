@@ -79,7 +79,7 @@ func Test_PhysicsComponent_MaxSpeedLimit(t *testing.T) {
 	physics.ApplySpeedLimit()
 
 	// Assert
-	velocity := math.Sqrt(physics.Velocity.X*physics.Velocity.X + physics.Velocity.Y*physics.Velocity.Y)
+	velocity := math.Sqrt(float64(physics.Velocity.X*physics.Velocity.X + physics.Velocity.Y*physics.Velocity.Y))
 	assert.LessOrEqual(t, velocity, physics.MaxSpeed+0.001)
 }
 

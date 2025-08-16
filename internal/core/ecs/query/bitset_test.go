@@ -169,7 +169,7 @@ func TestComponentBitSet_BoundaryValues(t *testing.T) {
 
 	t.Run("A-003-03: 存在しないComponentTypeの処理", func(t *testing.T) {
 		bitset := NewComponentBitSet()
-		invalidComponentType := ecs.ComponentType("invalid_component_type")
+		invalidComponentType := ecs.ComponentTypeFromString("invalid_component_type")
 
 		// 存在しないコンポーネントタイプは-1を返すかエラーになるべき
 		position := getComponentBitPosition(invalidComponentType)

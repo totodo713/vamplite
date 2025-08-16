@@ -1,12 +1,12 @@
 package optimizations
 
-// EntityID represents a unique entity identifier (matching existing definition)
+// EntityID represents a unique entity identifier (matching existing definition).
 type EntityID uint64
 
-// ComponentType represents a component type identifier
+// ComponentType represents a component type identifier.
 type ComponentType uint16
 
-// Vector3 represents a 3D vector
+// Vector3 represents a 3D vector.
 type Vector3 struct {
 	X, Y, Z float32
 }
