@@ -232,6 +232,12 @@ func ComponentTypeFromString(s string) ComponentType {
 		return ComponentTypeInventory
 	case "energy":
 		return ComponentTypeEnergy
+	case "invalid_component_type":
+		return ComponentTypeDisabled // Invalid type for testing
+	case "disabled":
+		return ComponentTypeDisabled
+	case "dead":
+		return ComponentTypeDead
 	default:
 		return ComponentTypeTransform // Default fallback
 	}
