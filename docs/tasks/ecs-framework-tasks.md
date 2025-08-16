@@ -17,7 +17,7 @@
 ## フェーズ0: 開発環境準備（実装前必須）
 
 ### TASK-000: 開発環境・linter・formatter設定
-- [x] **タスク完了**
+- [ ] **タスク完了**
 - **タスクタイプ**: DIRECT
 - **要件リンク**: 開発効率・コード品質確保
 - **依存タスク**: なし
@@ -28,14 +28,14 @@
   - pre-commit hook設定（オプション）
   - 開発用Dockerコンテナでのツール準備
 - **設定内容**:
-  - [ ] golangci-lint: 基本ルール + パフォーマンス重視設定
-  - [ ] gofmt + goimports自動実行
-  - [ ] VSCode Go拡張設定（保存時自動format）
+  - [x] golangci-lint: 基本ルール + パフォーマンス重視設定
+  - [x] gofmt + goimports自動実行
+  - [x] VSCode Go拡張設定（保存時自動format）
   - [ ] Makefileのlint・formatコマンド動作確認
 - **完了条件**:
-  - [ ] `make lint`がエラーなく実行される
-  - [ ] `make format`でコードが自動整形される
-  - [ ] コミット前にlint・formatが自動実行される
+  - [ ] `make lint`がエラーなく実行される（現在：コードエラーで失敗）
+  - [ ] `make format`でコードが自動整形される（現在：構文エラーで失敗）
+  - [ ] コミット前にlint・formatが自動実行される（未実装）
 - **設定ファイル例**:
   ```yaml
   # .golangci.yml の主要設定

@@ -1,0 +1,77 @@
+{
+  // Muscle Dreamer デバッグ設定
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch Game",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/cmd/game",
+      "env": {
+        "CGO_ENABLED": "1"
+      },
+      "args": [],
+      "showLog": true,
+      "trace": "verbose"
+    },
+    {
+      "name": "Debug Game",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/cmd/game",
+      "env": {
+        "CGO_ENABLED": "1",
+        "GOOS": "linux"
+      },
+      "args": [],
+      "showLog": true,
+      "logOutput": "rpc",
+      "buildFlags": "-tags=debug"
+    },
+    {
+      "name": "Test Current Package",
+      "type": "go",
+      "request": "launch",
+      "mode": "test",
+      "program": "${workspaceFolder}",
+      "env": {
+        "CGO_ENABLED": "1"
+      },
+      "args": [
+        "-v",
+        "-race"
+      ]
+    },
+    {
+      "name": "Test Current File",
+      "type": "go",
+      "request": "launch",
+      "mode": "test",
+      "program": "${file}",
+      "env": {
+        "CGO_ENABLED": "1"
+      },
+      "args": [
+        "-v",
+        "-race"
+      ]
+    },
+    {
+      "name": "Benchmark Current Package",
+      "type": "go",
+      "request": "launch",
+      "mode": "test",
+      "program": "${workspaceFolder}",
+      "env": {
+        "CGO_ENABLED": "1"
+      },
+      "args": [
+        "-bench=.",
+        "-benchmem",
+        "-run=^$"
+      ]
+    }
+  ]
+}

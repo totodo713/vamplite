@@ -1,0 +1,42 @@
+{
+  // Muscle Dreamer プロジェクト推奨VSCode拡張機能
+  "recommendations": [
+    // Go言語サポート
+    "golang.go",
+    
+    // 汎用開発ツール
+    "ms-vscode.vscode-json",
+    "redhat.vscode-yaml",
+    "ms-vscode.hexdump",
+    
+    // Git関連
+    "eamodio.gitlens",
+    "github.vscode-pull-request-github",
+    
+    // マークダウン関連
+    "yzhang.markdown-all-in-one",
+    "davidanson.vscode-markdownlint",
+    
+    // Docker関連
+    "ms-vscode-remote.remote-containers",
+    "ms-azuretools.vscode-docker",
+    
+    // 便利ツール
+    "streetsidesoftware.code-spell-checker",
+    "gruntfuggly.todo-tree",
+    "ms-vscode.vscode-todo-highlight",
+    
+    // テーマ・見た目
+    "pkief.material-icon-theme",
+    
+    // Makefile サポート
+    "ms-vscode.makefile-tools"
+  ],
+  
+  // 不要な拡張機能（プロジェクトには適さない）
+  "unwantedRecommendations": [
+    "ms-python.python",
+    "ms-vscode.cpptools",
+    "ms-dotnettools.csharp"
+  ]
+}

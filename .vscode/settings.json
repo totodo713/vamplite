@@ -1,0 +1,92 @@
+{
+  // Go言語の基本設定
+  "go.formatTool": "goimports",
+  "go.lintTool": "golangci-lint",
+  "go.useLanguageServer": true,
+  "go.toolsManagement.autoUpdate": true,
+  
+  // 保存時の自動アクション
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  },
+  
+  // Go言語専用設定
+  "[go]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnType": false,
+    "editor.insertSpaces": false,
+    "editor.tabSize": 4,
+    "editor.detectIndentation": false,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit"
+    }
+  },
+  
+  // Go Modの設定
+  "go.useLanguageServer": true,
+  "go.languageServerFlags": [
+    "-rpc.trace",
+    "serve",
+    "--debug=localhost:6060"
+  ],
+  
+  // Lintの設定
+  "go.lintOnSave": "package",
+  "go.lintFlags": [
+    "--fast"
+  ],
+  
+  // テスト設定
+  "go.testFlags": [
+    "-v",
+    "-race"
+  ],
+  "go.testTimeout": "30s",
+  
+  // ビルド設定
+  "go.buildOnSave": "off",
+  "go.buildFlags": [],
+  "go.buildTags": "",
+  
+  // EbitengineとMuscle Dreamer固有の設定
+  "go.toolsEnvVars": {
+    "CGO_ENABLED": "1"
+  },
+  
+  // デバッグ設定
+  "go.delveConfig": {
+    "dlvLoadConfig": {
+      "followPointers": true,
+      "maxVariableRecurse": 1,
+      "maxStringLen": 64,
+      "maxArrayValues": 64,
+      "maxStructFields": -1
+    },
+    "apiVersion": 2,
+    "showGlobalVariables": true
+  },
+  
+  // ファイル監視設定
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/*/**": true,
+    "**/dist/**": true,
+    "**/build/**": true,
+    "**/vendor/**": true
+  },
+  
+  // エディタ設定
+  "editor.rulers": [80, 120],
+  "editor.wordWrap": "off",
+  
+  // ファイル関連付け
+  "files.associations": {
+    "*.mod": "go.mod",
+    "*.sum": "go.sum"
+  },
+  
+  // Git設定
+  "git.ignoreLimitWarning": true
+}
