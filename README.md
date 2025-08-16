@@ -16,12 +16,44 @@
 - Go 1.22+
 - Ebitengine v2.6.3
 
-### Quick Start
+### Development Setup
 ```bash
+# 1. First-time setup: Configure Git hooks and commit template
+./scripts/setup-git-hooks.sh
+
+# 2. Create feature branch using new alias
+git new-feature my-awesome-feature  # Creates developer/my-awesome-feature
+
+# 3. Start development
 make dev        # Run local development
 make test       # Run unit tests
 make build      # Build debug version
 ```
+
+### Development Process
+We follow **Extreme Programming (XP) + GitHub Flow**:
+
+1. **Work in feature branches**: Use `developer/*` naming convention
+2. **Commit frequently**: Small, atomic commits every 30 minutes max
+3. **Quality first**: Pre-commit hooks run `make format && make lint && make test`
+4. **TDD cycle**: Red → Green → Refactor with separate commits
+5. **Boy Scout Rule**: Leave code cleaner than you found it
+
+### Commit Message Format
+```
+<type>: <概要>
+
+<なぜこの変更が必要か>
+
+Refs: #issue-number
+```
+
+**Examples:**
+- `feat: EntityManagerの基本実装を追加`
+- `test: EntityManagerのユニットテストを作成`
+- `fix: メモリリークを修正`
+
+See [CLAUDE.md](CLAUDE.md) for complete development guidelines.
 
 ## License
 
