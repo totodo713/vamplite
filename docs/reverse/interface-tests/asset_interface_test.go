@@ -255,33 +255,30 @@ func TestAudioClipInterface(t *testing.T) {
 
 	})
 	
-
+	t.Run("VolumeControl", func(t *testing.T) {
 		audioClip := NewMockAudioClip("test.ogg", time.Second)
 		
-
-		
-
+		volumes := []float64{0.0, 0.5, 1.0}
+		for _, vol := range volumes {
 			audioClip.On("SetVolume", vol).Return()
 			audioClip.SetVolume(vol)
 			assert.Equal(t, vol, audioClip.volume)
 		}
 	})
 	
-
+	t.Run("ErrorHandling", func(t *testing.T) {
 		audioClip := NewMockAudioClip("corrupted.ogg", 0)
 		
-
+		audioClip.On("Play").Return(errors.New("audio format not supported"))
 		audioClip.On("Stop").Return(errors.New("audio not playing"))
 		
-
+		err := audioClip.Play()
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "audio format not supported")
 		
-
+		err = audioClip.Stop()
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "audio not playing")
-		
-
 	})
 }
 
