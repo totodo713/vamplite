@@ -128,7 +128,18 @@ const (
 	ComponentTypeInput     ComponentType = 6
 	ComponentTypeAudio     ComponentType = 7
 	ComponentTypeAnimation ComponentType = 8
+	ComponentTypeInventory ComponentType = 9
+	ComponentTypeEnergy    ComponentType = 10
 )
+
+// ==============================================
+// Color Type - 色型定義
+// ==============================================
+
+// Color represents RGBA color values for sprites and rendering.
+type Color struct {
+	R, G, B, A float32
+}
 
 // System type constants for testing and basic functionality
 const (
