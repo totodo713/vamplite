@@ -1,0 +1,18 @@
+internal/core/ecs/component.go:1: : # muscle-dreamer/internal/core/ecs [muscle-dreamer/internal/core/ecs.test]
+internal/core/ecs/types.go:17:6: ArchetypeID redeclared in this block
+	internal/core/ecs/entity.go:98:6: other declaration of ArchetypeID
+internal/core/ecs/types.go:105:6: QueryResult redeclared in this block
+	internal/core/ecs/query.go:152:6: other declaration of QueryResult
+internal/core/ecs/world.go:84:6: Component redeclared in this block
+	internal/core/ecs/types.go:30:6: other declaration of Component
+internal/core/ecs/world.go:156:6: Event redeclared in this block
+	internal/core/ecs/types.go:46:6: other declaration of Event
+internal/core/ecs/world.go:174:6: EventType redeclared in this block
+	internal/core/ecs/types.go:23:6: other declaration of EventType
+internal/core/ecs/component.go:46:22: undefined: StorageStats
+internal/core/ecs/component.go:47:41: undefined: StorageStats
+internal/core/ecs/component.go:286:26: undefined: StorageStats
+internal/core/ecs/event_types.go:94:13: undefined: SystemType
+internal/core/ecs/event_types.go:99:13: undefined: SystemType
+internal/core/ecs/event_types.go:99:13: too many errors (typecheck)
+// Package ecs provides the core Entity Component System framework for Muscle Dreamer.
