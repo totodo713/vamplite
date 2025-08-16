@@ -258,7 +258,7 @@ linters:
     # ECS specific exclusions
     - path: internal/core/ecs/
       linters:
-        - mnd  # Magic numbers are common in ECS for performance
+        - gomnd  # Magic numbers are common in ECS for performance
       text: "Magic number"
 
     - path: internal/core/ecs/types.go
